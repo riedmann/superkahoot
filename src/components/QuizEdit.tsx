@@ -23,8 +23,9 @@ export function QuizEdit({ quiz, onBack, onSave }: QuizEditProps) {
     questionRegistry.getAvailableTypes()[0] || "true-false"
   );
 
-  const addQuestion = () => {
-    const handler = questionRegistry.getHandler(newQuestionType);
+  const addQuestion = (questionType?: string) => {
+    const typeToUse = questionType || newQuestionType;
+    const handler = questionRegistry.getHandler(typeToUse);
     if (handler) {
       const newQuestion = handler.createNew();
       setQuestions([newQuestion, ...questions]);
@@ -155,8 +156,7 @@ export function QuizEdit({ quiz, onBack, onSave }: QuizEditProps) {
               <button
                 key={handler.type}
                 onClick={() => {
-                  setNewQuestionType(handler.type);
-                  addQuestion();
+                  addQuestion(handler.type);
                 }}
                 className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
               >
