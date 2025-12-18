@@ -4,6 +4,7 @@ import { FirebaseGameDAO } from "./FirebaseGameDAO";
 import { ActiveQuestion } from "./host/ActiveQuestion";
 import { ShowQuestion } from "./host/ShowQuestion";
 import { WaitingForParticipants } from "./host/WaitingForParticipants";
+import { QuestionResult } from "./host/QuestionResult";
 import type { Game } from "./types";
 
 interface GameHostProps {
@@ -18,6 +19,8 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
   const [loading, setLoading] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
+
+  console.log("in host", game?.participants);
 
   useEffect(() => {
     const initGame = async () => {
@@ -185,88 +188,12 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
         )}
 
         {game.status === "results" && currentQuestion && (
-          <div className="text-center">
-            <div className="bg-white rounded-lg p-8 shadow-lg">
-              <h2 className="text-2xl font-bold mb-6">Question Results</h2>
-
-              {/* Show the question again */}
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">
-                  {currentQuestion.question}
-                </h3>
-                {currentQuestion.image && (
-                  <img
-                    src={currentQuestion.image}
-                    alt="Question image"
-                    className="max-w-full max-h-48 rounded-lg border border-gray-200 mx-auto mb-4"
-                  />
-                )}
-              </div>
-
-              {/* Show correct answer */}
-              <div className="mb-6">
-                <h4 className="text-lg font-semibold text-green-600 mb-3">
-                  Correct Answer:
-                </h4>
-                {(() => {
-                  if (currentQuestion.type === "true-false") {
-                    return (
-                      <div className="text-2xl font-bold text-green-700">
-                        {currentQuestion.correctAnswer ? "True" : "False"}
-                      </div>
-                    );
-                  } else if (currentQuestion.type === "standard") {
-                    return (
-                      <div className="space-y-2">
-                        {currentQuestion.correctAnswers?.map(
-                          (correctIndex: number) => {
-                            const option =
-                              currentQuestion.options?.[correctIndex];
-                            const optionText =
-                              typeof option === "string"
-                                ? option
-                                : option?.text;
-                            const letter = String.fromCharCode(
-                              65 + correctIndex
-                            );
-                            return (
-                              <div
-                                key={correctIndex}
-                                className="text-lg font-bold text-green-700"
-                              >
-                                {letter}: {optionText}
-                              </div>
-                            );
-                          }
-                        )}
-                      </div>
-                    );
-                  }
-                  return null;
-                })()}
-              </div>
-
-              {/* Show answer statistics */}
-              <div className="mb-6">
-                <h4 className="text-md font-semibold text-gray-700 mb-3">
-                  Answer Summary:
-                </h4>
-                <div className="text-sm text-gray-600">
-                  Total Responses: {game.currentQuestion?.answers.length || 0} /{" "}
-                  {game.participants.length}
-                </div>
-              </div>
-
-              <button
-                onClick={handleShowNextQuestion}
-                className="px-8 py-3 bg-blue-600 text-white font-bold text-lg rounded"
-              >
-                {game.currentQuestionIndex + 1 < quiz.questions.length
-                  ? "Next Question"
-                  : "Finish Game"}
-              </button>
-            </div>
-          </div>
+          <QuestionResult
+            game={game}
+            currentQuestion={currentQuestion}
+            quiz={quiz}
+            onShowNextQuestion={handleShowNextQuestion}
+          />
         )}
 
         {game.status === "finished" && (
