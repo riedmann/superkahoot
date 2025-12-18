@@ -1,0 +1,102 @@
+{
+  "quizzes": [
+    {
+      "id": "quiz-1",
+      "title": "General Knowledge",
+      "description": "Test your general knowledge with true/false and multiple choice questions",
+      "difficulty": "easy",
+      "category": "General",
+      "questions": [
+        {
+          "id": "q1",
+          "type": "true-false",
+          "question": "The Great Wall of China is visible from space with the naked eye",
+          "correctAnswer": false
+        },
+        {
+          "id": "q2",
+          "type": "standard",
+          "question": "Which planet is the largest in our solar system?",
+          "options": ["Saturn", "Jupiter", "Neptune", "Uranus"],
+          "correctAnswers": [1]
+        },
+        {
+          "id": "q3",
+          "type": "true-false",
+          "question": "Water boils at 100 degrees Celsius at sea level",
+          "correctAnswer": true
+        },
+        {
+          "id": "q4",
+          "type": "standard",
+          "question": "Which of these are programming languages? (Select all that apply)",
+          "options": ["Python", "HTML", "JavaScript", "CSS"],
+          "correctAnswers": [0, 2]
+        }
+      ]
+    },
+    {
+      "id": "quiz-2",
+      "title": "Science Facts",
+      "description": "Challenge yourself with science-related questions",
+      "difficulty": "medium",
+      "category": "Science",
+      "questions": [
+        {
+          "id": "q5",
+          "type": "true-false",
+          "question": "Diamonds are made entirely of carbon",
+          "correctAnswer": true
+        },
+        {
+          "id": "q6",
+          "type": "standard",
+          "question": "What is the chemical symbol for gold?",
+          "options": ["Go", "Gd", "Au", "Ag"],
+          "correctAnswers": [2]
+        },
+        {
+          "id": "q7",
+          "type": "standard",
+          "question": "Which of the following are renewable energy sources? (Select all that apply)",
+          "options": ["Solar energy", "Coal", "Wind energy", "Natural gas"],
+          "correctAnswers": [0, 2]
+        }
+      ]
+    },
+    {
+      "id": "quiz-3",
+      "title": "World History",
+      "description": "Journey through world history",
+      "difficulty": "hard",
+      "category": "History",
+      "questions": [
+        {
+          "id": "q8",
+          "type": "true-false",
+          "question": "The Renaissance began in Italy during the 14th century",
+          "correctAnswer": true
+        },
+        {
+          "id": "q9",
+          "type": "standard",
+          "question": "In which year did World War II end?",
+          "options": ["1943", "1944", "1945", "1946"],
+          "correctAnswers": [2]
+        },
+        {
+          "id": "q10",
+          "type": "standard",
+          "question": "Which ancient civilizations built pyramids? (Select all that apply)",
+          "options": [
+            "Ancient Egypt",
+            "Mesoamerica (Aztecs/Maya)",
+            "Ancient Greece",
+            "Ancient China"
+          ],
+          "correctAnswers": [0, 1]
+        }
+      ]
+    }
+  ]
+}
