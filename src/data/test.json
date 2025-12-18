@@ -1,0 +1,89 @@
+{
+  "id": "skiing-basics-01",
+  "title": "Alpine Skiing Basics",
+  "description": "Test your knowledge about alpine skiing techniques, safety, and equipment.",
+  "category": "Sports",
+  "difficulty": "medium",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "true-false",
+      "question": "Wearing a helmet significantly reduces the risk of head injuries while skiing.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q2",
+      "type": "standard",
+      "question": "What is the primary purpose of ski edges?",
+      "options": [
+        { "text": "To increase speed on flat terrain" },
+        { "text": "To help control direction and grip on snow" },
+        { "text": "To reduce fatigue in the legs" },
+        { "text": "To protect skis from damage" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q3",
+      "type": "standard",
+      "question": "Which slope color usually indicates the most difficult runs in Europe?",
+      "options": [
+        { "text": "Blue" },
+        { "text": "Red" },
+        { "text": "Black" },
+        { "text": "Green" }
+      ],
+      "correctAnswers": [2]
+    },
+    {
+      "id": "q4",
+      "type": "true-false",
+      "question": "You should always give way to skiers downhill from you.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q5",
+      "type": "standard",
+      "question": "What does the term 'carving' mean in skiing?",
+      "options": [
+        { "text": "Sliding sideways to slow down" },
+        { "text": "Making turns using the ski edges with minimal skidding" },
+        { "text": "Jumping over moguls" },
+        { "text": "Skiing in deep powder snow" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q6",
+      "type": "standard",
+      "question": "Which piece of equipment connects your boots to the skis?",
+      "options": [
+        { "text": "Bindings" },
+        { "text": "Poles" },
+        { "text": "Brakes" },
+        { "text": "Edges" }
+      ],
+      "correctAnswers": [0]
+    },
+    {
+      "id": "q7",
+      "type": "true-false",
+      "question": "Leaning too far back is a correct skiing posture on steep slopes.",
+      "correctAnswer": false
+    },
+    {
+      "id": "q8",
+      "type": "standard",
+      "question": "What should you do if you fall on a busy ski slope?",
+      "options": [
+        { "text": "Stay where you are and rest" },
+        { "text": "Get up quickly or move to the side of the slope" },
+        { "text": "Remove your skis immediately" },
+        { "text": "Wave your ski poles in the air" }
+      ],
+      "correctAnswers": [1]
+    }
+  ],
+  "createdAt": "2023-12-07T10:00:00.000Z",
+  "updatedAt": "2023-12-07T10:00:00.000Z"
+}

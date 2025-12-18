@@ -1,0 +1,45 @@
+{
+  "id": "guitar-basics-01",
+  "title": "Grundlagen des Gitarrenspiels",
+  "description": "Ein kurzes Quiz über Technik, Theorie und Praxis des Gitarrenspiels.",
+  "category": "Musik",
+  "difficulty": "easy",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "true-false",
+      "question": "Eine Standardgitarre hat in der Regel sechs Saiten.",
+      "correctAnswer": "true"
+    },
+    {
+      "id": "q2",
+      "type": "standard",
+      "question": "Wie nennt man das gleichzeitige Anschlagen mehrerer Saiten auf der Gitarre?",
+      "options": [
+        { "text": "Tonleiter" },
+        { "text": "Akkord" },
+        { "text": "Slide" },
+        { "text": "Bending" }
+      ],
+      "correctAnswers": ["1"]
+    },
+    {
+      "id": "q3",
+      "type": "standard",
+      "question": "Welche Hand greift bei Rechtshändern normalerweise die Saiten auf dem Griffbrett?",
+      "options": [
+        { "text": "Die rechte Hand" },
+        { "text": "Beide Hände gleich" },
+        { "text": "Die linke Hand" },
+        { "text": "Nur mit Plektrum" }
+      ],
+      "correctAnswers": ["2"]
+    },
+    {
+      "id": "q4",
+      "type": "true-false",
+      "question": "Regelmäßiges Üben verbessert Technik und Timing beim Gitarrenspiel.",
+      "correctAnswer": "true"
+    }
+  ]
+}
