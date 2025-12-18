@@ -224,9 +224,56 @@ export function QuestionResult({
           })()}
         </div>
 
-        {/* Show total statistics */}
+        {/* Show participant scores */}
         <div className="mb-6">
-          <div className="text-sm text-gray-600">
+          <h4 className="text-lg font-semibold text-gray-700 mb-4">
+            Current Leaderboard:
+          </h4>
+          <div className="max-w-2xl mx-auto">
+            {[...game.participants]
+              .sort((a, b) => b.score - a.score)
+              .map((participant, index) => {
+                const isPodium = index < 3;
+                const isFirst = index === 0;
+
+                return (
+                  <div
+                    key={participant.id}
+                    className={`flex justify-between items-center p-3 rounded-lg mb-2 ${
+                      isFirst
+                        ? "bg-yellow-50 border border-yellow-200"
+                        : isPodium
+                        ? "bg-blue-50 border border-blue-200"
+                        : "bg-gray-50 border border-gray-200"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                          isFirst
+                            ? "bg-yellow-500 text-white"
+                            : isPodium
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-400 text-white"
+                        }`}
+                      >
+                        {index + 1}
+                      </div>
+                      <div className="font-medium text-gray-900">
+                        {participant.name}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-lg font-bold text-gray-900">
+                        {participant.score}
+                      </div>
+                      <div className="text-sm text-gray-500">pts</div>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+          <div className="mt-4 text-sm text-gray-600">
             Total Responses: {game.currentQuestion?.answers.length || 0} /{" "}
             {game.participants.length}
           </div>
