@@ -1,14 +1,12 @@
 import {
   addDoc,
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
   onSnapshot,
   query,
   serverTimestamp,
-  setDoc,
   updateDoc,
 } from "firebase/firestore";
 import type { Quiz } from "../../types/quiz";
@@ -32,21 +30,38 @@ export class FirebaseQuizDAO implements QuizDAOI {
           for (const doc of snapshot.docs) {
             const quizData = doc.data();
 
-            // Fetch questions subcollection
-            const questionsRef = collection(db, "quizzes", doc.id, "questions");
-            const questionsSnapshot = await getDocs(questionsRef);
-            const questions = questionsSnapshot.docs.map((qDoc) => ({
-              ...qDoc.data(),
-            }));
+            // Check if questions are in main document first
+            if (quizData.questions && quizData.questions.length > 0) {
+              quizzesData.push({
+                id: doc.id,
+                title: quizData.title,
+                description: quizData.description,
+                difficulty: quizData.difficulty,
+                category: quizData.category,
+                questions: quizData.questions,
+              });
+            } else {
+              // Fallback: try to fetch questions from subcollection
+              const questionsRef = collection(
+                db,
+                "quizzes",
+                doc.id,
+                "questions"
+              );
+              const questionsSnapshot = await getDocs(questionsRef);
+              const questions = questionsSnapshot.docs.map((qDoc) => ({
+                ...qDoc.data(),
+              })) as Quiz["questions"];
 
-            quizzesData.push({
-              id: doc.id,
-              title: quizData.title,
-              description: quizData.description,
-              difficulty: quizData.difficulty,
-              category: quizData.category,
-              questions: quizData.questions || questions,
-            });
+              quizzesData.push({
+                id: doc.id,
+                title: quizData.title,
+                description: quizData.description,
+                difficulty: quizData.difficulty,
+                category: quizData.category,
+                questions,
+              });
+            }
           }
 
           onSuccess(quizzesData);
@@ -74,12 +89,24 @@ export class FirebaseQuizDAO implements QuizDAOI {
 
     const quizData = quizSnap.data();
 
-    // Fetch questions subcollection
+    // Check if questions are in main document first
+    if (quizData.questions && quizData.questions.length > 0) {
+      return {
+        id: quizSnap.id,
+        title: quizData.title,
+        description: quizData.description,
+        difficulty: quizData.difficulty,
+        category: quizData.category,
+        questions: quizData.questions,
+      };
+    }
+
+    // Fallback: try to fetch questions from subcollection
     const questionsRef = collection(db, "quizzes", quizId, "questions");
     const questionsSnapshot = await getDocs(questionsRef);
     const questions = questionsSnapshot.docs.map((qDoc) => ({
       ...qDoc.data(),
-    }));
+    })) as Quiz["questions"];
 
     return {
       id: quizSnap.id,
@@ -87,7 +114,7 @@ export class FirebaseQuizDAO implements QuizDAOI {
       description: quizData.description,
       difficulty: quizData.difficulty,
       category: quizData.category,
-      questions: quizData.questions || questions,
+      questions,
     };
   }
 
@@ -101,6 +128,7 @@ export class FirebaseQuizDAO implements QuizDAOI {
       description: updates.description,
       category: updates.category,
       difficulty: updates.difficulty,
+      questions: updates.questions, // Include questions in metadata update
       updatedAt: new Date(),
     });
   }
@@ -109,41 +137,34 @@ export class FirebaseQuizDAO implements QuizDAOI {
     quizId: string,
     questions: Quiz["questions"]
   ): Promise<void> {
-    // Get current questions from Firestore to find deleted ones
-    const questionsRef = collection(db, "quizzes", quizId, "questions");
-    const existingSnapshot = await getDocs(questionsRef);
-    const existingQuestionIds = new Set(
-      existingSnapshot.docs.map((doc) => doc.id)
-    );
-
-    // Get new question IDs
-    const newQuestionIds = new Set(questions.map((q) => q.id));
-
-    // Delete questions that are no longer in the new questions array
-    for (const existingId of existingQuestionIds) {
-      if (!newQuestionIds.has(existingId)) {
-        const questionRef = doc(db, "quizzes", quizId, "questions", existingId);
-        await deleteDoc(questionRef);
-      }
-    }
-
-    // Add or update questions
-    for (const question of questions) {
-      const questionRef = doc(db, "quizzes", quizId, "questions", question.id);
-      await setDoc(questionRef, question, { merge: true });
-    }
+    // Update the questions directly in the main quiz document
+    const quizRef = doc(db, "quizzes", quizId);
+    await updateDoc(quizRef, {
+      questions: questions,
+      updatedAt: new Date(),
+    });
   }
 
   async saveQuiz(quiz: Quiz): Promise<void> {
-    // Update quiz metadata
-    await this.updateQuizMetadata(quiz.id, quiz);
-    // Save/update questions
-    await this.saveQuestions(quiz.id, quiz.questions);
+    // Update entire quiz document including questions
+    const quizRef = doc(db, "quizzes", quiz.id);
+    await updateDoc(quizRef, {
+      title: quiz.title,
+      description: quiz.description,
+      category: quiz.category,
+      difficulty: quiz.difficulty,
+      questions: quiz.questions,
+      updatedAt: new Date(),
+    });
   }
 
   async createQuiz(quiz: Omit<Quiz, "id">): Promise<Quiz> {
     const docRef = await addDoc(collection(db, "quizzes"), {
-      ...quiz,
+      title: quiz.title,
+      description: quiz.description || "",
+      category: quiz.category || "",
+      difficulty: quiz.difficulty || "medium",
+      questions: quiz.questions || [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
