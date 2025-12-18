@@ -1,5 +1,5 @@
-import type { Question, Quiz } from "../../types/quiz";
-import type { Game } from "../types";
+import type { Question, Quiz } from "../../types";
+import type { Game } from "../../types";
 
 interface QuestionResultProps {
   game: Game;

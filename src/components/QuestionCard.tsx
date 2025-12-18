@@ -1,4 +1,4 @@
-import type { Question } from "../types/quiz";
+import type { Question } from "../types";
 import { questionRegistry } from "../types/QuestionTypeRegistry";
 import { Badge } from "./Badge";
 

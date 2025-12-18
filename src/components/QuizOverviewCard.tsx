@@ -1,5 +1,5 @@
-import { type Quiz } from "../types/quiz";
-import { DIFFICULTY_VARIANTS } from "../types/quiz";
+import { type Quiz } from "../types";
+import { DIFFICULTY_VARIANTS } from "../types";
 import { Badge } from "./Badge";
 
 interface QuizOverviewCardProps {

@@ -1,5 +1,5 @@
-import type { Quiz } from "../types/quiz";
-import type { Game, GameAnswer, Participant } from "./types";
+import type { Quiz } from "../types";
+import type { Game, GameAnswer, Participant } from "../types";
 
 export interface IGameDAO {
   // Game management

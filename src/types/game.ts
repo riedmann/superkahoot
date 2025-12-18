@@ -1,3 +1,5 @@
+import type { GameStatus } from "./common";
+
 export interface Participant {
   id: string;
   name: string;
@@ -22,13 +24,6 @@ export interface GameQuestion {
   endsAt: Date;
   answers: GameAnswer[];
 }
-
-export type GameStatus =
-  | "waiting"
-  | "active"
-  | "question"
-  | "results"
-  | "finished";
 
 export interface Game {
   id: string;
@@ -58,4 +53,5 @@ export interface GameSession {
   isHost: boolean;
 }
 
-// ...existing code...
+// Re-export common game status type
+export type { GameStatus } from "./common";

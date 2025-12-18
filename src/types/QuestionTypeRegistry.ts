@@ -1,4 +1,4 @@
-import type { Question, TrueFalseQuestion, StandardQuestion } from "./quiz";
+import type { Question, TrueFalseQuestion, StandardQuestion } from "./question";
 import React from "react";
 import { ImagePasteField } from "../components/ImagePasteField";
 

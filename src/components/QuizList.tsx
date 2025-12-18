@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { collection, addDoc } from "firebase/firestore";
 
-import { type Quiz } from "../types/quiz";
+import { type Quiz } from "../types";
 import { FirebaseQuizDAO } from "../utils/DAO/FirebaseQuizDAO";
 import { QuizDetail } from "./QuizDetail";
 import { QuizEdit } from "./QuizEdit";

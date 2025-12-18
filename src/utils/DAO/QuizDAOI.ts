@@ -1,4 +1,4 @@
-import type { Quiz } from "../../types/quiz";
+import type { Quiz } from "../../types";
 
 export interface QuizDAOI {
   subscribeToQuizzes(

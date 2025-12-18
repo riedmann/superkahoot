@@ -1,4 +1,4 @@
-import type { Question } from "../../types/quiz";
+import type { Question } from "../../types";
 
 interface QuestionWithImageProps {
   currentQuestion: Question;

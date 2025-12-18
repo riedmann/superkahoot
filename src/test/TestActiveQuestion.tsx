@@ -1,10 +1,6 @@
 import { useState } from "react";
-import type { Game } from "../games/types";
-import type {
-  Question,
-  StandardQuestion,
-  TrueFalseQuestion,
-} from "../types/quiz";
+import type { Game } from "../types";
+import type { Question, StandardQuestion, TrueFalseQuestion } from "../types";
 import { ActiveQuestion } from "../games/host/ActiveQuestion";
 
 export function TestActiveQuestion() {

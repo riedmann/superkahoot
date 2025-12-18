@@ -11,7 +11,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import type { Quiz } from "../types/quiz";
+import type { Quiz } from "../types";
 import { db } from "../utils/firebase";
 import type { IGameDAO } from "./GameDAO";
 import type {
@@ -20,7 +20,7 @@ import type {
   GameQuestion,
   GameStatus,
   Participant,
-} from "./types";
+} from "../types";
 
 export class FirebaseGameDAO implements IGameDAO {
   private gamesCollection = collection(db, "games");

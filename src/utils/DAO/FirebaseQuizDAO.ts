@@ -9,7 +9,7 @@ import {
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
-import type { Quiz } from "../../types/quiz";
+import type { Quiz } from "../../types";
 import { db } from "../firebase";
 import type { QuizDAOI } from "./QuizDAOI";
 

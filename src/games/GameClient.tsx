@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Game, Participant } from "./types";
+import type { Game, Participant } from "../types";
 import { FirebaseGameDAO } from "./FirebaseGameDAO";
 
 interface GameClientProps {

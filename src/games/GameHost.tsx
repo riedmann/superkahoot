@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import type { Question, Quiz } from "../types/quiz";
+import type { Question, Quiz } from "../types";
 import { FirebaseGameDAO } from "./FirebaseGameDAO";
 import { ActiveQuestion } from "./host/ActiveQuestion";
 import { ShowQuestion } from "./host/ShowQuestion";
 import { WaitingForParticipants } from "./host/WaitingForParticipants";
 import { QuestionResult } from "./host/QuestionResult";
-import type { Game } from "./types";
+import type { Game } from "../types";
 
 interface GameHostProps {
   quiz: Quiz;

@@ -1,5 +1,5 @@
-import type { Question } from "../../types/quiz";
-import type { Game } from "../types";
+import type { Question } from "../../types";
+import type { Game } from "../../types";
 import { QuestionFooter } from "./QuestionFooter";
 import { QuestionWithImage } from "./QuestionWithImage";
 import { QuestionWithoutImage } from "./QuestionWithoutImage";

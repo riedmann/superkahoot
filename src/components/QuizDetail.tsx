@@ -1,5 +1,5 @@
-import type { Quiz, Question } from "../types/quiz";
-import { DIFFICULTY_VARIANTS } from "../types/quiz";
+import type { Quiz, Question } from "../types";
+import { DIFFICULTY_VARIANTS } from "../types";
 import { Badge } from "./Badge";
 import { QuestionCard } from "./QuestionCard";
 

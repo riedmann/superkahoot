@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { questionRegistry } from "../types/QuestionTypeRegistry";
-import type { Question, Quiz } from "../types/quiz";
+import type { Question, Quiz } from "../types";
 import { Badge } from "./Badge";
 
 interface QuizEditProps {
@@ -19,7 +19,7 @@ export function QuizEdit({ quiz, onBack, onSave }: QuizEditProps) {
       (q) => q && typeof q === "object" && "type" in q
     ) as Question[]
   );
-  const [newQuestionType, setNewQuestionType] = useState<string>(
+  const [newQuestionType] = useState<string>(
     questionRegistry.getAvailableTypes()[0] || "true-false"
   );
 
