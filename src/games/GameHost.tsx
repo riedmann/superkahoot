@@ -44,6 +44,13 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
     const unsubscribe = gameDAO.subscribeToGame(
       game.id,
       (updatedGame) => {
+        console.log("GameHost - Game updated:", {
+          status: updatedGame.status,
+          currentQuestionIndex: updatedGame.currentQuestionIndex,
+          answersCount: updatedGame.currentQuestion?.answers.length || 0,
+          participantCount: updatedGame.participants.length,
+        });
+
         setGame(updatedGame);
 
         if (updatedGame.status === "question" && updatedGame.currentQuestion) {

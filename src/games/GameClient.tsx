@@ -110,7 +110,21 @@ export function GameClient({ gamePin: initialPin }: GameClientProps) {
   };
 
   const handleSubmitAnswer = async (answer: any) => {
-    if (!game || !participant || !game.currentQuestion || hasAnswered) return;
+    if (!game || !participant || !game.currentQuestion || hasAnswered) {
+      console.log("Cannot submit answer:", {
+        game: !!game,
+        participant: !!participant,
+        currentQuestion: !!game?.currentQuestion,
+        hasAnswered,
+      });
+      return;
+    }
+
+    console.log("Submitting answer:", {
+      participantId: participant.id,
+      answer,
+      gameId: game.id,
+    });
 
     try {
       await gameDAO.submitAnswer(game.id, {
@@ -119,8 +133,10 @@ export function GameClient({ gamePin: initialPin }: GameClientProps) {
         answer,
       });
       setHasAnswered(true);
+      console.log("Answer submitted successfully");
     } catch (error) {
       console.error("Failed to submit answer:", error);
+      setError("Failed to submit answer. Please try again.");
     }
   };
 

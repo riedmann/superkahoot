@@ -1,3 +1,4 @@
+import React from "react";
 import type { Game } from "../../types";
 
 interface QuestionFooterProps {
@@ -11,6 +12,16 @@ export function QuestionFooter({
   onEndQuestion,
   onExit,
 }: QuestionFooterProps) {
+  // Debug logging
+  React.useEffect(() => {
+    console.log("QuestionFooter - Current answers:", {
+      answersCount: game.currentQuestion?.answers.length || 0,
+      participantCount: game.participants.length,
+      answers: game.currentQuestion?.answers,
+      participants: game.participants.map((p) => ({ id: p.id, name: p.name })),
+    });
+  }, [game.currentQuestion?.answers, game.participants]);
+
   return (
     <div className="bg-black bg-opacity-20 p-3 rounded-lg mx-4 mb-3">
       <div className="flex justify-between items-center mb-2">

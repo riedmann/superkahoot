@@ -256,10 +256,23 @@ export class FirebaseGameDAO implements IGameDAO {
     answer: Omit<GameAnswer, "answeredAt" | "isCorrect" | "points">
   ): Promise<void> {
     const game = await this.getGame(gameId);
-    if (!game || !game.currentQuestion || !game.quizData) return;
+    if (!game || !game.currentQuestion || !game.quizData) {
+      throw new Error("Game not found or no active question");
+    }
 
     const currentQuestion = game.quizData.questions[game.currentQuestionIndex];
-    if (!currentQuestion) return;
+    if (!currentQuestion) {
+      throw new Error("Current question not found");
+    }
+
+    // Check if participant has already answered this question
+    const existingAnswer = game.currentQuestion.answers.find(
+      (a) => a.participantId === answer.participantId
+    );
+    if (existingAnswer) {
+      console.log("Participant has already answered this question");
+      return; // Don't submit duplicate answers
+    }
 
     // Calculate if answer is correct
     let isCorrect = false;
@@ -323,11 +336,26 @@ export class FirebaseGameDAO implements IGameDAO {
       return p;
     });
 
-    const docRef = doc(this.gamesCollection, gameId);
-    await updateDoc(docRef, {
-      currentQuestion: updatedQuestion,
-      participants: updatedParticipants,
+    console.log("Submitting answer:", {
+      participantId: answer.participantId,
+      answer: answer.answer,
+      gameId,
+      questionId: answer.questionId,
+      isCorrect,
+      totalAnswers: updatedAnswers.length,
     });
+
+    const docRef = doc(this.gamesCollection, gameId);
+    try {
+      await updateDoc(docRef, {
+        currentQuestion: updatedQuestion,
+        participants: updatedParticipants,
+      });
+      console.log("Answer submitted successfully");
+    } catch (error) {
+      console.error("Failed to submit answer:", error);
+      throw new Error("Failed to submit answer to database");
+    }
   }
 
   async endQuestion(gameId: string): Promise<void> {
