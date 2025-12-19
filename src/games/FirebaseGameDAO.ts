@@ -191,7 +191,10 @@ export class FirebaseGameDAO implements IGameDAO {
 
   async addParticipant(
     gameId: string,
-    participant: Omit<Participant, "id" | "joinedAt" | "score">
+    participant: Omit<
+      Participant,
+      "id" | "joinedAt" | "score" | "answerHistory"
+    >
   ): Promise<Participant> {
     const newParticipant: Participant = {
       id: `p${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -199,6 +202,7 @@ export class FirebaseGameDAO implements IGameDAO {
       score: 0,
       joinedAt: new Date(),
       isOnline: true,
+      answerHistory: [],
     };
 
     const docRef = doc(this.gamesCollection, gameId);
@@ -298,10 +302,26 @@ export class FirebaseGameDAO implements IGameDAO {
       answers: updatedAnswers,
     };
 
-    // Update participant score
-    const updatedParticipants = game.participants.map((p) =>
-      p.id === answer.participantId ? { ...p, score: p.score + totalPoints } : p
-    );
+    // Update participant score and answer history
+    const updatedParticipants = game.participants.map((p) => {
+      if (p.id === answer.participantId) {
+        const answerHistoryEntry = {
+          questionId: answer.questionId,
+          questionIndex: game.currentQuestionIndex,
+          answer: answer.answer,
+          isCorrect,
+          points: totalPoints,
+          answeredAt: new Date(),
+        };
+
+        return {
+          ...p,
+          score: p.score + totalPoints,
+          answerHistory: [...(p.answerHistory || []), answerHistoryEntry],
+        };
+      }
+      return p;
+    });
 
     const docRef = doc(this.gamesCollection, gameId);
     await updateDoc(docRef, {

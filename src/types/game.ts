@@ -1,11 +1,21 @@
 import type { GameStatus } from "./common";
 
+export interface ParticipantAnswerHistory {
+  questionId: string;
+  questionIndex: number;
+  answer: any; // boolean for true/false, number[] for multiple choice
+  isCorrect: boolean;
+  points: number;
+  answeredAt: Date;
+}
+
 export interface Participant {
   id: string;
   name: string;
   score: number;
   joinedAt: Date;
   isOnline: boolean;
+  answerHistory: ParticipantAnswerHistory[];
 }
 
 export interface GameAnswer {

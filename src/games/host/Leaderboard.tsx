@@ -21,24 +21,25 @@ export function Leaderboard({
             const isPodium = index < 3;
             const isFirst = index === 0;
 
-            // Only show current question statistics if available (accurate but limited scope)
+            // Use participant's answer history for accurate statistics
+            const answerHistory = participant.answerHistory || [];
+            const correctAnswers = answerHistory.filter(
+              (answer) => answer.isCorrect
+            ).length;
+            const wrongAnswers = answerHistory.filter(
+              (answer) => !answer.isCorrect
+            ).length;
+            const totalAnswered = answerHistory.length;
+            const percentage =
+              totalAnswered > 0
+                ? Math.round((correctAnswers / totalAnswered) * 100)
+                : 0;
+
+            // Current question status
             const currentQuestionAnswers = game.currentQuestion?.answers || [];
             const participantCurrentAnswer = currentQuestionAnswers.find(
               (answer) => answer.participantId === participant.id
             );
-
-            // For overall game statistics, we don't have historical data
-            // So we'll show simplified info: questions attempted vs total questions
-            const questionsAttempted =
-              game.status === "finished"
-                ? game.totalQuestions
-                : game.currentQuestionIndex +
-                  (participantCurrentAnswer ? 1 : 0);
-
-            const totalQuestions =
-              game.status === "finished"
-                ? game.totalQuestions
-                : game.totalQuestions;
 
             return (
               <div
@@ -70,24 +71,16 @@ export function Leaderboard({
                       </div>
                       <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
                         <span className="flex items-center gap-1">
-                          <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                          {questionsAttempted} / {totalQuestions} questions
+                          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                          {correctAnswers} correct
                         </span>
-                        {participantCurrentAnswer && (
-                          <span className="flex items-center gap-1">
-                            <span
-                              className={`w-2 h-2 rounded-full ${
-                                participantCurrentAnswer.isCorrect
-                                  ? "bg-green-500"
-                                  : "bg-red-500"
-                              }`}
-                            ></span>
-                            Last:{" "}
-                            {participantCurrentAnswer.isCorrect
-                              ? "Correct"
-                              : "Wrong"}
-                          </span>
-                        )}
+                        <span className="flex items-center gap-1">
+                          <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                          {wrongAnswers} wrong
+                        </span>
+                        <span className="font-medium text-gray-700">
+                          {percentage}% accuracy
+                        </span>
                       </div>
                     </div>
                   </div>
