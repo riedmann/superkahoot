@@ -6,6 +6,7 @@ import { ShowQuestion } from "./host/ShowQuestion";
 import { WaitingForParticipants } from "./host/WaitingForParticipants";
 import { QuestionResult } from "./host/QuestionResult";
 import { Leaderboard } from "./host/Leaderboard";
+import { Countdown } from "./host/Countdown";
 import type { Game } from "../types";
 
 interface GameHostProps {
@@ -98,10 +99,15 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
 
     const nextIndex = game.currentQuestionIndex + 1;
     if (nextIndex < quiz.questions.length) {
-      await gameDAO.startQuestion(game.id, nextIndex);
+      await gameDAO.startCountdown(game.id, nextIndex);
     } else {
       await gameDAO.finishGame(game.id);
     }
+  };
+
+  const handleCountdownComplete = async () => {
+    if (!game) return;
+    await gameDAO.startQuestion(game.id, game.currentQuestionIndex);
   };
 
   const handleEndQuestion = async () => {
@@ -181,6 +187,15 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
             game={game}
             quiz={quiz}
             onShowQuestion={handleNextQuestion}
+          />
+        )}
+
+        {game.status === "countdown" && (
+          <Countdown
+            game={game}
+            onCountdownComplete={handleCountdownComplete}
+            questionNumber={game.currentQuestionIndex + 1}
+            totalQuestions={quiz.questions.length}
           />
         )}
 

@@ -231,6 +231,14 @@ export class FirebaseGameDAO implements IGameDAO {
     });
   }
 
+  async startCountdown(gameId: string, questionIndex: number): Promise<void> {
+    const docRef = doc(this.gamesCollection, gameId);
+    await updateDoc(docRef, {
+      status: "countdown",
+      currentQuestionIndex: questionIndex,
+    });
+  }
+
   async startQuestion(gameId: string, questionIndex: number): Promise<void> {
     const now = new Date();
     const endsAt = new Date(now.getTime() + 30000); // 30 seconds from now

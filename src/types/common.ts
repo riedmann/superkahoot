@@ -6,6 +6,7 @@ export type QuestionType = "true-false" | "standard";
 export type GameStatus =
   | "waiting"
   | "active"
+  | "countdown"
   | "question"
   | "results"
   | "finished";
