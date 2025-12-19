@@ -20,6 +20,7 @@ export function TestActiveQuestion() {
         score: 100,
         joinedAt: new Date(),
         isOnline: true,
+        answerHistory: [],
       },
       {
         id: "p2",
@@ -27,6 +28,7 @@ export function TestActiveQuestion() {
         score: 80,
         isOnline: false,
         joinedAt: new Date(),
+        answerHistory: [],
       },
       {
         id: "p3",
@@ -34,6 +36,7 @@ export function TestActiveQuestion() {
         isOnline: true,
         score: 120,
         joinedAt: new Date(),
+        answerHistory: [],
       },
     ],
     currentQuestionIndex: 0,

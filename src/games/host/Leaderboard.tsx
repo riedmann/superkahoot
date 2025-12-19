@@ -35,12 +35,6 @@ export function Leaderboard({
                 ? Math.round((correctAnswers / totalAnswered) * 100)
                 : 0;
 
-            // Current question status
-            const currentQuestionAnswers = game.currentQuestion?.answers || [];
-            const participantCurrentAnswer = currentQuestionAnswers.find(
-              (answer) => answer.participantId === participant.id
-            );
-
             return (
               <div
                 key={participant.id}
