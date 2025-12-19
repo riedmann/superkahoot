@@ -1,0 +1,113 @@
+{
+  "id": "react-basics-02",
+  "title": "React Grundlagen – Erweiterter Test",
+  "description": "Quiz mit 10 Fragen zu React-Komponenten, Props sowie den Hooks useState und useEffect.",
+  "category": "Programmierung",
+  "difficulty": "medium",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "true-false",
+      "question": "React-Komponenten können als Funktionen oder als Klassen definiert werden.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q2",
+      "type": "standard",
+      "question": "Wofür wird der Hook useState verwendet?",
+      "options": [
+        { "text": "Zum Erstellen von Klassen" },
+        { "text": "Zum Speichern und Aktualisieren von lokalem Zustand" },
+        { "text": "Zum Abonnieren externer Events" },
+        { "text": "Zum Definieren von Props" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q3",
+      "type": "standard",
+      "question": "Was bewirkt ein Aufruf von setState bzw. der useState-Setter-Funktion?",
+      "options": [
+        { "text": "Die Seite wird neu geladen" },
+        { "text": "Die Komponente wird neu gerendert" },
+        { "text": "Alle Props werden zurückgesetzt" },
+        { "text": "Der Zustand wird global gespeichert" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q4",
+      "type": "standard",
+      "question": "Wann wird useEffect mit einem leeren Dependency-Array [] ausgeführt?",
+      "options": [
+        { "text": "Nach jedem Render" },
+        { "text": "Nur beim ersten Render (Mount)" },
+        { "text": "Nur beim Unmount" },
+        { "text": "Bei jeder Änderung von Props" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q5",
+      "type": "true-false",
+      "question": "Props sind in React schreibgeschützt und sollten nicht direkt verändert werden.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q6",
+      "type": "standard",
+      "question": "Was passiert, wenn useEffect ein Cleanup zurückgibt?",
+      "options": [
+        { "text": "Der Effekt wird erneut ausgeführt" },
+        { "text": "Die Komponente wird gelöscht" },
+        {
+          "text": "Das Cleanup läuft vor dem nächsten Effekt oder beim Unmount"
+        },
+        { "text": "Der State wird zurückgesetzt" }
+      ],
+      "correctAnswers": [2]
+    },
+    {
+      "id": "q7",
+      "type": "standard",
+      "question": "Wie werden Props an eine React-Komponente übergeben?",
+      "options": [
+        { "text": "Über Funktionsparameter" },
+        { "text": "Über globale Variablen" },
+        { "text": "Über useState" },
+        { "text": "Über useEffect" }
+      ],
+      "correctAnswers": [0]
+    },
+    {
+      "id": "q8",
+      "type": "standard",
+      "question": "Was bewirkt eine Änderung im Dependency-Array von useEffect?",
+      "options": [
+        { "text": "Der Effekt läuft nie wieder" },
+        { "text": "Der Effekt läuft nur beim Mount" },
+        { "text": "Der Effekt läuft, wenn sich eine Abhängigkeit ändert" },
+        { "text": "Der Effekt läuft nur beim Unmount" }
+      ],
+      "correctAnswers": [2]
+    },
+    {
+      "id": "q9",
+      "type": "true-false",
+      "question": "Eine React-Komponente darf nur ein Root-Element zurückgeben.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q10",
+      "type": "standard",
+      "question": "Warum ist React effizient bei der Aktualisierung der UI?",
+      "options": [
+        { "text": "Weil es direkt das DOM neu schreibt" },
+        { "text": "Weil es das Virtual DOM verwendet" },
+        { "text": "Weil es kein Re-Rendering erlaubt" },
+        { "text": "Weil es nur mit Klassen arbeitet" }
+      ],
+      "correctAnswers": [1]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "react-basics-01",
+  "title": "React Grundlagen",
+  "description": "Ein Einsteiger-Quiz zu React Components, Props, useState und useEffect.",
+  "category": "Programmierung",
+  "difficulty": "easy",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "true-false",
+      "question": "In React sind Components wiederverwendbare Bausteine der Benutzeroberfläche.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q2",
+      "type": "standard",
+      "question": "Wie werden Daten von einer Eltern-Komponente an eine Kind-Komponente übergeben?",
+      "options": [
+        { "text": "Über State" },
+        { "text": "Über Props" },
+        { "text": "Über useEffect" },
+        { "text": "Über Events" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q3",
+      "type": "standard",
+      "question": "Wofür wird der React Hook useState verwendet?",
+      "options": [
+        { "text": "Um Nebenwirkungen auszuführen" },
+        { "text": "Um Komponenten zu stylen" },
+        { "text": "Um lokalen State in einer Funktion zu verwalten" },
+        { "text": "Um Props zu ändern" }
+      ],
+      "correctAnswers": [2]
+    },
+    {
+      "id": "q4",
+      "type": "standard",
+      "question": "Wann wird ein useEffect ohne Dependency-Array ausgeführt?",
+      "options": [
+        { "text": "Nur beim ersten Rendern" },
+        { "text": "Nach jedem Rendern" },
+        { "text": "Nur wenn sich Props ändern" },
+        { "text": "Nur beim Unmounten der Komponente" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q5",
+      "type": "true-false",
+      "question": "Props sollten innerhalb einer React-Komponente nicht direkt verändert werden.",
+      "correctAnswer": true
+    }
+  ]
+}
