@@ -5,6 +5,7 @@ import { ActiveQuestion } from "./host/ActiveQuestion";
 import { ShowQuestion } from "./host/ShowQuestion";
 import { WaitingForParticipants } from "./host/WaitingForParticipants";
 import { QuestionResult } from "./host/QuestionResult";
+import { Leaderboard } from "./host/Leaderboard";
 import type { Game } from "../types";
 
 interface GameHostProps {
@@ -201,57 +202,7 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
             <div className="bg-white rounded-lg p-8 shadow-lg">
               <h2 className="text-3xl font-bold mb-6">Game Finished!</h2>
 
-              {/* Final Leaderboard */}
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold mb-4">
-                  Final Leaderboard
-                </h3>
-                <div className="max-w-md mx-auto">
-                  {[...game.participants]
-                    .sort((a, b) => b.score - a.score)
-                    .map((participant, index) => {
-                      const isWinner = index === 0;
-                      const isPodium = index < 3;
-
-                      return (
-                        <div
-                          key={participant.id}
-                          className={`flex justify-between items-center p-3 rounded-lg mb-2 ${
-                            isWinner
-                              ? "bg-yellow-100 border-2 border-yellow-400"
-                              : isPodium
-                              ? "bg-blue-50 border border-blue-200"
-                              : "bg-gray-50 border border-gray-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                                isWinner
-                                  ? "bg-yellow-500 text-white"
-                                  : isPodium
-                                  ? "bg-blue-500 text-white"
-                                  : "bg-gray-400 text-white"
-                              }`}
-                            >
-                              {index + 1}
-                            </div>
-                            <div className="font-medium">
-                              {participant.name}
-                            </div>
-                          </div>
-                          <div className="text-lg font-bold">
-                            {participant.score}
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-
-                <div className="mt-4 text-sm text-gray-600">
-                  Total Participants: {game.participants.length}
-                </div>
-              </div>
+              <Leaderboard game={game} title="Final Leaderboard" />
 
               <button
                 onClick={onBack}

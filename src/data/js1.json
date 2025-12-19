@@ -1,0 +1,59 @@
+{
+  "id": "js-basics-01",
+  "title": "JavaScript Grundlagen – Einstieg",
+  "description": "Einsteigerfragen zu if-Anweisungen, logischen Operatoren, if/else und for-Schleifen in JavaScript.",
+  "category": "Programmierung",
+  "difficulty": "easy",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "true-false",
+      "question": "Eine if-Anweisung wird nur ausgeführt, wenn die Bedingung true ist.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q2",
+      "type": "standard",
+      "question": "Welcher logische Operator steht in JavaScript für UND?",
+      "options": [
+        { "text": "||" },
+        { "text": "&&" },
+        { "text": "!" },
+        { "text": "&" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q3",
+      "type": "standard",
+      "question": "Was macht eine if-else-Anweisung?",
+      "options": [
+        { "text": "Sie führt immer beide Codeblöcke aus" },
+        {
+          "text": "Sie führt den if-Block aus, wenn die Bedingung true ist, sonst den else-Block"
+        },
+        { "text": "Sie wiederholt Code mehrmals" },
+        { "text": "Sie beendet das Programm" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q4",
+      "type": "standard",
+      "question": "Wie oft wird diese for-Schleife ausgeführt?\nfor (let i = 0; i < 3; i++)",
+      "options": [
+        { "text": "1 Mal" },
+        { "text": "2 Mal" },
+        { "text": "3 Mal" },
+        { "text": "Unendlich oft" }
+      ],
+      "correctAnswers": [2]
+    },
+    {
+      "id": "q5",
+      "type": "true-false",
+      "question": "Der logische Operator ! kehrt einen booleschen Wert um (true wird false und umgekehrt).",
+      "correctAnswer": true
+    }
+  ]
+}
