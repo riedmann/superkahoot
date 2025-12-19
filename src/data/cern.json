@@ -1,0 +1,99 @@
+{
+  "id": "quiz-cern-001",
+  "title": "CERN Grundlagen Quiz",
+  "description": "Teste dein Wissen über CERN, das größte Teilchenphysik-Labor der Welt",
+  "difficulty": "medium",
+  "category": "Wissenschaft",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "true-false",
+      "question": "CERN steht für 'Conseil Européen pour la Recherche Nucléaire'.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q2",
+      "type": "standard",
+      "question": "Welche der folgenden Einrichtungen gehören zu CERN?",
+      "options": [
+        { "text": "Large Hadron Collider (LHC)" },
+        { "text": "Higgs Boson Detector" },
+        { "text": "CERN Proton Synchrotron (PS)" },
+        { "text": "CERN Computing Grid" }
+      ],
+      "correctAnswers": [0, 2, 3]
+    },
+    {
+      "id": "q3",
+      "type": "true-false",
+      "question": "CERN liegt in Genf an der Grenze zwischen der Schweiz und Frankreich.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q4",
+      "type": "standard",
+      "question": "Wann wurde CERN gegründet?",
+      "options": [
+        { "text": "1945" },
+        { "text": "1954" },
+        { "text": "1969" },
+        { "text": "1978" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q5",
+      "type": "true-false",
+      "question": "Am CERN wurde das World Wide Web erfunden.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q6",
+      "type": "standard",
+      "question": "Welche Teilchen werden im LHC hauptsächlich untersucht?",
+      "options": [
+        { "text": "Protonen" },
+        { "text": "Elektronen" },
+        { "text": "Neutronen" },
+        { "text": "Photonen" }
+      ],
+      "correctAnswers": [0]
+    },
+    {
+      "id": "q7",
+      "type": "true-false",
+      "question": "CERN betreibt nur Forschung für die Schweiz.",
+      "correctAnswer": false
+    },
+    {
+      "id": "q8",
+      "type": "standard",
+      "question": "Welche Entdeckung machte CERN 2012 international bekannt?",
+      "options": [
+        { "text": "Higgs-Boson" },
+        { "text": "Neutrino-Oszillation" },
+        { "text": "Gravitationswellen" },
+        { "text": "Quantenverschränkung" }
+      ],
+      "correctAnswers": [0]
+    },
+    {
+      "id": "q9",
+      "type": "standard",
+      "question": "Welche internationale Organisation ist CERN ähnlich?",
+      "options": [
+        { "text": "NASA" },
+        { "text": "ESA (European Space Agency)" },
+        { "text": "Fermilab" },
+        { "text": "UNESCO" }
+      ],
+      "correctAnswers": [2]
+    },
+    {
+      "id": "q10",
+      "type": "true-false",
+      "question": "CERN ist das größte Labor für Teilchenphysik der Welt.",
+      "correctAnswer": true
+    }
+  ]
+}

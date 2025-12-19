@@ -119,7 +119,7 @@ export function GameClient({ gamePin: initialPin }: GameClientProps) {
     }
   };
 
-  const handleSubmitAnswer = async (answer: any) => {
+  const handleSubmitAnswer = async (answer: any, retryCount = 0) => {
     if (!game || !participant || !game.currentQuestion || hasAnswered) {
       console.log("Cannot submit answer:", {
         game: !!game,
@@ -134,6 +134,8 @@ export function GameClient({ gamePin: initialPin }: GameClientProps) {
       participantId: participant.id,
       answer,
       gameId: game.id,
+      questionId: game.currentQuestion.id,
+      retryCount,
     });
 
     try {
@@ -145,8 +147,31 @@ export function GameClient({ gamePin: initialPin }: GameClientProps) {
       setHasAnswered(true);
       console.log("Answer submitted successfully");
     } catch (error) {
-      console.error("Failed to submit answer:", error);
-      setError("Failed to submit answer. Please try again.");
+      console.error(
+        `Failed to submit answer (attempt ${retryCount + 1}):`,
+        error
+      );
+
+      // Retry up to 3 times for network errors
+      if (
+        retryCount < 2 &&
+        error instanceof Error &&
+        (error.message.includes("network") ||
+          error.message.includes("Failed to submit answer"))
+      ) {
+        console.log(
+          `Retrying answer submission (attempt ${retryCount + 2})...`
+        );
+        setTimeout(() => {
+          handleSubmitAnswer(answer, retryCount + 1);
+        }, 1000 * (retryCount + 1)); // Exponential backoff
+      } else {
+        setError(
+          `Failed to submit answer: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
+        );
+      }
     }
   };
 
