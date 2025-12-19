@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Quiz, Question } from "../types";
 import { DIFFICULTY_VARIANTS } from "../types";
 import { Badge } from "./Badge";
@@ -16,6 +17,21 @@ export function QuizDetail({
   onEdit,
   onStartGame,
 }: QuizDetailProps) {
+  const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(
+    new Set() // Start with all questions closed
+  );
+
+  const toggleQuestionExpansion = (questionId: string) => {
+    setExpandedQuestions((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(questionId)) {
+        newSet.delete(questionId);
+      } else {
+        newSet.add(questionId);
+      }
+      return newSet;
+    });
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -82,12 +98,57 @@ export function QuizDetail({
               "id" in question &&
               "type" in question
             ) {
+              const typedQuestion = question as Question;
+              const isExpanded = expandedQuestions.has(typedQuestion.id);
+
               return (
-                <div key={question.id}>
-                  <div className="text-sm font-semibold text-gray-500 mb-2">
-                    Question {index + 1}
+                <div
+                  key={typedQuestion.id}
+                  className="bg-white border border-gray-200 rounded-lg overflow-hidden"
+                >
+                  {/* Accordion Header */}
+                  <div
+                    className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={() => toggleQuestionExpansion(typedQuestion.id)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <svg
+                          className={`w-5 h-5 text-gray-400 transition-transform ${
+                            isExpanded ? "rotate-90" : ""
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                        <div className="text-sm font-medium text-gray-900">
+                          Question {index + 1}
+                        </div>
+                        <Badge variant="default">
+                          {typedQuestion.type === "true-false"
+                            ? "True/False"
+                            : "Multiple Choice"}
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-gray-600 max-w-lg truncate">
+                        {typedQuestion.question}
+                      </div>
+                    </div>
                   </div>
-                  <QuestionCard question={question as Question} />
+
+                  {/* Accordion Content */}
+                  {isExpanded && (
+                    <div className="border-t border-gray-200 p-4">
+                      <QuestionCard question={typedQuestion} />
+                    </div>
+                  )}
                 </div>
               );
             }

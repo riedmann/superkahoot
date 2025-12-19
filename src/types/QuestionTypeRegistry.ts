@@ -139,13 +139,8 @@ export class StandardQuestionHandler implements IQuestionHandler {
     return {
       id: `q${Date.now()}`,
       type: "standard",
-      question: "Enter question here",
-      options: [
-        { text: "Option 1" },
-        { text: "Option 2" },
-        { text: "Option 3" },
-        { text: "Option 4" },
-      ],
+      question: "",
+      options: [{ text: "" }, { text: "" }, { text: "" }, { text: "" }],
       correctAnswers: [0],
     };
   }
