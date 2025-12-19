@@ -22,6 +22,9 @@ export function QuizEdit({ quiz, onBack, onSave }: QuizEditProps) {
   const [newQuestionType] = useState<string>(
     questionRegistry.getAvailableTypes()[0] || "true-false"
   );
+  const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(
+    new Set() // Start with all questions closed
+  );
 
   const addQuestion = (questionType?: string) => {
     const typeToUse = questionType || newQuestionType;
@@ -29,7 +32,21 @@ export function QuizEdit({ quiz, onBack, onSave }: QuizEditProps) {
     if (handler) {
       const newQuestion = handler.createNew();
       setQuestions([newQuestion, ...questions]);
+      // Auto-expand newly added question
+      setExpandedQuestions((prev) => new Set([...prev, newQuestion.id]));
     }
+  };
+
+  const toggleQuestionExpansion = (questionId: string) => {
+    setExpandedQuestions((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(questionId)) {
+        newSet.delete(questionId);
+      } else {
+        newSet.add(questionId);
+      }
+      return newSet;
+    });
   };
 
   const updateQuestion = (id: string, updatedQuestion: Partial<Question>) => {
@@ -166,45 +183,86 @@ export function QuizEdit({ quiz, onBack, onSave }: QuizEditProps) {
           </div>
         </div>
 
-        <div className="space-y-6">
-          {questions.map((question, index) => (
-            <div
-              key={question.id}
-              className="bg-white border border-gray-200 rounded-lg p-6"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <Badge variant="default">
-                    {question.type === "true-false"
-                      ? "True/False"
-                      : "Multiple Choice"}
-                  </Badge>
-                  <div className="text-sm text-gray-600 mt-2">
-                    Question {index + 1}
+        <div className="space-y-4">
+          {questions.map((question, index) => {
+            const isExpanded = expandedQuestions.has(question.id);
+            return (
+              <div
+                key={question.id}
+                className="bg-white border border-gray-200 rounded-lg overflow-hidden"
+              >
+                {/* Accordion Header */}
+                <div
+                  className="p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+                  onClick={() => toggleQuestionExpansion(question.id)}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className={`w-5 h-5 text-gray-400 transition-transform ${
+                            isExpanded ? "rotate-90" : ""
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                        <div className="text-sm font-medium text-gray-900">
+                          Question {index + 1}
+                        </div>
+                      </div>
+                      <Badge variant="default">
+                        {question.type === "true-false"
+                          ? "True/False"
+                          : "Multiple Choice"}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm text-gray-600 max-w-xs truncate">
+                        {question.question}
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteQuestion(question.id);
+                        }}
+                        className="px-3 py-1 text-red-600 hover:text-red-700 font-medium text-sm"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <button
-                  onClick={() => deleteQuestion(question.id)}
-                  className="px-3 py-1 text-red-600 hover:text-red-700 font-medium text-sm"
-                >
-                  Delete
-                </button>
-              </div>
 
-              {(() => {
-                const handler = questionRegistry.getHandler(question.type);
-                return handler ? (
-                  handler.getEditor(question, (updates) =>
-                    updateQuestion(question.id, updates)
-                  )
-                ) : (
-                  <p className="text-red-600">
-                    Unknown question type: {question.type}
-                  </p>
-                );
-              })()}
-            </div>
-          ))}
+                {/* Accordion Content */}
+                {isExpanded && (
+                  <div className="p-6">
+                    {(() => {
+                      const handler = questionRegistry.getHandler(
+                        question.type
+                      );
+                      return handler ? (
+                        handler.getEditor(question, (updates) =>
+                          updateQuestion(question.id, updates)
+                        )
+                      ) : (
+                        <p className="text-red-600">
+                          Unknown question type: {question.type}
+                        </p>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
