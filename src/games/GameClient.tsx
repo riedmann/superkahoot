@@ -27,6 +27,16 @@ export function GameClient({ gamePin: initialPin }: GameClientProps) {
         const prevQuestionIndex = game.currentQuestionIndex;
         setGame(updatedGame);
 
+        // Update participant data with latest from game
+        if (participant) {
+          const updatedParticipant = updatedGame.participants.find(
+            (p) => p.id === participant.id
+          );
+          if (updatedParticipant) {
+            setParticipant(updatedParticipant);
+          }
+        }
+
         // Reset hasAnswered when new question starts
         if (updatedGame.currentQuestionIndex !== prevQuestionIndex) {
           setHasAnswered(false);
@@ -45,7 +55,7 @@ export function GameClient({ gamePin: initialPin }: GameClientProps) {
     );
 
     return () => unsubscribe();
-  }, [game?.id, game?.currentQuestionIndex]);
+  }, [game?.id, game?.currentQuestionIndex, participant?.id]);
 
   useEffect(() => {
     if (timeRemaining > 0 && game?.status === "question") {
@@ -318,8 +328,129 @@ export function GameClient({ gamePin: initialPin }: GameClientProps) {
         {game.status === "results" && (
           <div className="bg-white rounded-lg p-6 text-center">
             <h2 className="text-xl font-bold mb-4">Question Results</h2>
-            {/* TODO: Show if answer was correct and current score */}
-            <div className="text-gray-600">Waiting for next question...</div>
+
+            {(() => {
+              // Find the participant's answer for the current question
+              const myAnswer = game.currentQuestion?.answers.find(
+                (a) => a.participantId === participant?.id
+              );
+
+              // Get the correct answer information from quiz data
+              const currentQuizQuestion =
+                game.quizData?.questions[game.currentQuestionIndex];
+
+              return (
+                <div className="space-y-4">
+                  {myAnswer ? (
+                    <>
+                      {/* Correctness Indicator */}
+                      <div
+                        className={`p-4 rounded-lg ${
+                          myAnswer.isCorrect
+                            ? "bg-green-100 border-2 border-green-300"
+                            : "bg-red-100 border-2 border-red-300"
+                        }`}
+                      >
+                        <div
+                          className={`text-3xl font-bold mb-2 ${
+                            myAnswer.isCorrect
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {myAnswer.isCorrect ? "✓ Correct!" : "✗ Incorrect"}
+                        </div>
+
+                        {/* Points Earned */}
+                        <div
+                          className={`text-xl font-semibold ${
+                            myAnswer.isCorrect
+                              ? "text-green-700"
+                              : "text-red-700"
+                          }`}
+                        >
+                          +{myAnswer.points} points
+                        </div>
+                      </div>
+
+                      {/* Show correct answer if they were wrong */}
+                      {!myAnswer.isCorrect && currentQuizQuestion && (
+                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div className="text-sm font-medium text-blue-800 mb-2">
+                            Correct Answer:
+                          </div>
+                          <div className="text-blue-700">
+                            {currentQuizQuestion.type === "true-false" ? (
+                              <span className="font-semibold">
+                                {currentQuizQuestion.correctAnswer
+                                  ? "True"
+                                  : "False"}
+                              </span>
+                            ) : (
+                              currentQuizQuestion.correctAnswers
+                                ?.map((answerIndex: number) => (
+                                  <span
+                                    key={answerIndex}
+                                    className="font-semibold"
+                                  >
+                                    {currentQuizQuestion.options[answerIndex]}
+                                  </span>
+                                ))
+                                .join(", ")
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Current Total Score */}
+                      <div className="p-3 bg-gray-50 rounded-lg">
+                        <div className="text-sm text-gray-600 mb-1">
+                          Your Total Score
+                        </div>
+                        <div className="text-2xl font-bold text-blue-600">
+                          {participant?.score || 0}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    /* Player didn't answer */
+                    <div className="p-4 bg-gray-100 border-2 border-gray-300 rounded-lg">
+                      <div className="text-xl font-bold text-gray-600 mb-2">
+                        No Answer
+                      </div>
+                      <div className="text-gray-500">
+                        You didn't submit an answer in time
+                      </div>
+
+                      {/* Show correct answer */}
+                      {currentQuizQuestion && (
+                        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
+                          <div className="text-sm font-medium text-blue-800 mb-1">
+                            Correct Answer:
+                          </div>
+                          <div className="text-blue-700 font-semibold">
+                            {currentQuizQuestion.type === "true-false"
+                              ? currentQuizQuestion.correctAnswer
+                                ? "True"
+                                : "False"
+                              : currentQuizQuestion.correctAnswers
+                                  ?.map(
+                                    (answerIndex: number) =>
+                                      currentQuizQuestion.options[answerIndex]
+                                  )
+                                  .join(", ")}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="text-gray-600 text-sm">
+                    Waiting for next question...
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 

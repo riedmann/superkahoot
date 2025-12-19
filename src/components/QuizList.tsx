@@ -20,9 +20,26 @@ export function QuizList() {
   const [isGameActive, setIsGameActive] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedQuiz = quizzes.find((q) => q.id === selectedQuizId);
+
+  // Get unique categories from quizzes
+  const categories = Array.from(
+    new Set(quizzes.map((quiz) => quiz.category).filter(Boolean))
+  ).sort();
+
+  // Filter quizzes based on search term and category
+  const filteredQuizzes = quizzes.filter((quiz) => {
+    const matchesSearch =
+      quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quiz.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "" || quiz.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   useEffect(() => {
     setLoading(true);
@@ -306,6 +323,83 @@ export function QuizList() {
         </div>
       </div>
 
+      {/* Search and Filter Controls */}
+      <div className="mb-6 space-y-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* Search Input */}
+          <div className="flex-1">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg
+                  className="h-5 w-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Search quizzes by name or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          {/* Category Filter */}
+          <div className="md:w-64">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">All Categories</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Clear Filters Button */}
+          {(searchTerm || selectedCategory) && (
+            <button
+              onClick={() => {
+                setSearchTerm("");
+                setSelectedCategory("");
+              }}
+              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              Clear Filters
+            </button>
+          )}
+        </div>
+
+        {/* Results Count */}
+        <div className="text-sm text-gray-600">
+          {searchTerm || selectedCategory ? (
+            <>
+              Showing {filteredQuizzes.length} of {quizzes.length} quizzes
+              {searchTerm && <span> matching "{searchTerm}"</span>}
+              {selectedCategory && (
+                <span> in category "{selectedCategory}"</span>
+              )}
+            </>
+          ) : (
+            `${quizzes.length} quizzes available`
+          )}
+        </div>
+      </div>
+
       {/* Hidden File Input */}
       <input
         ref={fileInputRef}
@@ -335,7 +429,7 @@ export function QuizList() {
       {/* Success Message (optional) */}
       {/* You could add a success state similar to the error state */}
 
-      {/* Existing Quiz List Content */}
+      {/* Quiz List Content */}
       {quizzes.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-96 text-gray-600">
           <p className="mb-4">No quizzes available</p>
@@ -346,9 +440,38 @@ export function QuizList() {
             Create Your First Quiz
           </button>
         </div>
+      ) : filteredQuizzes.length === 0 ? (
+        <div className="flex flex-col items-center justify-center min-h-96 text-gray-600">
+          <svg
+            className="w-16 h-16 text-gray-400 mb-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          <p className="mb-2 font-medium">No quizzes match your filters</p>
+          <p className="text-sm text-gray-500 mb-4">
+            Try adjusting your search term or category filter
+          </p>
+          <button
+            onClick={() => {
+              setSearchTerm("");
+              setSelectedCategory("");
+            }}
+            className="px-4 py-2 text-blue-600 hover:text-blue-700 border border-blue-300 rounded-lg hover:bg-blue-50"
+          >
+            Clear All Filters
+          </button>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {quizzes.map((quiz) => (
+          {filteredQuizzes.map((quiz) => (
             <QuizOverviewCard
               key={quiz.id}
               quiz={quiz}
