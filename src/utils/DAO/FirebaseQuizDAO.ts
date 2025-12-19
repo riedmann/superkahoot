@@ -2,6 +2,7 @@ import {
   addDoc,
   collection,
   doc,
+  deleteDoc,
   getDoc,
   getDocs,
   onSnapshot,
@@ -173,5 +174,10 @@ export class FirebaseQuizDAO implements QuizDAOI {
       ...quiz,
       id: docRef.id,
     };
+  }
+
+  async deleteQuiz(quizId: string): Promise<void> {
+    const quizRef = doc(db, "quizzes", quizId);
+    await deleteDoc(quizRef);
   }
 }

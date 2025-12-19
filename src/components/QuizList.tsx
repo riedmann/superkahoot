@@ -98,6 +98,26 @@ export function QuizList() {
     setIsGameActive(true);
   };
 
+  const handleDeleteQuiz = async (quizId: string) => {
+    try {
+      await quizDAO.deleteQuiz(quizId);
+      // Remove from local state immediately for better UX
+      setQuizzes(quizzes.filter((q) => q.id !== quizId));
+
+      // If the deleted quiz was selected, clear the selection
+      if (selectedQuizId === quizId) {
+        setSelectedQuizId(null);
+      }
+
+      alert("Quiz deleted successfully!");
+    } catch (err) {
+      alert(
+        "Error deleting quiz: " +
+          (err instanceof Error ? err.message : "Unknown error")
+      );
+    }
+  };
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type === "application/json") {
@@ -333,6 +353,7 @@ export function QuizList() {
               key={quiz.id}
               quiz={quiz}
               onClick={() => setSelectedQuizId(quiz.id)}
+              onDelete={handleDeleteQuiz}
             />
           ))}
         </div>
