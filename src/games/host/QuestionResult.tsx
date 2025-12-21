@@ -1,6 +1,7 @@
 import type { Question, Quiz } from "../../types";
 import type { Game } from "../../types";
 import { Leaderboard } from "./Leaderboard";
+import { Button } from "../../components/ui/details/Button";
 
 interface QuestionResultProps {
   game: Game;
@@ -225,20 +226,17 @@ export function QuestionResult({
           })()}
         </div>
 
+        <Button onClick={onShowNextQuestion} size="lg">
+          {game.currentQuestionIndex + 1 < quiz.questions.length
+            ? "Next Question"
+            : "Finish Game"}
+        </Button>
+
         <Leaderboard
           game={game}
           title="Current Leaderboard:"
           showResponseCount={true}
         />
-
-        <button
-          onClick={onShowNextQuestion}
-          className="px-8 py-3 bg-blue-600 text-white font-bold text-lg rounded"
-        >
-          {game.currentQuestionIndex + 1 < quiz.questions.length
-            ? "Next Question"
-            : "Finish Game"}
-        </button>
       </div>
     </div>
   );

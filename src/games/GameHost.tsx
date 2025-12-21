@@ -65,6 +65,32 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
             updatedGame.currentQuestion.endsAt.getTime() - Date.now()
           );
           setTimeRemaining(Math.ceil(timeLeft / 1000));
+
+          // Check if all participants have answered
+          const answeredParticipants =
+            updatedGame.currentQuestion.answers.length;
+          const totalParticipants = updatedGame.participants.length;
+
+          console.log("Checking if all answered:", {
+            answered: answeredParticipants,
+            total: totalParticipants,
+            allAnswered:
+              answeredParticipants >= totalParticipants &&
+              totalParticipants > 0,
+          });
+
+          // If all participants have answered, automatically end the question
+          if (
+            answeredParticipants >= totalParticipants &&
+            totalParticipants > 0
+          ) {
+            console.log(
+              "All participants answered - ending question automatically"
+            );
+            setTimeout(() => {
+              handleEndQuestion();
+            }, 1000); // Small delay to show the final answer count
+          }
         }
       },
       (error) => console.error("Game subscription error:", error)
