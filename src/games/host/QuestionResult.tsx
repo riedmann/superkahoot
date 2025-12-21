@@ -19,8 +19,6 @@ export function QuestionResult({
   return (
     <div className="text-center">
       <div className="bg-white rounded-lg p-8 shadow-lg">
-        <h2 className="text-2xl font-bold mb-6">Question Results</h2>
-
         {/* Show the question again */}
         <div className="mb-6">
           <h3 className="text-xl font-bold text-gray-900 mb-4">
@@ -59,21 +57,21 @@ export function QuestionResult({
               const correctAnswer = currentQuestion.correctAnswer;
 
               return (
-                <div className="space-y-3 max-w-2xl mx-auto">
+                <div className="flex gap-4 max-w-4xl mx-auto">
                   {/* True option */}
-                  <div className="relative">
+                  <div className="flex-1">
                     <div
-                      className={`${colors[0].bg} rounded-lg p-4 flex items-center justify-between`}
+                      className={`${colors[0].bg} rounded-lg p-3 flex items-center justify-between`}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <div
-                          className={`w-10 h-10 bg-white ${colors[0].text} rounded-xl font-bold flex items-center justify-center text-lg relative`}
+                          className={`w-8 h-8 bg-white ${colors[0].text} rounded-lg font-bold flex items-center justify-center text-sm relative`}
                         >
                           {colors[0].label}
                           {correctAnswer === true && (
-                            <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
                               <svg
-                                className="w-4 h-4 text-white"
+                                className="w-3 h-3 text-white"
                                 fill="currentColor"
                                 viewBox="0 0 20 20"
                               >
@@ -86,11 +84,11 @@ export function QuestionResult({
                             </div>
                           )}
                         </div>
-                        <span className="text-xl font-bold text-white">
+                        <span className="text-lg font-bold text-white">
                           True
                         </span>
                       </div>
-                      <div className="text-xl font-bold text-white">
+                      <div className="text-lg font-bold text-white">
                         {trueCount}
                       </div>
                     </div>
@@ -109,19 +107,19 @@ export function QuestionResult({
                   </div>
 
                   {/* False option */}
-                  <div className="relative">
+                  <div className="flex-1">
                     <div
-                      className={`${colors[1].bg} rounded-lg p-4 flex items-center justify-between`}
+                      className={`${colors[1].bg} rounded-lg p-3 flex items-center justify-between`}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <div
-                          className={`w-10 h-10 bg-white ${colors[1].text} rounded-xl font-bold flex items-center justify-center text-lg relative`}
+                          className={`w-8 h-8 bg-white ${colors[1].text} rounded-lg font-bold flex items-center justify-center text-sm relative`}
                         >
                           {colors[1].label}
                           {correctAnswer === false && (
-                            <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
                               <svg
-                                className="w-4 h-4 text-white"
+                                className="w-3 h-3 text-white"
                                 fill="currentColor"
                                 viewBox="0 0 20 20"
                               >
@@ -134,11 +132,11 @@ export function QuestionResult({
                             </div>
                           )}
                         </div>
-                        <span className="text-xl font-bold text-white">
+                        <span className="text-lg font-bold text-white">
                           False
                         </span>
                       </div>
-                      <div className="text-xl font-bold text-white">
+                      <div className="text-lg font-bold text-white">
                         {falseCount}
                       </div>
                     </div>
@@ -164,26 +162,26 @@ export function QuestionResult({
               });
 
               return (
-                <div className="space-y-3 max-w-2xl mx-auto">
+                <div className="grid grid-cols-2 gap-4 max-w-4xl mx-auto">
                   {currentQuestion.options.slice(0, 4).map((option, index) => {
                     const count = optionCounts[index] || 0;
                     const isCorrect =
                       currentQuestion.correctAnswers?.includes(index);
 
                     return (
-                      <div key={index} className="relative">
+                      <div key={index} className="flex-1">
                         <div
-                          className={`${colors[index].bg} rounded-lg p-4 flex items-center justify-between`}
+                          className={`${colors[index].bg} rounded-lg p-3 flex items-center justify-between`}
                         >
-                          <div className="flex items-center gap-3 flex-1">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
                             <div
-                              className={`w-10 h-10 bg-white ${colors[index].text} rounded-xl font-bold flex items-center justify-center text-lg relative`}
+                              className={`w-8 h-8 bg-white ${colors[index].text} rounded-lg font-bold flex items-center justify-center text-sm relative shrink-0`}
                             >
                               {colors[index].label}
                               {isCorrect && (
-                                <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
                                   <svg
-                                    className="w-4 h-4 text-white"
+                                    className="w-3 h-3 text-white"
                                     fill="currentColor"
                                     viewBox="0 0 20 20"
                                   >
@@ -196,11 +194,11 @@ export function QuestionResult({
                                 </div>
                               )}
                             </div>
-                            <span className="text-lg font-bold text-white flex-1 text-left">
+                            <span className="text-sm font-bold text-white truncate">
                               {option.text}
                             </span>
                           </div>
-                          <div className="text-xl font-bold text-white ml-4">
+                          <div className="text-lg font-bold text-white ml-2 shrink-0">
                             {count}
                           </div>
                         </div>
