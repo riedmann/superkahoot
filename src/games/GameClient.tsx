@@ -474,9 +474,10 @@ export function GameClient({ gamePin: initialPin }: GameClientProps) {
                                 : "False"
                               : currentQuizQuestion.correctAnswers
                                   ?.map((answerIndex: number) => {
-                                    const option = currentQuizQuestion.options[answerIndex];
-                                    return typeof option === "string" 
-                                      ? option 
+                                    const option =
+                                      currentQuizQuestion.options[answerIndex];
+                                    return typeof option === "string"
+                                      ? option
                                       : option?.text || "Unknown option";
                                   })
                                   .join(", ")}
