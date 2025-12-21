@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { Question, Quiz } from "../types";
 import { FirebaseGameDAO } from "./FirebaseGameDAO";
 import { ActiveQuestion } from "./host/ActiveQuestion";
@@ -22,8 +22,45 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   console.log("in host", game?.participants);
+
+  // Music functionality
+  const toggleMusic = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current.play().catch((error) => {
+          console.error("Error playing audio:", error);
+        });
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  // Handle audio events
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      const handlePlay = () => setIsPlaying(true);
+      const handlePause = () => setIsPlaying(false);
+      const handleEnded = () => setIsPlaying(false);
+
+      audio.addEventListener("play", handlePlay);
+      audio.addEventListener("pause", handlePause);
+      audio.addEventListener("ended", handleEnded);
+
+      return () => {
+        audio.removeEventListener("play", handlePlay);
+        audio.removeEventListener("pause", handlePause);
+        audio.removeEventListener("ended", handleEnded);
+      };
+    }
+  }, []);
 
   // Fullscreen functionality
   const toggleFullscreen = async () => {
@@ -216,6 +253,19 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Background Music */}
+      <audio ref={audioRef} loop preload="auto" crossOrigin="anonymous">
+        {/* Local music file - you can add your own music files to public/music/ */}
+        <source src="/music/game-music.mp3" type="audio/mpeg" />
+        <source src="/music/game-music.ogg" type="audio/ogg" />
+        {/* Fallback online source */}
+        <source
+          src="https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Kahoot+Lobby+Music+(Better+Quality)&filename=18/187440_478159-lq.mp3"
+          type="audio/mpeg"
+        />
+        Your browser does not support the audio element.
+      </audio>
+
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-6 py-4">
@@ -234,6 +284,39 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
                 Participants:{" "}
                 <span className="font-bold">{game.participants.length}</span>
               </div>
+              <button
+                onClick={toggleMusic}
+                className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors duration-200 flex items-center gap-1"
+                title={isPlaying ? "Stop Music" : "Play Music"}
+              >
+                {isPlaying ? (
+                  // Stop/Pause icon
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                ) : (
+                  // Play icon
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </button>
               <button
                 onClick={toggleFullscreen}
                 className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors duration-200 flex items-center gap-1"
