@@ -21,8 +21,40 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
   const [loading, setLoading] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   console.log("in host", game?.participants);
+
+  // Fullscreen functionality
+  const toggleFullscreen = async () => {
+    if (!document.fullscreenElement) {
+      try {
+        await document.documentElement.requestFullscreen();
+        setIsFullscreen(true);
+      } catch (err) {
+        console.error("Error attempting to enable fullscreen:", err);
+      }
+    } else {
+      try {
+        await document.exitFullscreen();
+        setIsFullscreen(false);
+      } catch (err) {
+        console.error("Error attempting to exit fullscreen:", err);
+      }
+    }
+  };
+
+  // Listen for fullscreen changes (including F11 key)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
 
   useEffect(() => {
     const initGame = async () => {
@@ -197,11 +229,46 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
                 </span>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <div className="text-sm text-gray-600">
                 Participants:{" "}
                 <span className="font-bold">{game.participants.length}</span>
               </div>
+              <button
+                onClick={toggleFullscreen}
+                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors duration-200 flex items-center gap-1"
+                title={
+                  isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen (F11)"
+                }
+              >
+                {isFullscreen ? (
+                  // Exit fullscreen icon
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 01-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 01-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15 13.586V12a1 1 0 011-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                ) : (
+                  // Enter fullscreen icon
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 01-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 01-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15 13.586V12a1 1 0 011-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </button>
               <button
                 onClick={onBack}
                 className="px-4 py-2 bg-gray-600 text-white rounded"
