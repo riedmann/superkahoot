@@ -44,9 +44,11 @@ export function GameClient({ gamePin: initialPin }: GameClientProps) {
 
         // Update timer when question starts
         if (updatedGame.status === "question" && updatedGame.currentQuestion) {
+          const currentTime = gameDAO.getCurrentTime();
           const timeLeft = Math.max(
             0,
-            updatedGame.currentQuestion.endsAt.getTime() - Date.now()
+            updatedGame.currentQuestion!.endsAt.getTime() -
+              currentTime.getTime()
           );
           setTimeRemaining(Math.ceil(timeLeft / 1000));
         }
@@ -58,19 +60,30 @@ export function GameClient({ gamePin: initialPin }: GameClientProps) {
   }, [game?.id, game?.currentQuestionIndex, participant?.id]);
 
   useEffect(() => {
-    if (timeRemaining > 0 && game?.status === "question") {
+    if (
+      timeRemaining > 0 &&
+      game?.status === "question" &&
+      game.currentQuestion
+    ) {
       const timer = setInterval(() => {
-        setTimeRemaining((prev) => {
-          if (prev <= 1) {
-            return 0;
-          }
-          return prev - 1;
-        });
+        // Use server time for accurate countdown
+        const currentTime = gameDAO.getCurrentTime();
+        const timeLeft = Math.max(
+          0,
+          game.currentQuestion!.endsAt.getTime() - currentTime.getTime()
+        );
+        const newTimeRemaining = Math.ceil(timeLeft / 1000);
+
+        setTimeRemaining(newTimeRemaining);
+
+        if (newTimeRemaining <= 0) {
+          setTimeRemaining(0);
+        }
       }, 1000);
 
       return () => clearInterval(timer);
     }
-  }, [timeRemaining, game?.status]);
+  }, [timeRemaining, game?.status, game?.currentQuestion?.endsAt]);
 
   const handleJoinGame = async () => {
     if (!gamePin || !playerName.trim()) return;
@@ -412,16 +425,17 @@ export function GameClient({ gamePin: initialPin }: GameClientProps) {
                                   : "False"}
                               </span>
                             ) : (
-                              currentQuizQuestion.correctAnswers
-                                ?.map((answerIndex: number) => (
-                                  <span
-                                    key={answerIndex}
-                                    className="font-semibold"
-                                  >
-                                    {currentQuizQuestion.options[answerIndex]}
-                                  </span>
-                                ))
-                                .join(", ")
+                              <span className="font-semibold">
+                                {currentQuizQuestion.correctAnswers
+                                  ?.map((answerIndex: number) => {
+                                    const option =
+                                      currentQuizQuestion.options[answerIndex];
+                                    return typeof option === "string"
+                                      ? option
+                                      : option?.text || "Unknown option";
+                                  })
+                                  .join(", ")}
+                              </span>
                             )}
                           </div>
                         </div>
@@ -459,10 +473,12 @@ export function GameClient({ gamePin: initialPin }: GameClientProps) {
                                 ? "True"
                                 : "False"
                               : currentQuizQuestion.correctAnswers
-                                  ?.map(
-                                    (answerIndex: number) =>
-                                      currentQuizQuestion.options[answerIndex]
-                                  )
+                                  ?.map((answerIndex: number) => {
+                                    const option = currentQuizQuestion.options[answerIndex];
+                                    return typeof option === "string" 
+                                      ? option 
+                                      : option?.text || "Unknown option";
+                                  })
                                   .join(", ")}
                           </div>
                         </div>

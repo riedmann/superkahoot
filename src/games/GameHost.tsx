@@ -60,9 +60,10 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
           ] as Question;
           setCurrentQuestion(question);
 
+          const currentTime = gameDAO.getCurrentTime();
           const timeLeft = Math.max(
             0,
-            updatedGame.currentQuestion.endsAt.getTime() - Date.now()
+            updatedGame.currentQuestion.endsAt.getTime() - currentTime.getTime()
           );
           setTimeRemaining(Math.ceil(timeLeft / 1000));
 
@@ -97,23 +98,33 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
     );
 
     return () => unsubscribe();
-  }, [game?.id, quiz.questions]);
+  }, [game?.id]);
 
   useEffect(() => {
-    if (timeRemaining > 0 && game?.status === "question") {
+    if (
+      timeRemaining > 0 &&
+      game?.status === "question" &&
+      game.currentQuestion
+    ) {
       const timer = setInterval(() => {
-        setTimeRemaining((prev) => {
-          if (prev <= 1) {
-            handleEndQuestion();
-            return 0;
-          }
-          return prev - 1;
-        });
+        // Use server time for accurate countdown
+        const currentTime = gameDAO.getCurrentTime();
+        const timeLeft = Math.max(
+          0,
+          game.currentQuestion!.endsAt.getTime() - currentTime.getTime()
+        );
+        const newTimeRemaining = Math.ceil(timeLeft / 1000);
+
+        setTimeRemaining(newTimeRemaining);
+
+        if (newTimeRemaining <= 0) {
+          handleEndQuestion();
+        }
       }, 1000);
 
       return () => clearInterval(timer);
     }
-  }, [timeRemaining, game?.status]);
+  }, [timeRemaining, game?.status, game?.currentQuestion?.endsAt]);
 
   const handleStartGame = async () => {
     if (!game) return;
