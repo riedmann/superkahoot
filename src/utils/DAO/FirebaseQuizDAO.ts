@@ -40,6 +40,11 @@ export class FirebaseQuizDAO implements QuizDAOI {
                 difficulty: quizData.difficulty,
                 category: quizData.category,
                 questions: quizData.questions,
+                createdAt: quizData.createdAt?.toDate(),
+                updatedAt: quizData.updatedAt?.toDate(),
+                creatorId: quizData.creatorId,
+                creatorEmail: quizData.creatorEmail,
+                creatorDisplayName: quizData.creatorDisplayName,
               });
             } else {
               // Fallback: try to fetch questions from subcollection
@@ -61,6 +66,11 @@ export class FirebaseQuizDAO implements QuizDAOI {
                 difficulty: quizData.difficulty,
                 category: quizData.category,
                 questions,
+                createdAt: quizData.createdAt?.toDate(),
+                updatedAt: quizData.updatedAt?.toDate(),
+                creatorId: quizData.creatorId,
+                creatorEmail: quizData.creatorEmail,
+                creatorDisplayName: quizData.creatorDisplayName,
               });
             }
           }
@@ -99,6 +109,11 @@ export class FirebaseQuizDAO implements QuizDAOI {
         difficulty: quizData.difficulty,
         category: quizData.category,
         questions: quizData.questions,
+        createdAt: quizData.createdAt?.toDate(),
+        updatedAt: quizData.updatedAt?.toDate(),
+        creatorId: quizData.creatorId,
+        creatorEmail: quizData.creatorEmail,
+        creatorDisplayName: quizData.creatorDisplayName,
       };
     }
 
@@ -116,6 +131,11 @@ export class FirebaseQuizDAO implements QuizDAOI {
       difficulty: quizData.difficulty,
       category: quizData.category,
       questions,
+      createdAt: quizData.createdAt?.toDate(),
+      updatedAt: quizData.updatedAt?.toDate(),
+      creatorId: quizData.creatorId,
+      creatorEmail: quizData.creatorEmail,
+      creatorDisplayName: quizData.creatorDisplayName,
     };
   }
 
@@ -168,6 +188,9 @@ export class FirebaseQuizDAO implements QuizDAOI {
       questions: quiz.questions || [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
+      creatorId: quiz.creatorId,
+      creatorEmail: quiz.creatorEmail,
+      creatorDisplayName: quiz.creatorDisplayName,
     });
 
     return {

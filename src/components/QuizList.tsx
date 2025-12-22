@@ -8,6 +8,7 @@ import { QuizEdit } from "./QuizEdit";
 import { QuizOverviewCard } from "./QuizOverviewCard";
 import { GameHost } from "../games/GameHost";
 import { db } from "../utils/firebase";
+import { useAuth } from "../contexts/AuthContext";
 
 const quizDAO = new FirebaseQuizDAO();
 
@@ -23,8 +24,23 @@ export function QuizList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user, isAdmin, isTeacher } = useAuth();
 
   const selectedQuiz = quizzes.find((q) => q.id === selectedQuizId);
+
+  // Helper function to check if current user can edit/delete a quiz
+  const canEditQuiz = (quiz: Quiz) => {
+    if (!user) return false;
+
+    // If quiz has no creator (legacy quiz), only admins can edit
+    if (!quiz.creatorId) {
+      return isAdmin;
+    }
+
+    // Quiz has creator - check if current user is creator or admin
+    const isCreator = quiz.creatorId === user.uid;
+    return isCreator || isAdmin;
+  };
 
   // Get unique categories from quizzes
   const categories = Array.from(
@@ -68,6 +84,9 @@ export function QuizList() {
       category: "",
       createdAt: new Date(),
       updatedAt: new Date(),
+      creatorId: user?.uid,
+      creatorEmail: user?.email || undefined,
+      creatorDisplayName: user?.displayName || user?.email || "Unknown User",
     };
 
     // Add to local state temporarily
@@ -80,6 +99,14 @@ export function QuizList() {
     try {
       // Check if this is a new quiz (starts with quiz_ and not in Firestore yet)
       const isNewQuiz = updatedQuiz.id.startsWith("quiz_");
+
+      if (!isNewQuiz && !canEditQuiz(updatedQuiz)) {
+        const errorMessage = !updatedQuiz.creatorId
+          ? "This quiz has no creator assigned. Only administrators can edit legacy quizzes."
+          : "You don't have permission to save changes to this quiz. Only the creator can edit their own quizzes.";
+        alert(errorMessage);
+        return;
+      }
 
       if (isNewQuiz) {
         // For new quizzes, create a new document with auto-generated ID
@@ -116,6 +143,15 @@ export function QuizList() {
   };
 
   const handleDeleteQuiz = async (quizId: string) => {
+    const quizToDelete = quizzes.find((q) => q.id === quizId);
+    if (!quizToDelete || !canEditQuiz(quizToDelete)) {
+      const errorMessage = !quizToDelete?.creatorId
+        ? "This quiz has no creator assigned. Only administrators can delete legacy quizzes."
+        : "You don't have permission to delete this quiz. Only the creator can delete their own quizzes.";
+      alert(errorMessage);
+      return;
+    }
+
     try {
       await quizDAO.deleteQuiz(quizId);
       // Remove from local state immediately for better UX
@@ -172,6 +208,10 @@ export function QuizList() {
           : new Date(),
         // Generate ID if it doesn't exist
         id: quizData.id || `quiz-${Date.now()}`,
+        // Add creator information
+        creatorId: user?.uid,
+        creatorEmail: user?.email || undefined,
+        creatorDisplayName: user?.displayName || user?.email || "Unknown User",
       };
 
       const docRef = await addDoc(collection(db, "quizzes"), quizToImport);
@@ -227,6 +267,16 @@ export function QuizList() {
 
   // Show quiz edit if editing
   if (isEditing && selectedQuiz) {
+    // Double-check permissions before showing edit
+    if (!canEditQuiz(selectedQuiz)) {
+      const errorMessage = !selectedQuiz.creatorId
+        ? "This quiz has no creator assigned. Only administrators can edit legacy quizzes."
+        : "You don't have permission to edit this quiz.";
+      alert(errorMessage);
+      setIsEditing(false);
+      return null;
+    }
+
     return (
       <QuizEdit
         quiz={selectedQuiz}
@@ -242,7 +292,9 @@ export function QuizList() {
       <QuizDetail
         quiz={selectedQuiz}
         onBack={() => setSelectedQuizId(null)}
-        onEdit={() => setIsEditing(true)}
+        onEdit={
+          canEditQuiz(selectedQuiz) ? () => setIsEditing(true) : undefined
+        }
         onStartGame={handleStartGame}
       />
     );
@@ -269,57 +321,61 @@ export function QuizList() {
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold text-gray-900">Available Quizzes</h2>
         <div className="flex gap-3">
-          {/* Import Button */}
-          <button
-            onClick={triggerFileSelect}
-            disabled={importing}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            {importing ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Importing...
-              </>
-            ) : (
-              <>
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  />
-                </svg>
-                Import JSON
-              </>
-            )}
-          </button>
-
-          {/* Create New Quiz Button */}
-          <button
-            onClick={createNewQuiz}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          {/* Import Button - Only for teachers and admins */}
+          {isTeacher && (
+            <button
+              onClick={triggerFileSelect}
+              disabled={importing}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            New Quiz
-          </button>
+              {importing ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Importing...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    />
+                  </svg>
+                  Import JSON
+                </>
+              )}
+            </button>
+          )}
+
+          {/* Create New Quiz Button - Only for teachers and admins */}
+          {isTeacher && (
+            <button
+              onClick={createNewQuiz}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              New Quiz
+            </button>
+          )}
         </div>
       </div>
 
@@ -476,7 +532,7 @@ export function QuizList() {
               key={quiz.id}
               quiz={quiz}
               onClick={() => setSelectedQuizId(quiz.id)}
-              onDelete={handleDeleteQuiz}
+              onDelete={canEditQuiz(quiz) ? handleDeleteQuiz : undefined}
             />
           ))}
         </div>

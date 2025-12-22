@@ -17,6 +17,7 @@ import { auth, db } from "../utils/firebase";
 interface AuthContextType {
   user: User | null;
   isAdmin: boolean;
+  isTeacher: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -39,6 +40,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isTeacher, setIsTeacher] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const checkUserRole = async (uid: string) => {
@@ -46,12 +48,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const userDoc = await getDoc(doc(db, "users", uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        return userData.role === "admin";
+        return {
+          isAdmin: userData.role === "admin",
+          isTeacher: userData.role === "teacher" || userData.role === "admin",
+        };
       }
-      return false;
+      return { isAdmin: false, isTeacher: false };
     } catch (error) {
       console.error("Error checking user role:", error);
-      return false;
+      return { isAdmin: false, isTeacher: false };
     }
   };
 
@@ -60,10 +65,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(user);
 
       if (user) {
-        const adminStatus = await checkUserRole(user.uid);
-        setIsAdmin(adminStatus);
+        const roleStatus = await checkUserRole(user.uid);
+        setIsAdmin(roleStatus.isAdmin);
+        setIsTeacher(roleStatus.isTeacher);
       } else {
         setIsAdmin(false);
+        setIsTeacher(false);
       }
 
       setLoading(false);
@@ -83,6 +90,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const value = {
     user,
     isAdmin,
+    isTeacher,
     loading,
     login,
     logout,

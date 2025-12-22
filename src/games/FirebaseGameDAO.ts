@@ -123,10 +123,27 @@ export class FirebaseGameDAO implements IGameDAO {
 
     const gamePin = this.generateGamePin();
 
+    // Clean quiz data to remove undefined fields before storing in Firebase
+    const cleanedQuiz: Quiz = {
+      id: quiz.id,
+      title: quiz.title,
+      description: quiz.description,
+      questions: quiz.questions,
+      difficulty: quiz.difficulty,
+      category: quiz.category,
+      createdAt: quiz.createdAt,
+      updatedAt: quiz.updatedAt,
+      ...(quiz.creatorId && { creatorId: quiz.creatorId }),
+      ...(quiz.creatorEmail && { creatorEmail: quiz.creatorEmail }),
+      ...(quiz.creatorDisplayName && {
+        creatorDisplayName: quiz.creatorDisplayName,
+      }),
+    };
+
     const gameData = {
       quizId: quiz.id,
       quizTitle: quiz.title,
-      quizData: quiz, // Store full quiz data for clients
+      quizData: cleanedQuiz, // Store cleaned quiz data for clients
       hostId,
       gamePin,
       status: "waiting" as GameStatus,

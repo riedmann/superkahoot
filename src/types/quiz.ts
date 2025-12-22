@@ -10,6 +10,9 @@ export interface Quiz {
   category?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  creatorId?: string;
+  creatorEmail?: string;
+  creatorDisplayName?: string;
 }
 
 // Re-export question types for backward compatibility

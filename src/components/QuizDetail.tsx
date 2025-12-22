@@ -3,6 +3,7 @@ import type { Quiz, Question } from "../types";
 import { DIFFICULTY_VARIANTS } from "../types";
 import { Badge } from "./Badge";
 import { QuestionCard } from "./QuestionCard";
+import { useAuth } from "../contexts/AuthContext";
 
 interface QuizDetailProps {
   quiz: Quiz;
@@ -20,6 +21,7 @@ export function QuizDetail({
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(
     new Set() // Start with all questions closed
   );
+  const { user, isAdmin } = useAuth();
 
   const toggleQuestionExpansion = (questionId: string) => {
     setExpandedQuestions((prev) => {
@@ -83,6 +85,16 @@ export function QuizDetail({
             <div className="text-sm text-gray-600 font-medium">
               {quiz.questions.length} Questions
             </div>
+            {quiz.creatorDisplayName && (
+              <div className="text-sm text-gray-600">
+                Created by {quiz.creatorDisplayName}
+              </div>
+            )}
+            {!onEdit && quiz.creatorDisplayName && user && !isAdmin && (
+              <div className="text-xs text-gray-500 italic">
+                Only the creator can edit this quiz
+              </div>
+            )}
           </div>
         </div>
       </div>

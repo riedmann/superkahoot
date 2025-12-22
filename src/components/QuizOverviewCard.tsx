@@ -75,11 +75,18 @@ export function QuizOverviewCard({
       )}
 
       <div className="flex justify-between items-center gap-3 pt-3 border-t border-gray-100">
-        {quiz.category && (
-          <Badge variant="default" className="px-2 py-1">
-            {quiz.category}
-          </Badge>
-        )}
+        <div className="flex flex-col gap-1">
+          {quiz.category && (
+            <Badge variant="default" className="px-2 py-1 w-fit">
+              {quiz.category}
+            </Badge>
+          )}
+          {quiz.creatorDisplayName && (
+            <span className="text-xs text-gray-500">
+              Created by {quiz.creatorDisplayName}
+            </span>
+          )}
+        </div>
         <span className="text-xs text-gray-400 font-medium">
           {quiz.questions.length} questions
         </span>

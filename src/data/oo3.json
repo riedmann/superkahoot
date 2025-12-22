@@ -1,0 +1,110 @@
+{
+  "id": "oo-kahoot-003",
+  "title": "Objektorientierung – Polymorphismus und Interfaces",
+  "description": "Quiz zu objektorientierter Programmierung: Polymorphismus, Interfaces, Methodenaufrufe und welches Objekt aufgerufen wird.",
+  "difficulty": "medium",
+  "category": "Softwareentwicklung",
+  "createdAt": "2025-12-22T00:00:00.000Z",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "true-false",
+      "question": "Polymorphismus bedeutet, dass ein Objekt mehrere Formen haben kann.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q2",
+      "type": "standard",
+      "question": "Welche Aussage beschreibt Polymorphismus korrekt?",
+      "options": [
+        { "text": "Ein Interface kann mehrere Methoden enthalten" },
+        {
+          "text": "Ein Objekt kann als Typ seines Interfaces oder seiner Oberklasse referenziert werden"
+        },
+        { "text": "Eine Klasse kann nur eine Methode haben" },
+        { "text": "Polymorphismus bedeutet, dass Variablen global sind" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q3",
+      "type": "true-false",
+      "question": "Wenn eine Methode auf einem Interface-Typ aufgerufen wird, entscheidet das konkrete Objekt zur Laufzeit, welche Implementierung ausgeführt wird.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q4",
+      "type": "standard",
+      "question": "Welche Methode wird aufgerufen?",
+      "options": [
+        { "text": "Die Methode der Oberklasse" },
+        {
+          "text": "Die Methode des konkreten Objekts, auf das referenziert wird"
+        },
+        { "text": "Die Methode des Interfaces" },
+        { "text": "Keine Methode wird aufgerufen" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q5",
+      "type": "true-false",
+      "question": "Interfaces können keine Implementierungen enthalten.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q6",
+      "type": "standard",
+      "question": "Welche Aussage ist richtig?",
+      "options": [
+        {
+          "text": "Ein Objekt kann nicht gleichzeitig mehrere Interfaces implementieren"
+        },
+        { "text": "Ein Objekt kann mehrere Interfaces implementieren" },
+        {
+          "text": "Polymorphismus funktioniert nur mit Klassen, nicht mit Interfaces"
+        },
+        { "text": "Interfaces können nicht als Typen verwendet werden" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q7",
+      "type": "true-false",
+      "question": "Polymorphismus ermöglicht es, dass dieselbe Methode unterschiedliche Implementierungen aufrufen kann, je nach Objekt.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q8",
+      "type": "standard",
+      "question": "Welches Objekt wird bei folgendem Code aufgerufen?\n\ninterface Notifier { send(msg: string): void }\nclass Email implements Notifier { send(msg: string) { console.log('Email', msg) } }\nclass SMS implements Notifier { send(msg: string) { console.log('SMS', msg) } }\nconst n: Notifier = new SMS();\nn.send('Hallo')",
+      "options": [
+        { "text": "Email Objekt" },
+        { "text": "SMS Objekt" },
+        { "text": "Interface Notifier" },
+        { "text": "Keines, Fehler" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q9",
+      "type": "true-false",
+      "question": "Polymorphismus reduziert die Notwendigkeit von if/else, um den Typ eines Objekts zu prüfen.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q10",
+      "type": "standard",
+      "question": "Welche Vorteile hat Polymorphismus?",
+      "options": [
+        {
+          "text": "Erhöht die Flexibilität und Wiederverwendbarkeit des Codes"
+        },
+        { "text": "Er zwingt zu vielen if/else Abfragen" },
+        { "text": "Er verhindert Vererbung" },
+        { "text": "Er erlaubt nur globale Variablen" }
+      ],
+      "correctAnswers": [0]
+    }
+  ]
+}
