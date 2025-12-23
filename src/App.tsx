@@ -1,10 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { UserManagement } from "./components/UserManagement";
 import { QuizList } from "./components/QuizList";
+import { UserManagement } from "./components/UserManagement";
+import { AuthProvider } from "./contexts/AuthContext";
 import { GameClient } from "./games/GameClient";
-import { TestActiveQuestion } from "./test/TestActiveQuestion";
 
 function App() {
   return (
@@ -28,7 +27,6 @@ function App() {
             }
           />
           <Route path="/" element={<GameClient />} />
-          <Route path="/test" element={<TestActiveQuestion />} />
         </Routes>
       </Router>
     </AuthProvider>

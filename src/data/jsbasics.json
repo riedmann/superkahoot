@@ -1,0 +1,100 @@
+{
+  "id": "js-quiz-001",
+  "title": "JavaScript Basics – Loops, Conditions & Variables",
+  "description": "Test your knowledge of JavaScript: loops, if statements, logical operators, and variables with code snippets.",
+  "difficulty": "medium",
+  "category": "Programming",
+  "createdAt": "2025-12-22T00:00:00.000Z",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "true-false",
+      "question": "The following code prints numbers from 1 to 5:\n\n```js\nfor(let i = 1; i <= 5; i++) {\n  console.log(i);\n}\n```",
+      "correctAnswer": true
+    },
+    {
+      "id": "q2",
+      "type": "standard",
+      "question": "What will this code output?\n\n```js\nlet x = 10;\nif(x > 5 && x < 15) {\n  console.log('Inside range');\n}\n```",
+      "options": [
+        { "text": "Inside range" },
+        { "text": "Outside range" },
+        { "text": "Error" },
+        { "text": "Nothing" }
+      ],
+      "correctAnswers": [0]
+    },
+    {
+      "id": "q3",
+      "type": "true-false",
+      "question": "The || operator returns true if at least one condition is true.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q4",
+      "type": "standard",
+      "question": "What is the value of `result` after this code?\n\n```js\nlet a = true;\nlet b = false;\nlet result = a && b;\n```",
+      "options": [
+        { "text": "true" },
+        { "text": "false" },
+        { "text": "undefined" },
+        { "text": "null" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q5",
+      "type": "true-false",
+      "question": "You can declare a variable in JS using `let` or `const`.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q6",
+      "type": "standard",
+      "question": "What does the following code output?\n\n```js\nfor(let i = 0; i < 3; i++) {\n  if(i === 1) continue;\n  console.log(i);\n}\n```",
+      "options": [
+        { "text": "0 1 2" },
+        { "text": "0 2" },
+        { "text": "1 2" },
+        { "text": "0 1" }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "q7",
+      "type": "true-false",
+      "question": "The `&&` operator stops evaluating as soon as one operand is false.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q8",
+      "type": "standard",
+      "question": "What is logged by this snippet?\n\n```js\nlet x = 5;\nif(x < 3 || x > 4) {\n  console.log('Yes');\n} else {\n  console.log('No');\n}\n```",
+      "options": [
+        { "text": "Yes" },
+        { "text": "No" },
+        { "text": "Error" },
+        { "text": "Nothing" }
+      ],
+      "correctAnswers": [0]
+    },
+    {
+      "id": "q9",
+      "type": "true-false",
+      "question": "Variables declared with `let` are block-scoped.",
+      "correctAnswer": true
+    },
+    {
+      "id": "q10",
+      "type": "standard",
+      "question": "What is the output?\n\n```js\nlet sum = 0;\nfor(let i=1; i<=3; i++) {\n  sum += i;\n}\nconsole.log(sum);\n```",
+      "options": [
+        { "text": "6" },
+        { "text": "5" },
+        { "text": "3" },
+        { "text": "0" }
+      ],
+      "correctAnswers": [0]
+    }
+  ]
+}
