@@ -1,31 +1,25 @@
-import { useEffect, useState, useRef } from "react";
-import type { Question, Quiz } from "../types";
-import { FirebaseGameDAO } from "./FirebaseGameDAO";
-import { ActiveQuestion } from "./host/ActiveQuestion";
-import { ShowQuestion } from "./host/ShowQuestion";
-import { WaitingForParticipants } from "./host/WaitingForParticipants";
-import { QuestionResult } from "./host/QuestionResult";
-import { Leaderboard } from "./host/Leaderboard";
-import { Countdown } from "./host/Countdown";
-import type { Game } from "../types";
+import { useEffect, useRef, useState } from "react";
+import { QuestionBroadcast } from "./QuestionBroadcast";
+import { ParticipantName } from "../components/ui/details/ParticipantName";
+import type { Question, Quiz, GameStatus, Game } from "../types";
 
 interface GameHostProps {
   quiz: Quiz;
   onBack: () => void;
 }
 
-const gameDAO = new FirebaseGameDAO();
+const WS_URL = "ws://localhost:8080";
 
 export function GameHost({ quiz, onBack }: GameHostProps) {
-  const [game, setGame] = useState<Game | null>(null);
+  const [game, setGame] = useState<Game>();
   const [loading, setLoading] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-
-  console.log("in host", game?.participants);
 
   // Music functionality
   const toggleMusic = () => {
@@ -43,24 +37,24 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
   };
 
   // Handle audio events
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      const handlePlay = () => setIsPlaying(true);
-      const handlePause = () => setIsPlaying(false);
-      const handleEnded = () => setIsPlaying(false);
+  // useEffect(() => {
+  //   const audio = audioRef.current;
+  //   if (audio) {
+  //     const handlePlay = () => setIsPlaying(true);
+  //     const handlePause = () => setIsPlaying(false);
+  //     const handleEnded = () => setIsPlaying(false);
 
-      audio.addEventListener("play", handlePlay);
-      audio.addEventListener("pause", handlePause);
-      audio.addEventListener("ended", handleEnded);
+  //     audio.addEventListener("play", handlePlay);
+  //     audio.addEventListener("pause", handlePause);
+  //     audio.addEventListener("ended", handleEnded);
 
-      return () => {
-        audio.removeEventListener("play", handlePlay);
-        audio.removeEventListener("pause", handlePause);
-        audio.removeEventListener("ended", handleEnded);
-      };
-    }
-  }, []);
+  //     return () => {
+  //       audio.removeEventListener("play", handlePlay);
+  //       audio.removeEventListener("pause", handlePause);
+  //       audio.removeEventListener("ended", handleEnded);
+  //     };
+  //   }
+  // }, []);
 
   // Fullscreen functionality
   const toggleFullscreen = async () => {
@@ -82,92 +76,143 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
   };
 
   // Listen for fullscreen changes (including F11 key)
+  // useEffect(() => {
+  //   const handleFullscreenChange = () => {
+  //     setIsFullscreen(!!document.fullscreenElement);
+  //   };
+
+  //   document.addEventListener("fullscreenchange", handleFullscreenChange);
+  //   return () => {
+  //     document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  //   };
+  // }, []);
+
+  // WebSocket setup for host
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+    const ws = new window.WebSocket(WS_URL);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      // Send create_game with quiz data
+      ws.send(
+        JSON.stringify({
+          type: "create_game",
+          data: {
+            quizId: quiz.id,
+            quizTitle: quiz.title,
+            quizData: quiz,
+            hostId: "host123", // TODO: use real host id
+          },
+        })
+      );
     };
 
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    const initGame = async () => {
+    ws.onmessage = (event) => {
       try {
-        const newGame = await gameDAO.createGame(quiz, "host123"); // TODO: Get actual host ID
-        setGame(newGame);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error creating game:", error);
-        setLoading(false);
+        const msg = JSON.parse(event.data);
+        switch (msg.type) {
+          case "game_created":
+            setGame({
+              id: msg.gameId,
+              quizId: quiz.id,
+              quizTitle: quiz.title,
+              participants: [],
+              gamePin: msg.gameId,
+              status: "waiting" as GameStatus,
+              hostId: "host123", // or msg.hostId if available
+              currentQuestionIndex: -1,
+              totalQuestions: quiz.questions.length,
+              createdAt: new Date(),
+              settings: {
+                questionTimeLimit: 30, // default to 30 seconds
+                showCorrectAnswers: true,
+                allowLateJoins: false,
+              }, // or provide default settings if needed
+            });
+            setLoading(false);
+            break;
+          case "joined":
+            setGame((g: any) =>
+              g
+                ? {
+                    ...g,
+                    participants: [
+                      ...(g.participants || []),
+                      { name: msg.player, id: msg.player, score: 0 },
+                    ],
+                  }
+                : g
+            );
+            break;
+          case "next_question":
+            setGame(msg.game);
+            if (msg.game.currentQuestionIndex !== undefined && quiz.questions) {
+              const question = quiz.questions[
+                msg.game.currentQuestionIndex
+              ] as Question;
+              setCurrentQuestion(question);
+            }
+            break;
+          case "error":
+            setError(msg.message);
+            setLoading(false);
+            break;
+          default:
+            break;
+        }
+      } catch (e) {
+        setError("Invalid message from server");
       }
     };
 
-    initGame();
-  }, [quiz]);
+    ws.onerror = (e) => {
+      setError("WebSocket error: " + JSON.stringify(e));
+    };
 
+    ws.onclose = () => {
+      // Optionally handle close
+    };
+
+    return () => {
+      ws.close();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quiz.id]);
+
+  // Listen for game updates from ws
   useEffect(() => {
-    if (!game) return;
-
-    const unsubscribe = gameDAO.subscribeToGame(
-      game.id,
-      (updatedGame) => {
-        console.log("GameHost - Game updated:", {
-          status: updatedGame.status,
-          currentQuestionIndex: updatedGame.currentQuestionIndex,
-          answersCount: updatedGame.currentQuestion?.answers.length || 0,
-          participantCount: updatedGame.participants.length,
-        });
-
-        setGame(updatedGame);
-
-        if (updatedGame.status === "question" && updatedGame.currentQuestion) {
-          const question = quiz.questions[
-            updatedGame.currentQuestionIndex
-          ] as Question;
-          setCurrentQuestion(question);
-
-          const currentTime = gameDAO.getCurrentTime();
-          const timeLeft = Math.max(
-            0,
-            updatedGame.currentQuestion.endsAt.getTime() - currentTime.getTime()
-          );
-          setTimeRemaining(Math.ceil(timeLeft / 1000));
-
-          // Check if all participants have answered
-          const answeredParticipants =
-            updatedGame.currentQuestion.answers.length;
-          const totalParticipants = updatedGame.participants.length;
-
-          console.log("Checking if all answered:", {
-            answered: answeredParticipants,
-            total: totalParticipants,
-            allAnswered:
-              answeredParticipants >= totalParticipants &&
-              totalParticipants > 0,
-          });
-
-          // If all participants have answered, automatically end the question
-          if (
-            answeredParticipants >= totalParticipants &&
-            totalParticipants > 0
-          ) {
-            console.log(
-              "All participants answered - ending question automatically"
-            );
-            setTimeout(() => {
-              handleEndQuestion();
-            }, 1000); // Small delay to show the final answer count
+    if (!wsRef.current) return;
+    const ws = wsRef.current;
+    const handleMessage = (event: MessageEvent) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type === "game_update") {
+          setGame(msg.game);
+          if (msg.game.status === "question" && msg.game.currentQuestion) {
+            const question = quiz.questions[
+              msg.game.currentQuestionIndex
+            ] as Question;
+            setCurrentQuestion(question);
+            // Use server time if provided, else local
+            const endsAt = new Date(msg.game.currentQuestion.endsAt);
+            const now = msg.serverTime ? new Date(msg.serverTime) : new Date();
+            const timeLeft = Math.max(0, endsAt.getTime() - now.getTime());
+            setTimeRemaining(Math.ceil(timeLeft / 1000));
+            // Auto end if all answered
+            const answered = msg.game.currentQuestion.answers.length;
+            const total = msg.game.participants.length;
+            if (answered >= total && total > 0) {
+              setTimeout(() => handleEndQuestion(), 1000);
+            }
           }
         }
-      },
-      (error) => console.error("Game subscription error:", error)
-    );
-
-    return () => unsubscribe();
-  }, [game?.id]);
+      } catch (e) {
+        // ignore
+      }
+    };
+    ws.addEventListener("message", handleMessage);
+    return () => ws.removeEventListener("message", handleMessage);
+  }, [quiz, wsRef, game]);
 
   useEffect(() => {
     if (
@@ -176,49 +221,58 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
       game.currentQuestion
     ) {
       const timer = setInterval(() => {
-        // Use server time for accurate countdown
-        const currentTime = gameDAO.getCurrentTime();
-        const timeLeft = Math.max(
-          0,
-          game.currentQuestion!.endsAt.getTime() - currentTime.getTime()
-        );
+        // Use local time for countdown (server time sync can be added)
+        const endsAt = new Date(game.currentQuestion?.endsAt ?? Date.now());
+        const now = new Date();
+        const timeLeft = Math.max(0, endsAt.getTime() - now.getTime());
         const newTimeRemaining = Math.ceil(timeLeft / 1000);
-
         setTimeRemaining(newTimeRemaining);
-
         if (newTimeRemaining <= 0) {
           handleEndQuestion();
         }
       }, 1000);
-
       return () => clearInterval(timer);
     }
   }, [timeRemaining, game?.status, game?.currentQuestion?.endsAt]);
 
-  const handleStartGame = async () => {
-    if (!game) return;
-    await gameDAO.updateGameStatus(game.id, "active");
-  };
-
-  const handleNextQuestion = async () => {
-    if (!game) return;
-
-    const nextIndex = game.currentQuestionIndex + 1;
-    if (nextIndex < quiz.questions.length) {
-      await gameDAO.startCountdown(game.id, nextIndex);
-    } else {
-      await gameDAO.finishGame(game.id);
+  // Host actions via ws
+  const sendWs = (msg: any) => {
+    if (wsRef.current && wsRef.current.readyState === 1) {
+      wsRef.current.send(JSON.stringify(msg));
     }
   };
 
-  const handleCountdownComplete = async () => {
+  const handleStartGame = () => {
     if (!game) return;
-    await gameDAO.startQuestion(game.id, game.currentQuestionIndex);
+    sendWs({ type: "start_game", gameId: game.id });
   };
 
-  const handleEndQuestion = async () => {
+  const handleNextQuestion = () => {
     if (!game) return;
-    await gameDAO.endQuestion(game.id);
+    const nextIndex = game.currentQuestionIndex + 1;
+    if (nextIndex < quiz.questions.length) {
+      sendWs({
+        type: "start_countdown",
+        gameId: game.id,
+        questionIndex: nextIndex,
+      });
+    } else {
+      sendWs({ type: "finish_game", gameId: game.id });
+    }
+  };
+
+  const handleCountdownComplete = () => {
+    if (!game) return;
+    sendWs({
+      type: "start_question",
+      gameId: game.id,
+      questionIndex: game.currentQuestionIndex,
+    });
+  };
+
+  const handleEndQuestion = () => {
+    if (!game) return;
+    sendWs({ type: "end_question", gameId: game.id });
   };
 
   const handleShowNextQuestion = () => {
@@ -282,7 +336,9 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
             <div className="flex gap-2 items-center">
               <div className="text-sm text-gray-600">
                 Participants:{" "}
-                <span className="font-bold">{game.participants.length}</span>
+                <span className="font-bold">
+                  {game.participants ? game.participants.length : 0}
+                </span>
               </div>
               <button
                 onClick={toggleMusic}
@@ -366,61 +422,52 @@ export function GameHost({ quiz, onBack }: GameHostProps) {
       {/* Game Content */}
       <div className="max-w-4xl mx-auto px-6 py-8">
         {game.status === "waiting" && (
-          <WaitingForParticipants game={game} onStartGame={handleStartGame} />
-        )}
-
-        {game.status === "active" && (
-          <ShowQuestion
-            game={game}
-            quiz={quiz}
-            onShowQuestion={handleNextQuestion}
-          />
+          <div>
+            <h2 className="text-xl font-bold mb-4">
+              Waiting for participants...
+            </h2>
+            <ul className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+              {(game.participants || []).map((p: any) => (
+                <ParticipantName key={p.id} name={p.name} />
+              ))}
+            </ul>
+            {game.participants && game.participants.length > 0 && (
+              <button
+                onClick={handleStartGame}
+                className="mt-4 px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 transition-colors duration-200"
+              >
+                Start Game
+              </button>
+            )}
+          </div>
         )}
 
         {game.status === "countdown" && (
-          <Countdown
-            game={game}
-            onCountdownComplete={handleCountdownComplete}
-            questionNumber={game.currentQuestionIndex + 1}
-            totalQuestions={quiz.questions.length}
-          />
+          <div className="text-center my-8">
+            <h2 className="text-2xl font-bold mb-4">
+              Next question starting soon!
+            </h2>
+            <div className="text-5xl font-bold text-blue-600 mb-2">
+              {timeRemaining}s
+            </div>
+            <button
+              onClick={handleCountdownComplete}
+              className="mt-4 px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700 transition-colors duration-200"
+            >
+              Show Question
+            </button>
+          </div>
         )}
 
         {game.status === "question" && currentQuestion && (
-          <ActiveQuestion
-            game={game}
-            currentQuestion={currentQuestion}
+          <QuestionBroadcast
+            gameId={game.id}
+            question={currentQuestion}
+            index={game.currentQuestionIndex}
+            ws={wsRef.current}
             timeRemaining={timeRemaining}
-            quiz={{ questions: quiz.questions }}
             onEndQuestion={handleEndQuestion}
-            onExit={onBack}
           />
-        )}
-
-        {game.status === "results" && currentQuestion && (
-          <QuestionResult
-            game={game}
-            currentQuestion={currentQuestion}
-            quiz={quiz}
-            onShowNextQuestion={handleShowNextQuestion}
-          />
-        )}
-
-        {game.status === "finished" && (
-          <div className="text-center">
-            <div className="bg-white rounded-lg p-8 shadow-lg">
-              <h2 className="text-3xl font-bold mb-6">Game Finished!</h2>
-
-              <Leaderboard game={game} title="Final Leaderboard" />
-
-              <button
-                onClick={onBack}
-                className="px-8 py-3 bg-gray-600 text-white font-bold text-lg rounded"
-              >
-                Back to Quiz
-              </button>
-            </div>
-          </div>
         )}
       </div>
     </div>

@@ -1,24 +1,73 @@
-# Logs
-logs
-*.log
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node modules and build outputs
+node_modules/
+dist/
+build/
+.next/
+.vercel/
+
+# Vite cache
+.vite/
+
+# Log files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Environment files
+.env
+.env.*
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
+.vscode/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Coverage directory
+coverage/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm/
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+yarn.lock
+
+# Parcel-bundler cache
+.cache/
+
+# SvelteKit build
+.svelte-kit/
+
+# Firebase emulators
+.firebase/
+
+# Storybook build
+storybook-static/
+
+# Misc
+*.log
+node_modules

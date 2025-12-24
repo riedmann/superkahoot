@@ -4,6 +4,7 @@ import { QuizList } from "./components/QuizList";
 import { UserManagement } from "./components/UserManagement";
 import { AuthProvider } from "./contexts/AuthContext";
 import { GameClient } from "./games/GameClient";
+import { TestComponent } from "./components/TestComponent";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             }
           />
           <Route path="/" element={<GameClient />} />
+          <Route path="/ws-test" element={<TestComponent />} />
         </Routes>
       </Router>
     </AuthProvider>
