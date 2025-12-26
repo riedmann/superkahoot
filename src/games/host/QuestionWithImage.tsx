@@ -13,7 +13,7 @@ export function QuestionWithImage({ currentQuestion }: QuestionWithImageProps) {
   ];
 
   return (
-    <div className="flex gap-8 items-center  ">
+    <div className="flex  items-center  ">
       {/* Left side: Question and Image */}
       <div className="flex-1 text-cente  w-full">
         <h3 className="text-xl md:text-2xl font-bold mb-6 leading-tight text-center">

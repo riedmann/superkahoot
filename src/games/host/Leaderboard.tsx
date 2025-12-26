@@ -13,7 +13,7 @@ export function Leaderboard({
 }: LeaderboardProps) {
   return (
     <div className="mb-6">
-      <h4 className="text-lg font-semibold text-gray-700 mb-4">{title}</h4>
+      <h4 className="text-lg font-semibold text-white mb-4">{title}</h4>
       <div className="max-w-3xl mx-auto">
         {[...game.participants]
           .sort((a, b) => b.score - a.score)
@@ -40,10 +40,10 @@ export function Leaderboard({
                 key={participant.id}
                 className={`p-4 rounded-lg mb-2 ${
                   isFirst
-                    ? "bg-yellow-50 border border-yellow-200"
+                    ? "bg-yellow-500 bg-opacity-20 border border-yellow-300"
                     : isPodium
-                    ? "bg-blue-50 border border-blue-200"
-                    : "bg-gray-50 border border-gray-200"
+                    ? "bg-blue-500 bg-opacity-20 border border-blue-300"
+                    : "bg-gray-500 bg-opacity-20 border border-gray-300"
                 }`}
               >
                 <div className="flex justify-between items-center">
@@ -60,10 +60,10 @@ export function Leaderboard({
                       {index + 1}
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-white">
                         {participant.name}
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                      <div className="flex items-center gap-4 text-sm text-white mt-1">
                         <span className="flex items-center gap-1">
                           <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                           {correctAnswers} correct
@@ -72,17 +72,17 @@ export function Leaderboard({
                           <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                           {wrongAnswers} wrong
                         </span>
-                        <span className="font-medium text-gray-700">
+                        <span className="font-medium text-white">
                           {percentage}% accuracy
                         </span>
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="text-lg font-bold text-gray-900">
+                    <div className="text-lg font-bold text-white">
                       {participant.score}
                     </div>
-                    <div className="text-sm text-gray-500">pts</div>
+                    <div className="text-sm text-white">pts</div>
                   </div>
                 </div>
               </div>
@@ -90,7 +90,7 @@ export function Leaderboard({
           })}
       </div>
       {showResponseCount && (
-        <div className="mt-4 text-sm text-gray-600">
+        <div className="mt-4 text-sm text-white">
           Total Responses: {game.currentQuestion?.answers.length || 0} /{" "}
           {game.participants.length}
         </div>

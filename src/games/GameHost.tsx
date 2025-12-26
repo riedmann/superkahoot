@@ -160,15 +160,19 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
   if (state === "question") {
     if (!game) return <div>error no game</div>;
     return (
-      <div>
-        <QuestionWithoutImage currentQuestion={quiz.questions[questionIndex]} />
-        <QuestionFooter
-          game={game}
-          onEndQuestion={hanldeEndQuestion}
-          onExit={function (): void {
-            throw new Error("Function not implemented.");
-          }}
-        />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700">
+        <div className="w-full text-white">
+          <QuestionWithoutImage
+            currentQuestion={quiz.questions[questionIndex]}
+          />
+          <QuestionFooter
+            game={game}
+            onEndQuestion={hanldeEndQuestion}
+            onExit={function (): void {
+              throw new Error("Function not implemented.");
+            }}
+          />
+        </div>
       </div>
     );
   }
@@ -179,12 +183,16 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
     const currentQuestion = game.quizData.questions[questionIndex];
     if (!currentQuestion) return <div>error no question</div>;
     return (
-      <QuestionResult
-        game={game}
-        currentQuestion={currentQuestion}
-        quiz={game.quizData}
-        onShowNextQuestion={handleNextQuestion}
-      />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700">
+        <div className="w-full text-white">
+          <QuestionResult
+            game={game}
+            currentQuestion={currentQuestion}
+            quiz={game.quizData}
+            onShowNextQuestion={handleNextQuestion}
+          />
+        </div>
+      </div>
     );
   }
   return <div />; // Placeholder for other states
