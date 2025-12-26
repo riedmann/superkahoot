@@ -23,7 +23,7 @@ export function QuestionFooter({
   }, [game.currentQuestion?.answers, game.participants]);
 
   return (
-    <div className="bg-black bg-opacity-20 p-3 rounded-lg mx-4 mb-3">
+    <div className="bg-opacity-20 p-3 rounded-lg mx-4 mb-3">
       <div className="flex justify-between items-center mb-2">
         <div className="text-sm font-semibold">
           Answers: {game.currentQuestion?.answers.length || 0} /{" "}

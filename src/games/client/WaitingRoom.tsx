@@ -29,7 +29,7 @@ export function WaitingRoom({
             value={gamePin}
             onChange={(e) => setGamePin(e.target.value)}
             required
-            className="w-full px-4 py-2 rounded bg-white bg-opacity-80 text-gray-800 font-mono text-xl"
+            className="w-full px-4 py-2 rounded bg-white bg-opacity-80 text-gray-800 font-mono text-xl border border-gray-300 "
           />
         </label>
         <label className="mb-6 w-full">
@@ -39,7 +39,7 @@ export function WaitingRoom({
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             required
-            className="w-full px-4 py-2 rounded bg-white bg-opacity-80 text-gray-800"
+            className="w-full px-4 py-2 rounded bg-white bg-opacity-80 text-gray-800 border border-gray-300"
           />
         </label>
         <button

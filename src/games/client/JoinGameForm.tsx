@@ -28,8 +28,8 @@ export function JoinGameForm({ loading, error, onJoin }: JoinGameFormProps) {
               type="text"
               value={gamePin}
               onChange={(e) => setGamePin(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg font-mono"
-              placeholder="Enter PIN"
+              className="w-full px-3 py-2 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg font-mono"
+              placeholder="Enter PINcc"
               maxLength={6}
             />
           </div>
