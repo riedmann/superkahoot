@@ -15,7 +15,7 @@ export function QuestionWithoutImage({
   ];
 
   return (
-    <div className="text-center mb-8">
+    <div className="text-center mb-8 p-8">
       <h3 className="text-4xl md:text-7xl font-bold mb-8 leading-tight">
         {currentQuestion.question}
       </h3>

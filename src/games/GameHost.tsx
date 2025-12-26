@@ -2,11 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import type { Game, GameStatus, Participant } from "../types/game";
 import type { Quiz } from "../types/quiz";
 import { Countdown } from "./host/Countdown";
-import { QuestionWithImage } from "./host/QuestionWithImage";
-import { QuestionWithoutImage } from "./host/QuestionWithoutImage";
 import { QuestionFooter } from "./host/QuestionFooter";
-import { Leaderboard } from "./host/Leaderboard";
 import { QuestionResult } from "./host/QuestionResult";
+import { QuestionWithoutImage } from "./host/QuestionWithoutImage";
 
 interface GameHostProps {
   quiz: Quiz;

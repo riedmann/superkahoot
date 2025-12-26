@@ -1,6 +1,10 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { GameStatus } from "../types/common";
 import type { Question } from "../types/question";
+import { CountdownScreen } from "./client/CountdownScreen";
+import { QuestionScreen } from "./client/QuestionScreen";
+import { ResultsScreen } from "./client/ResultsScreen";
+import { WaitingRoom } from "./client/WaitingRoom";
 
 type Props = {};
 
@@ -15,10 +19,13 @@ export default function GameClient({}: Props) {
   const [countdown, setCountdown] = useState<number>(3);
   const [questionIndex, setQuestionIndex] = useState<number>(0);
   const [questionCountdown, setQuestionCountdown] = useState<number>(30);
-  const [question, setQuestion] = useState<Question | null>(null);
+  const [question, setQuestion] = useState<string>("");
+  const [questionType, setQuestionType] = useState<string>("");
 
   const ws = useRef<WebSocket | null>(null);
   const gamePinRef = useRef(gamePin);
+
+  console.log("state", state);
 
   // Keep gamePinRef in sync with gamePin state
   useEffect(() => {
@@ -44,6 +51,7 @@ export default function GameClient({}: Props) {
       if (msg.type === "question") {
         setQuestion(msg.question);
         setQuestionIndex(msg.index);
+        setQuestionType(msg.questionType);
         setCountdown(3);
         setQuestionCountdown(30);
         setState("question");
@@ -51,7 +59,6 @@ export default function GameClient({}: Props) {
       if (msg.type === "results") {
         setState("results");
       }
-      // Handle more message types here as needed
     };
     return () => {
       ws.current?.close();
@@ -99,6 +106,7 @@ export default function GameClient({}: Props) {
 
     if (ws.current.readyState === WebSocket.OPEN) {
       sendJoin();
+      setState("waiting");
     } else {
       ws.current.onopen = sendJoin;
     }
@@ -117,64 +125,45 @@ export default function GameClient({}: Props) {
     );
   };
 
+  // Styled screens
+  if (!joined) {
+    return (
+      <WaitingRoom
+        gamePin={gamePin}
+        nickname={nickname}
+        setGamePin={setGamePin}
+        setNickname={setNickname}
+        handleJoin={handleJoin}
+      />
+    );
+  }
+
+  if (state == "waiting") {
+    return <div>waiting</div>;
+  }
+
+  if (state === "countdown") {
+    return <CountdownScreen countdown={countdown} />;
+  }
+
+  if (state === "question") {
+    if (!question) return <div>Loading question...</div>;
+    return (
+      <QuestionScreen
+        question={question}
+        questionType={questionType}
+        questionIndex={questionIndex}
+        questionCountdown={questionCountdown}
+        onAnswer={handleAnswer}
+      />
+    );
+  }
+
+  if (state === "results") {
+    return <ResultsScreen />;
+  }
+
   return (
-    <div>
-      {!joined ? (
-        <form onSubmit={handleJoin}>
-          <label>
-            Game PIN:
-            <input
-              type="text"
-              value={gamePin}
-              onChange={(e) => setGamePin(e.target.value)}
-              required
-            />
-          </label>
-          <br />
-          <label>
-            Nickname:
-            <input
-              type="text"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              required
-            />
-          </label>
-          <br />
-          <button type="submit" className="border hover:cursor-pointer">
-            Join Game
-          </button>
-        </form>
-      ) : (
-        <div>
-          {state === "countdown" && (
-            <div>
-              <h2>Game starts in: {countdown}</h2>
-            </div>
-          )}
-          {state === "question" && (
-            <div>
-              <div>
-                <strong>Time left: {questionCountdown}s</strong>
-              </div>
-              <h2>Question {questionIndex + 1}:</h2>
-              <p>Test</p>
-              {/* Example answer buttons */}
-              <button onClick={() => handleAnswer("A")}>A</button>
-              <button onClick={() => handleAnswer("B")}>B</button>
-              <button onClick={() => handleAnswer("C")}>C</button>
-              <button onClick={() => handleAnswer("D")}>D</button>
-            </div>
-          )}
-          {state === "results" && (
-            <div>
-              <h2>Results</h2>
-              {/* Show results here */}
-            </div>
-          )}
-          {state === "waiting" && <p>Waiting for host to start...</p>}
-        </div>
-      )}
-    </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-700" />
   );
 }
