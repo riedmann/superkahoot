@@ -19,7 +19,7 @@ export default function GameClient({}: Props) {
   const [countdown, setCountdown] = useState<number>(3);
   const [questionIndex, setQuestionIndex] = useState<number>(0);
   const [questionCountdown, setQuestionCountdown] = useState<number>(30);
-  const [question, setQuestion] = useState<string>("");
+  const [question, setQuestion] = useState<Question | null>(null);
   const [questionType, setQuestionType] = useState<string>("");
 
   const ws = useRef<WebSocket | null>(null);
@@ -51,10 +51,13 @@ export default function GameClient({}: Props) {
       if (msg.type === "question") {
         setQuestion(msg.question);
         setQuestionIndex(msg.index);
-        setQuestionType(msg.questionType);
         setCountdown(3);
         setQuestionCountdown(30);
         setState("question");
+      }
+      if (msg.type === "answer_received") {
+        console.log("Answer received confirmation:", msg);
+        setState("results");
       }
       if (msg.type === "results") {
         setState("results");
@@ -113,7 +116,7 @@ export default function GameClient({}: Props) {
   };
 
   // Send answer to server
-  const handleAnswer = (answer: string) => {
+  const handleAnswer = (answer: number) => {
     ws.current?.send(
       JSON.stringify({
         type: "addAnswer",
@@ -170,7 +173,6 @@ export default function GameClient({}: Props) {
     return (
       <QuestionScreen
         question={question}
-        questionType={questionType}
         questionIndex={questionIndex}
         questionCountdown={questionCountdown}
         onAnswer={handleAnswer}
