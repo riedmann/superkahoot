@@ -1,9 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
-
-type Question = {
-  question: string;
-  // Add other fields as needed
-};
+import type { GameStatus } from "../types/common";
+import type { Question } from "../types/question";
 
 type Props = {};
 
@@ -12,9 +9,13 @@ export default function GameClient({}: Props) {
   const [id, setId] = useState("");
   const [nickname, setNickname] = useState("");
   const [joined, setJoined] = useState(false);
-  const [countdown, setCountdown] = useState<number | null>(null);
+
+  // State management
+  const [state, setState] = useState<GameStatus>("waiting");
+  const [countdown, setCountdown] = useState<number>(3);
+  const [questionIndex, setQuestionIndex] = useState<number>(0);
+  const [questionCountdown, setQuestionCountdown] = useState<number>(30);
   const [question, setQuestion] = useState<Question | null>(null);
-  const [questionIndex, setQuestionIndex] = useState<number | null>(null);
 
   const ws = useRef<WebSocket | null>(null);
   const gamePinRef = useRef(gamePin);
@@ -38,11 +39,17 @@ export default function GameClient({}: Props) {
       }
       if (msg.type === "countdown") {
         setCountdown(msg.seconds);
+        setState("countdown");
       }
       if (msg.type === "question") {
         setQuestion(msg.question);
         setQuestionIndex(msg.index);
-        setCountdown(null);
+        setCountdown(3);
+        setQuestionCountdown(30);
+        setState("question");
+      }
+      if (msg.type === "results") {
+        setState("results");
       }
       // Handle more message types here as needed
     };
@@ -51,15 +58,28 @@ export default function GameClient({}: Props) {
     };
   }, []);
 
-  // Countdown effect
+  // Countdown effect for game start
   useEffect(() => {
-    if (countdown === null) return;
-    if (countdown === 0) return;
+    if (state !== "countdown") return;
+    if (countdown === 0) {
+      setState("question");
+      return;
+    }
     const timer = setTimeout(() => {
-      setCountdown((c) => (c !== null ? c - 1 : null));
+      setCountdown((c) => (c > 0 ? c - 1 : 0));
     }, 1000);
     return () => clearTimeout(timer);
-  }, [countdown]);
+  }, [state, countdown]);
+
+  // Countdown effect for question
+  useEffect(() => {
+    if (state !== "question") return;
+    if (questionCountdown === 0) return;
+    const timer = setTimeout(() => {
+      setQuestionCountdown((c) => (c > 0 ? c - 1 : 0));
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [state, questionCountdown]);
 
   const handleJoin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,6 +102,19 @@ export default function GameClient({}: Props) {
     } else {
       ws.current.onopen = sendJoin;
     }
+  };
+
+  // Send answer to server
+  const handleAnswer = (answer: string) => {
+    ws.current?.send(
+      JSON.stringify({
+        type: "addAnswer",
+        gameId: gamePinRef.current,
+        playerId: id,
+        answer,
+        questionIndex,
+      })
+    );
   };
 
   return (
@@ -114,23 +147,32 @@ export default function GameClient({}: Props) {
         </form>
       ) : (
         <div>
-          {countdown !== null && (
+          {state === "countdown" && (
             <div>
               <h2>Game starts in: {countdown}</h2>
             </div>
           )}
-          {question && (
+          {state === "question" && (
             <div>
-              <h2>
-                Question {questionIndex !== null ? questionIndex + 1 : ""}:
-              </h2>
-              <p>{question.question}</p>
-              {/* Add answer options here */}
+              <div>
+                <strong>Time left: {questionCountdown}s</strong>
+              </div>
+              <h2>Question {questionIndex + 1}:</h2>
+              <p>Test</p>
+              {/* Example answer buttons */}
+              <button onClick={() => handleAnswer("A")}>A</button>
+              <button onClick={() => handleAnswer("B")}>B</button>
+              <button onClick={() => handleAnswer("C")}>C</button>
+              <button onClick={() => handleAnswer("D")}>D</button>
             </div>
           )}
-          {!question && countdown === null && (
-            <p>Waiting for host to start...</p>
+          {state === "results" && (
+            <div>
+              <h2>Results</h2>
+              {/* Show results here */}
+            </div>
           )}
+          {state === "waiting" && <p>Waiting for host to start...</p>}
         </div>
       )}
     </div>
