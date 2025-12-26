@@ -1,4 +1,5 @@
 import type { GameStatus } from "./common";
+import type { Quiz } from "./quiz";
 
 export interface ParticipantAnswerHistory {
   questionId: string;
@@ -36,12 +37,12 @@ export interface GameQuestion {
 }
 
 export interface Game {
-  id: string;
+  id?: string;
   quizId: string;
   quizTitle: string;
-  quizData?: any; // Full quiz data for client access
+  quizData?: Quiz; // Full quiz data for client access
   hostId: string;
-  gamePin: string;
+  gamePin?: string;
   status: GameStatus;
   participants: Participant[];
   currentQuestionIndex: number;

@@ -3,8 +3,9 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { QuizList } from "./components/QuizList";
 import { UserManagement } from "./components/UserManagement";
 import { AuthProvider } from "./contexts/AuthContext";
-import { GameClient } from "./games/GameClient";
+
 import { TestComponent } from "./components/TestComponent";
+import GameClient from "./games/GameClient";
 
 function App() {
   return (

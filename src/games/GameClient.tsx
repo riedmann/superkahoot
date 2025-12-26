@@ -1,68 +1,138 @@
-import { useEffect, useRef, useState } from "react";
-import { JoinGameForm } from "./client/JoinGameForm";
+import React, { useRef, useState, useEffect } from "react";
 
-export function GameClient() {
-  const [joined, setJoined] = useState(false);
+type Question = {
+  question: string;
+  // Add other fields as needed
+};
+
+type Props = {};
+
+export default function GameClient({}: Props) {
   const [gamePin, setGamePin] = useState("");
-  const [playerName, setPlayerName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const wsRef = useRef<WebSocket | null>(null);
+  const [id, setId] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [joined, setJoined] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [question, setQuestion] = useState<Question | null>(null);
+  const [questionIndex, setQuestionIndex] = useState<number | null>(null);
 
+  const ws = useRef<WebSocket | null>(null);
+  const gamePinRef = useRef(gamePin);
+
+  // Keep gamePinRef in sync with gamePin state
   useEffect(() => {
-    const ws = new window.WebSocket("ws://localhost:8080");
-    wsRef.current = ws;
-    ws.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        if (msg.type === "joined") {
-          setJoined(true);
-          setLoading(false);
-        } else if (msg.type === "error") {
-          setError(msg.message);
-          setLoading(false);
-        }
-      } catch (e) {
-        setError("Invalid message from server");
+    gamePinRef.current = gamePin;
+  }, [gamePin]);
+
+  // Effect for reading messages and opening socket
+  useEffect(() => {
+    ws.current = new WebSocket("ws://localhost:8080");
+    ws.current.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      console.log("incomming message", msg);
+      if (msg.type === "joined" && msg.gameId === gamePinRef.current) {
+        setJoined(true);
       }
+      if (msg.type === "error") {
+        alert(msg.message);
+      }
+      if (msg.type === "countdown") {
+        setCountdown(msg.seconds);
+      }
+      if (msg.type === "question") {
+        setQuestion(msg.question);
+        setQuestionIndex(msg.index);
+        setCountdown(null);
+      }
+      // Handle more message types here as needed
     };
-    return () => ws.close();
+    return () => {
+      ws.current?.close();
+    };
   }, []);
 
-  if (!joined) {
-    return (
-      <JoinGameForm
-        loading={loading}
-        error={error}
-        onJoin={(gamePin, playerName) => {
-          setLoading(true);
-          setError(null);
-          wsRef.current?.send(
-            JSON.stringify({
-              type: "join_game",
-              gameId: gamePin,
-              player: playerName.trim(),
-            })
-          );
-          setGamePin(gamePin);
-          setPlayerName(playerName);
-        }}
-      />
-    );
-  }
+  // Countdown effect
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown === 0) return;
+    const timer = setTimeout(() => {
+      setCountdown((c) => (c !== null ? c - 1 : null));
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
 
-  // Waiting screen after joining
+  const handleJoin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ws.current) return;
+    const playerId = Date.now().toString();
+    setId(playerId);
+
+    const sendJoin = () => {
+      ws.current?.send(
+        JSON.stringify({
+          type: "join_game",
+          gameId: gamePinRef.current,
+          player: { id: playerId, name: nickname },
+        })
+      );
+    };
+
+    if (ws.current.readyState === WebSocket.OPEN) {
+      sendJoin();
+    } else {
+      ws.current.onopen = sendJoin;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-blue-600 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-8 shadow-xl max-w-md w-full mx-4 text-center">
-        <h1 className="text-3xl font-bold mb-6">You have joined!</h1>
-        <div className="text-lg text-gray-700 mb-4">
-          Waiting for the host to start the game...
+    <div>
+      {!joined ? (
+        <form onSubmit={handleJoin}>
+          <label>
+            Game PIN:
+            <input
+              type="text"
+              value={gamePin}
+              onChange={(e) => setGamePin(e.target.value)}
+              required
+            />
+          </label>
+          <br />
+          <label>
+            Nickname:
+            <input
+              type="text"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              required
+            />
+          </label>
+          <br />
+          <button type="submit" className="border hover:cursor-pointer">
+            Join Game
+          </button>
+        </form>
+      ) : (
+        <div>
+          {countdown !== null && (
+            <div>
+              <h2>Game starts in: {countdown}</h2>
+            </div>
+          )}
+          {question && (
+            <div>
+              <h2>
+                Question {questionIndex !== null ? questionIndex + 1 : ""}:
+              </h2>
+              <p>{question.question}</p>
+              {/* Add answer options here */}
+            </div>
+          )}
+          {!question && countdown === null && (
+            <p>Waiting for host to start...</p>
+          )}
         </div>
-        <div className="text-gray-500">
-          Game PIN: <span className="font-mono font-bold">{gamePin}</span>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
