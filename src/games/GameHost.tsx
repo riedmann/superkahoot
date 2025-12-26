@@ -1,8 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { type Game, type GameStatus, type Participant } from "../types/game";
+import type { Game, GameStatus, Participant } from "../types/game";
 import type { Quiz } from "../types/quiz";
-import { QuestionFooter } from "./host/QuestionFooter";
+import { Countdown } from "./host/Countdown";
+import { QuestionWithImage } from "./host/QuestionWithImage";
 import { QuestionWithoutImage } from "./host/QuestionWithoutImage";
+import { QuestionFooter } from "./host/QuestionFooter";
+import { Leaderboard } from "./host/Leaderboard";
+import { QuestionResult } from "./host/QuestionResult";
 
 interface GameHostProps {
   quiz: Quiz;
@@ -68,17 +72,7 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
     };
   }, [quiz]);
 
-  // Countdown effect
-  useEffect(() => {
-    if (state !== "countdown") return;
-    if (countdown === 0) return;
-    const timer = setTimeout(() => {
-      setCountdown((c) => (c > 0 ? c - 1 : 0));
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [state, countdown]);
-
-  // 30-second question countdown effect
+  // Countdown effect for question
   useEffect(() => {
     if (state !== "question") return;
     if (questionCountdown === 0) return;
@@ -87,15 +81,6 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
     }, 1000);
     return () => clearTimeout(timer);
   }, [state, questionCountdown]);
-
-  // 30-second question timer effect
-  useEffect(() => {
-    if (state !== "question") return;
-    let timer = setTimeout(() => {
-      setState("results");
-    }, 30000);
-    return () => clearTimeout(timer);
-  }, [state, questionIndex]);
 
   const handleStartGame = () => {
     if (game?.gamePin && ws.current) {
@@ -112,16 +97,14 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
     if (game?.gamePin && ws.current) {
       ws.current.send(
         JSON.stringify({
-          type: "nextQuestion",
+          type: "next_question",
           gameId: game.gamePin,
         })
       );
     }
   };
 
-  const handleEndQuestion = () => {
-    console.log("send queseion timeout");
-
+  const hanldeEndQuestion = () => {
     if (game?.gamePin && ws.current) {
       ws.current.send(
         JSON.stringify({
@@ -132,66 +115,81 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
     }
   };
 
-  return (
-    <div>
-      <h2>Game Host</h2>
-      <p>Quiz: {quiz.title}</p>
-      {game?.id ? (
-        <div>
-          <p>
-            Game PIN: <strong>{game.gamePin}</strong>
-          </p>
-
-          <h3>Participants:</h3>
-          <ul>
+  // Styled waiting room screen
+  if (state === "waiting" && game?.gamePin) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 text-black">
+        <div className="bg-white bg-opacity-10 rounded-xl p-8 shadow-lg flex flex-col items-center">
+          <h1 className="text-3xl font-bold mb-4">Game PIN</h1>
+          <div className="text-5xl font-mono font-extrabold tracking-widest bg-white bg-opacity-20 px-8 py-4 rounded-lg mb-6">
+            {game.gamePin}
+          </div>
+          <h2 className="text-xl mb-2">Participants</h2>
+          <ul className="mb-6">
+            {participants.length === 0 && (
+              <li className="italic text-gray-200">Waiting for players...</li>
+            )}
             {participants.map((p) => (
-              <li key={p.id}>{p.name}</li>
+              <li key={p.id} className="text-lg font-semibold">
+                {p.name}
+              </li>
             ))}
           </ul>
-          {state == "countdown" && (
-            <div>
-              <h2>Game starts in: {countdown}</h2>
-            </div>
-          )}
-          {state === "results" && (
-            <div>
-              results
-              <button onClick={handleNextQuestion}>Next Question</button>
-            </div>
-          )}
-          {state == "question" && (
-            <div>
-              <div>
-                <strong>Time left: {questionCountdown}s</strong>
-              </div>
-              <QuestionWithoutImage
-                currentQuestion={quiz.questions[questionIndex ?? 0]}
-              />
-              <QuestionFooter
-                game={game}
-                onEndQuestion={handleEndQuestion}
-                onExit={function (): void {
-                  throw new Error("Function not implemented.");
-                }}
-              />
-            </div>
-          )}
-          {state != "question" &&
-            state != "countdown" &&
-            state != "results" && (
-              <button
-                onClick={handleStartGame}
-                className="border hover:cursor-pointer"
-              >
-                Start Game
-              </button>
-            )}
+          <button
+            onClick={handleStartGame}
+            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow transition"
+            disabled={participants.length === 0}
+          >
+            Start Game
+          </button>
         </div>
-      ) : (
-        <p>Creating game...</p>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
+
+  // Show countdown overlay
+  if (state === "countdown" && game) {
+    return (
+      <Countdown
+        game={game}
+        onCountdownComplete={() => setState("question")}
+        questionNumber={questionIndex + 1}
+        totalQuestions={quiz.questions.length}
+      />
+    );
+  }
+
+  if (state === "question") {
+    if (!game) return <div>error no game</div>;
+    return (
+      <div>
+        <QuestionWithoutImage currentQuestion={quiz.questions[questionIndex]} />
+        <QuestionFooter
+          game={game}
+          onEndQuestion={hanldeEndQuestion}
+          onExit={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (state === "results") {
+    if (!game) return <div>error no game</div>;
+    if (!game.quizData) return <div>error no quiz data</div>;
+    const currentQuestion = game.quizData.questions[questionIndex];
+    if (!currentQuestion) return <div>error no question</div>;
+    return (
+      <QuestionResult
+        game={game}
+        currentQuestion={currentQuestion}
+        quiz={game.quizData}
+        onShowNextQuestion={handleNextQuestion}
+      />
+    );
+  }
+  return <div />; // Placeholder for other states
 };
 
 export default GameHost;
