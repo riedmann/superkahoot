@@ -224,11 +224,7 @@ export function QuestionResult({
           : "Finish Game"}
       </Button>
 
-      <Leaderboard
-        game={game}
-        title="Current Leaderboard:"
-        showResponseCount={true}
-      />
+      <Leaderboard game={game} title="Current Leaderboard:" />
     </div>
   );
 }

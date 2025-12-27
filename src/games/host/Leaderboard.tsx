@@ -1,103 +1,96 @@
-import type { Game } from "../../types";
+import type { Game } from "../../types/game";
 
 interface LeaderboardProps {
   game: Game;
   title?: string;
-  showResponseCount?: boolean;
 }
 
 export function Leaderboard({
   game,
   title = "Current Leaderboard:",
-  showResponseCount = false,
 }: LeaderboardProps) {
+  // Aggregate scores from all answers
+  const participantScores: {
+    [id: string]: {
+      name: string;
+      score: number;
+      correct: number;
+      total: number;
+    };
+  } = {};
+
+  game.participants.forEach((p) => {
+    participantScores[p.id] = {
+      name: p.name,
+      score: 0,
+      correct: 0,
+      total: 0,
+    };
+  });
+
+  game.answeredQuestions.forEach((question) => {
+    question.answers.forEach((ans) => {
+      if (participantScores[ans.participant.id]) {
+        participantScores[ans.participant.id].score += ans.points;
+        participantScores[ans.participant.id].total += 1;
+        if (ans.isCorrect) participantScores[ans.participant.id].correct += 1;
+      }
+    });
+  });
+
+  const sorted = Object.entries(participantScores).sort(
+    ([, a], [, b]) => b.score - a.score
+  );
+
   return (
-    <div>Leaderboard Component</div>
-    // <div className="mb-6">
-    //   <h4 className="text-lg font-semibold text-white mb-4">{title}</h4>
-    //   <div className="max-w-3xl mx-auto">
-    //     {[...game.participants]
-    //       .sort((a, b) => b.score - a.score)
-    //       .map((participant, index) => {
-    //         const isPodium = index < 3;
-    //         const isFirst = index === 0;
+    <div className="mb-6">
+      <h4 className="text-lg font-semibold text-white mb-4">{title}</h4>
+      <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-4">
+        {sorted.map(([id, p], index) => {
+          const isPodium = index < 3;
+          const isFirst = index === 0;
+          const accuracy =
+            p.total > 0 ? Math.round((p.correct / p.total) * 100) : 0;
 
-    //         // Use participant's answer history for accurate statistics
-    //         const answerHistory = participant.answerHistory || [];
-    //         const correctAnswers = answerHistory.filter(
-    //           (answer) => answer.isCorrect
-    //         ).length;
-    //         const wrongAnswers = answerHistory.filter(
-    //           (answer) => !answer.isCorrect
-    //         ).length;
-    //         const totalAnswered = answerHistory.length;
-    //         const percentage =
-    //           totalAnswered > 0
-    //             ? Math.round((correctAnswers / totalAnswered) * 100)
-    //             : 0;
-
-    //         return (
-    //           <div
-    //             key={participant.id}
-    //             className={`p-4 rounded-lg mb-2 ${
-    //               isFirst
-    //                 ? "bg-yellow-500 bg-opacity-20 border border-yellow-300"
-    //                 : isPodium
-    //                 ? "bg-blue-500 bg-opacity-20 border border-blue-300"
-    //                 : "bg-gray-500 bg-opacity-20 border border-gray-300"
-    //             }`}
-    //           >
-    //             <div className="flex justify-between items-center">
-    //               <div className="flex items-center gap-3">
-    //                 <div
-    //                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-    //                     isFirst
-    //                       ? "bg-yellow-500 text-white"
-    //                       : isPodium
-    //                       ? "bg-blue-500 text-white"
-    //                       : "bg-gray-400 text-white"
-    //                   }`}
-    //                 >
-    //                   {index + 1}
-    //                 </div>
-    //                 <div>
-    //                   <div className="font-medium text-white">
-    //                     {participant.name}
-    //                   </div>
-    //                   <div className="flex items-center gap-4 text-sm text-white mt-1">
-    //                     <span className="flex items-center gap-1">
-    //                       <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-    //                       {correctAnswers} correct
-    //                     </span>
-    //                     <span className="flex items-center gap-1">
-    //                       <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-    //                       {wrongAnswers} wrong
-    //                     </span>
-    //                     <span className="font-medium text-white">
-    //                       {percentage}% accuracy
-    //                     </span>
-    //                   </div>
-    //                 </div>
-    //               </div>
-    //               <div className="flex items-center gap-2">
-    //                 <div className="text-lg font-bold text-white">
-    //                   {participant.score}
-    //                 </div>
-    //                 <div className="text-sm text-white">pts</div>
-    //               </div>
-    //             </div>
-    //           </div>
-    //         );
-    //       })}
-    //   </div>
-    //   {showResponseCount && (
-    //     <div className="mt-4 text-sm text-white">
-    //       Total Responses:{" "}
-    //       {game.answeredQuestions[game.currentQuestionIndex]?.answers.length ||
-    //         0}{" "}
-    //       / {game.participants.length}
-    //     </div>
-    //   )}
-    // </div>
+          return (
+            <div
+              key={id}
+              className={`p-2 rounded-lg flex flex-col items-center justify-center ${
+                isFirst
+                  ? "bg-yellow-500 bg-opacity-30 border border-yellow-300"
+                  : isPodium
+                  ? "bg-blue-500 bg-opacity-30 border border-blue-300"
+                  : "bg-gray-500 bg-opacity-20 border border-gray-300"
+              }`}
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mb-1 ${
+                  isFirst
+                    ? "bg-yellow-500 text-white"
+                    : isPodium
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-400 text-white"
+                }`}
+              >
+                {index + 1}
+              </div>
+              <div className="font-medium text-white text-center truncate w-full">
+                {p.name}
+              </div>
+              <div className="flex items-center gap-1 text-xs text-white mt-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                {p.correct}
+                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                {p.total - p.correct}
+                <span>{accuracy}%</span>
+              </div>
+              <div className="text-base font-bold text-white mt-1">
+                {p.score} pts
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
