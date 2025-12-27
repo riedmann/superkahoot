@@ -117,12 +117,18 @@ export default function GameClient({}: Props) {
 
   // Send answer to server
   const handleAnswer = (answer: number) => {
+    let answerValue: boolean | number;
+    if (question?.type == "true-false") {
+      answerValue = answer === 0 ? true : false;
+    } else {
+      answerValue = answer;
+    }
     ws.current?.send(
       JSON.stringify({
         type: "addAnswer",
         gameId: gamePinRef.current,
         playerId: id,
-        answer,
+        answer: answerValue,
         questionIndex,
       })
     );
