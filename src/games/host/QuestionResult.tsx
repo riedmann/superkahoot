@@ -42,7 +42,8 @@ export function QuestionResult({
             { bg: "bg-green-500", text: "text-green-500", label: "D" },
           ];
 
-          const answers = game.currentQuestion?.answers || [];
+          const answers =
+            game.answeredQuestions[game.currentQuestionIndex]?.answers || [];
           const totalResponses = answers.length;
 
           if (currentQuestion.type === "true-false") {

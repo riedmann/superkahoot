@@ -14,20 +14,16 @@ export interface Participant {
   id: string;
   name: string;
   score: number;
-  joinedAt: Date;
-  isOnline: boolean;
-  answerHistory: ParticipantAnswerHistory[];
 }
 
 export interface GameAnswer {
-  participantId: string;
+  participant: Participant;
   questionId: string;
   answer: any; // boolean for true/false, number[] for multiple choice
   answeredAt: Date;
   isCorrect: boolean;
   points: number;
 }
-
 export interface GameQuestion {
   id: string;
   questionIndex: number;
@@ -37,16 +33,16 @@ export interface GameQuestion {
 }
 
 export interface Game {
-  id?: string;
+  id: string;
   quizId: string;
   quizTitle: string;
-  quizData?: Quiz; // Full quiz data for client access
+  quizData: Quiz; // Full quiz data for client access
   hostId: string;
-  gamePin?: string;
+  gamePin: string;
   status: GameStatus;
   participants: Participant[];
   currentQuestionIndex: number;
-  currentQuestion?: GameQuestion;
+  answeredQuestions: GameQuestion[];
   totalQuestions: number;
   createdAt: Date;
   startedAt?: Date;

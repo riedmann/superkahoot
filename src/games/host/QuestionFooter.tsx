@@ -1,5 +1,4 @@
-import React from "react";
-import type { Game } from "../../types";
+import type { Game, GameAnswer } from "../../types";
 
 interface QuestionFooterProps {
   game: Game;
@@ -13,21 +12,15 @@ export function QuestionFooter({
   onExit,
 }: QuestionFooterProps) {
   // Debug logging
-  React.useEffect(() => {
-    console.log("QuestionFooter - Current answers:", {
-      answersCount: game.currentQuestion?.answers.length || 0,
-      participantCount: game.participants.length,
-      answers: game.currentQuestion?.answers,
-      participants: game.participants.map((p) => ({ id: p.id, name: p.name })),
-    });
-  }, [game.currentQuestion?.answers, game.participants]);
 
   return (
     <div className="bg-opacity-20 p-3 rounded-lg mx-4 mb-3">
       <div className="flex justify-between items-center mb-2">
         <div className="text-sm font-semibold">
-          Answers: {game.currentQuestion?.answers.length || 0} /{" "}
-          {game.participants.length}
+          Answers:{" "}
+          {game.answeredQuestions[game.currentQuestionIndex]?.answers.length ||
+            0}{" "}
+          / {game.participants.length}
         </div>
         <div className="flex gap-2">
           <button
@@ -49,7 +42,9 @@ export function QuestionFooter({
       <div className="grid grid-cols-6 md:grid-cols-8 gap-1">
         {(() => {
           const answeredParticipantIds = new Set(
-            game.currentQuestion?.answers.map((a) => a.participantId) || []
+            game.answeredQuestions[game.currentQuestionIndex]?.answers.map(
+              (a: GameAnswer) => a.participant.id
+            ) || []
           );
           return game.participants.map((participant) => (
             <div

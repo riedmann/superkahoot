@@ -12,10 +12,10 @@ interface GameHostProps {
 
 export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
   const [game, setGame] = useState<Game>();
-  const [participants, setParticipants] = useState<Participant[]>([]);
+
   const [state, setState] = useState<GameStatus>("waiting");
-  const [countdown, setCountdown] = useState<number>(3);
-  const [questionIndex, setQuestionIndex] = useState<number>(0);
+  // const [countdown, setCountdown] = useState<number>(3);
+
   const [questionCountdown, setQuestionCountdown] = useState<number>(30);
   const ws = useRef<WebSocket | null>(null);
 
@@ -46,22 +46,45 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
         setGame(msg.game);
       }
       if (msg.type === "joined") {
-        setParticipants((prev) => [...prev, msg.player]);
+        setGame((prev) =>
+          prev
+            ? {
+                ...prev,
+                participants: [...prev.participants, msg.player],
+              }
+            : prev
+        );
       }
       if (msg.type === "countdown") {
-        setCountdown(msg.seconds);
         setState("countdown");
       }
       if (msg.type === "results") {
         setState("results");
       }
+      if (msg.type === "answer_update") {
+        // Update the game state with the new answeredQuestions from the server
+        setGame((prev) =>
+          prev
+            ? {
+                ...prev,
+                answeredQuestions: msg.answeredQuestions,
+              }
+            : prev
+        );
+        console.log("updated game with new answers", msg.answeredQuestions);
+      }
       if (msg.type === "question") {
-        console.log("question", msg);
-
         setState("question");
-        setQuestionIndex(msg.index);
-        setCountdown(3);
+
         setQuestionCountdown(30); // reset question countdown
+        setGame((prev) =>
+          prev
+            ? {
+                ...prev,
+                currentQuestionIndex: msg.index,
+              }
+            : prev
+        );
       }
     };
 
@@ -69,6 +92,10 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
       ws.current?.close();
     };
   }, [quiz]);
+
+  useEffect(() => {
+    console.log("game answered", game?.answeredQuestions);
+  }, [game]);
 
   // Countdown effect for question
   useEffect(() => {
@@ -124,10 +151,10 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
           </div>
           <h2 className="text-xl mb-2">Participants</h2>
           <ul className="mb-6">
-            {participants.length === 0 && (
+            {game.participants.length === 0 && (
               <li className="italic text-gray-200">Waiting for players...</li>
             )}
-            {participants.map((p) => (
+            {game.participants.map((p) => (
               <li key={p.id} className="text-lg font-semibold">
                 {p.name}
               </li>
@@ -136,7 +163,7 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
           <button
             onClick={handleStartGame}
             className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow transition"
-            disabled={participants.length === 0}
+            disabled={game.participants.length === 0}
           >
             Start Game
           </button>
@@ -151,7 +178,7 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
       <Countdown
         game={game}
         onCountdownComplete={() => setState("question")}
-        questionNumber={questionIndex + 1}
+        questionNumber={game.currentQuestionIndex + 1}
         totalQuestions={quiz.questions.length}
       />
     );
@@ -163,7 +190,7 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700">
         <div className="w-full text-white">
           <QuestionWithoutImage
-            currentQuestion={quiz.questions[questionIndex]}
+            currentQuestion={quiz.questions[game.currentQuestionIndex]}
           />
           <QuestionFooter
             game={game}
@@ -180,7 +207,7 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
   if (state === "results") {
     if (!game) return <div>error no game</div>;
     if (!game.quizData) return <div>error no quiz data</div>;
-    const currentQuestion = game.quizData.questions[questionIndex];
+    const currentQuestion = game.quizData.questions[game.currentQuestionIndex];
     if (!currentQuestion) return <div>error no question</div>;
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700">
