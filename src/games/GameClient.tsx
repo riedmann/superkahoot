@@ -20,12 +20,9 @@ export default function GameClient({}: Props) {
   const [questionIndex, setQuestionIndex] = useState<number>(0);
   const [questionCountdown, setQuestionCountdown] = useState<number>(30);
   const [question, setQuestion] = useState<Question | null>(null);
-  const [questionType, setQuestionType] = useState<string>("");
 
   const ws = useRef<WebSocket | null>(null);
   const gamePinRef = useRef(gamePin);
-
-  console.log("state", state);
 
   // Keep gamePinRef in sync with gamePin state
   useEffect(() => {
@@ -56,11 +53,13 @@ export default function GameClient({}: Props) {
         setState("question");
       }
       if (msg.type === "answer_received") {
-        console.log("Answer received confirmation:", msg);
         setState("results");
       }
       if (msg.type === "results") {
         setState("results");
+      }
+      if (msg.type === "finish_game") {
+        setState("finished");
       }
     };
     return () => {
@@ -188,6 +187,17 @@ export default function GameClient({}: Props) {
 
   if (state === "results") {
     return <ResultsScreen />;
+  }
+
+  if (state === "finished") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 text-white">
+        <div className="p-8  flex flex-col items-center">
+          <h2 className="text-3xl font-bold mb-4">Das Spiel ist beendet!</h2>
+          <p className="text-lg">Danke fürs Mitspielen!</p>
+        </div>
+      </div>
+    );
   }
 
   return (

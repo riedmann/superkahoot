@@ -1,5 +1,3 @@
-import React from "react";
-
 export function CountdownScreen({ countdown }: { countdown: number }) {
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-blue-600 to-purple-700 z-50 flex items-center justify-center">

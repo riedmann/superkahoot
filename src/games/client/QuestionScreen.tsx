@@ -39,13 +39,7 @@ export function QuestionScreen({
       <div className="w-full  bg-opacity-10 rounded-xl p-8 flex flex-col md:flex-row items-center">
         {/* Left: Question and Image */}
         <div className="flex-1 w-full text-center mb-8 md:mb-0 md:mr-8">
-          <h2 className="text-2xl font-bold mb-4">
-            Question {questionIndex + 1}
-          </h2>
-          <div className="mb-2 text-lg font-semibold">
-            Time left: <span className="font-mono">{questionCountdown}s</span>
-          </div>
-          <p className="mb-4 text-xl">{question.question}</p>
+          <p className="mb-4 text-2xl">{question.question}</p>
           {question.image && (
             <img
               src={question.image}

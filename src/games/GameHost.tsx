@@ -1,20 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
-import type { Game, GameStatus, Participant } from "../types/game";
+import type { Game, GameStatus } from "../types/game";
 import type { Quiz } from "../types/quiz";
 import { Countdown } from "./host/Countdown";
 import { QuestionFooter } from "./host/QuestionFooter";
 import { QuestionResult } from "./host/QuestionResult";
 import { QuestionWithoutImage } from "./host/QuestionWithoutImage";
+import { WinnersScreen } from "./host/WinnersScreen";
 
 interface GameHostProps {
   quiz: Quiz;
+  onBack: () => void;
 }
 
-export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
+export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
   const [game, setGame] = useState<Game>();
 
   const [state, setState] = useState<GameStatus>("waiting");
   // const [countdown, setCountdown] = useState<number>(3);
+
+  const [finalScore, setFinalScore] = useState<any>();
 
   const [questionCountdown, setQuestionCountdown] = useState<number>(30);
   const ws = useRef<WebSocket | null>(null);
@@ -71,7 +75,6 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
               }
             : prev
         );
-        console.log("updated game with new answers", msg.answeredQuestions);
       }
       if (msg.type === "question") {
         setState("question");
@@ -85,6 +88,11 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
               }
             : prev
         );
+      }
+
+      if (msg.type === "game_finished") {
+        setFinalScore(msg.winners);
+        setState("finished");
       }
     };
 
@@ -120,12 +128,21 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
 
   const handleNextQuestion = () => {
     if (game?.gamePin && ws.current) {
-      ws.current.send(
-        JSON.stringify({
-          type: "next_question",
-          gameId: game.gamePin,
-        })
-      );
+      if (game.currentQuestionIndex + 1 < quiz.questions.length) {
+        ws.current.send(
+          JSON.stringify({
+            type: "next_question",
+            gameId: game.gamePin,
+          })
+        );
+      } else {
+        ws.current.send(
+          JSON.stringify({
+            type: "finish_game",
+            gameId: game.gamePin,
+          })
+        );
+      }
     }
   };
 
@@ -191,13 +208,12 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
         <div className="w-full text-white">
           <QuestionWithoutImage
             currentQuestion={quiz.questions[game.currentQuestionIndex]}
+            questionCountdown={questionCountdown}
           />
           <QuestionFooter
             game={game}
             onEndQuestion={hanldeEndQuestion}
-            onExit={function (): void {
-              throw new Error("Function not implemented.");
-            }}
+            onExit={onBack}
           />
         </div>
       </div>
@@ -221,6 +237,10 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz }) => {
         </div>
       </div>
     );
+  }
+
+  if (state === "finished") {
+    return <WinnersScreen winners={finalScore || []} onBack={onBack} />;
   }
   return <div />; // Placeholder for other states
 };
