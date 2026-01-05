@@ -1,0 +1,94 @@
+{
+  "id": "reharm-quiz-1",
+  "title": "Reharmonization in Music Quiz",
+  "description": "Test your understanding of reharmonization techniques and their purpose in music.",
+  "difficulty": "medium",
+  "questions": [
+    {
+      "id": "reharm-q1",
+      "type": "standard",
+      "question": "What is the primary purpose of reharmonization in music?",
+      "options": [
+        {
+          "text": "To change the melody of a song completely."
+        },
+        {
+          "text": "To alter the harmonic progression of a piece while retaining the original or a closely related melody."
+        },
+        {
+          "text": "To adjust the tempo and rhythm of a composition without changing chords."
+        },
+        {
+          "text": "To transpose a song to a different key without altering its harmonic structure."
+        }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "reharm-q2",
+      "type": "standard",
+      "question": "Which of the following is a common technique used in reharmonization?",
+      "options": [
+        {
+          "text": "Strictly adhering to the original chord voicings without alteration."
+        },
+        {
+          "text": "Employing tritone substitution, where a dominant 7th chord is replaced by another dominant 7th chord a tritone away."
+        },
+        {
+          "text": "Reducing all complex chords to simple triads."
+        },
+        {
+          "text": "Changing the time signature of a piece from 4/4 to 3/4."
+        }
+      ],
+      "correctAnswers": [1]
+    },
+    {
+      "id": "reharm-q3",
+      "type": "true-false",
+      "question": "Reharmonization is solely about making a piece sound more complex and dissonant.",
+      "correctAnswer": false
+    },
+    {
+      "id": "reharm-q4",
+      "type": "standard",
+      "question": "If a G7 chord (V7 in C major) is reharmonized using a tritone substitution, which dominant 7th chord would typically replace it?",
+      "options": [
+        {
+          "text": "C7"
+        },
+        {
+          "text": "D7"
+        },
+        {
+          "text": "Db7"
+        },
+        {
+          "text": "Bb7"
+        }
+      ],
+      "correctAnswers": [2]
+    },
+    {
+      "id": "reharm-q5",
+      "type": "standard",
+      "question": "What is a common artistic goal of reharmonization?",
+      "options": [
+        {
+          "text": "To simplify the harmonic structure for beginner musicians."
+        },
+        {
+          "text": "To create fresh interest, add harmonic color, or update an older piece with new harmonic possibilities."
+        },
+        {
+          "text": "To ensure the song can only be played in its original, published form."
+        },
+        {
+          "text": "To make the song shorter in duration by cutting out harmonic sections."
+        }
+      ],
+      "correctAnswers": [1]
+    }
+  ]
+}

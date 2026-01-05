@@ -1,5 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 import type { Quiz } from "../types";
+import type {
+  Question,
+  StandardQuestion,
+  TrueFalseQuestion,
+} from "../types/question";
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_API_KEY_STRING = GEMINI_API_KEY as string;
@@ -20,7 +25,52 @@ export async function generateQuizWithGemini(
   }
 
   const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY_STRING });
-  const prompt = `Create a ${difficulty} difficulty multiple choice quiz about ${topic}.\nReturn a JSON object with the following structure:\n{\n  \"title\": \"Quiz title\",\n  \"description\": \"Brief description\",\n  \"difficulty\": \"${difficulty}\",\n  \"category\": \"Category name\",\n  \"questions\": [\n    {\n      \"id\": \"unique_id\",\n      \"type\": \"standard\",\n      \"question\": \"Question text\",\n      \"options\": [\n        {\"id\": \"a\", \"text\": \"Option A\", \"isCorrect\": false},\n        {\"id\": \"b\", \"text\": \"Option B\", \"isCorrect\": true},\n        {\"id\": \"c\", \"text\": \"Option C\", \"isCorrect\": false},\n        {\"id\": \"d\", \"text\": \"Option D\", \"isCorrect\": false}\n      ],\n      \"explanation\": \"Explanation of the correct answer\",\n      \"timeLimit\": 30\n    }\n  ]\n}\n\nGenerate exactly ${questionCount} questions. Make sure exactly one option per question is marked as correct. Only respond with valid JSON, no additional text.`;
+  const prompt = `
+    Create a ${difficulty} difficulty multiple-choice quiz about "${topic}".
+
+    Return ONLY valid JSON (no explanations, no markdown).
+
+    The JSON must conform exactly to the following TypeScript structure:
+
+    Quiz {
+      id: string;
+      title: string;
+      description?: string;
+      difficulty: "${difficulty}";
+      questions: Question[];
+    }
+
+    Question is one of:
+
+    1) StandardQuestion {
+      id: string;
+      type: "standard";
+      question: string;
+      options: {
+        text: string;
+        image?: string;
+      }[];
+      correctAnswers: number[]; // MUST contain exactly ONE index
+    }
+
+    2) TrueFalseQuestion {
+      id: string;
+      type: "true-false";
+      question: string;
+      correctAnswer: boolean;
+    }
+
+    Rules:
+    - Generate EXACTLY ${questionCount} questions.
+    - Each question must have a unique id.
+    - For StandardQuestion:
+      - Provide at least 3 options.
+      - correctAnswers MUST contain exactly one valid option index.
+    - Do NOT include any text outside the JSON.
+    - Ensure the JSON is valid and parseable.
+
+    Return only the JSON object.
+`;
 
   try {
     const response = await ai.models.generateContent({
@@ -56,15 +106,42 @@ export async function generateQuizWithGemini(
       difficulty: difficulty as any,
       category: parsedQuiz.category || "AI Generated",
       questions:
-        parsedQuiz.questions?.map((q: any, index: number) => ({
-          id: q.id || `q${index + 1}`,
-          type: "standard" as const,
-          question: q.question,
-          options: q.options || [],
-          explanation: q.explanation,
-          timeLimit: q.timeLimit || 30,
-        })) || [],
+        parsedQuiz.questions?.map((q: any, index: number): Question => {
+          const baseId = q.id || `q${index + 1}`;
+
+          // Handle true-false questions
+          if (q.type === "true-false") {
+            const tfQuestion: TrueFalseQuestion = {
+              id: baseId,
+              type: "true-false",
+              question: q.question,
+              correctAnswer: q.correctAnswer,
+            };
+            // Only add image if it exists
+            if (q.image) {
+              tfQuestion.image = q.image;
+            }
+            return tfQuestion;
+          }
+
+          // Handle standard (multiple choice) questions
+          const standardQuestion: StandardQuestion = {
+            id: baseId,
+            type: "standard",
+            question: q.question,
+            options: q.options || [],
+            correctAnswers: Array.isArray(q.correctAnswers)
+              ? q.correctAnswers
+              : [],
+          };
+          // Only add image if it exists
+          if (q.image) {
+            standardQuestion.image = q.image;
+          }
+          return standardQuestion;
+        }) || [],
     };
+    console.log("Quiz", quiz);
     return quiz as Quiz;
   } catch (error) {
     console.error("Error generating quiz with Gemini:", error);

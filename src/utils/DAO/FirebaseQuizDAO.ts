@@ -169,18 +169,34 @@ export class FirebaseQuizDAO implements QuizDAOI {
   async saveQuiz(quiz: Quiz): Promise<void> {
     // Update entire quiz document including questions
     const quizRef = doc(db, "quizzes", quiz.id);
-    await updateDoc(quizRef, {
+
+    // Remove undefined fields to avoid Firestore errors
+    const updateData: Record<string, any> = {
       title: quiz.title,
-      description: quiz.description,
-      category: quiz.category,
-      difficulty: quiz.difficulty,
-      questions: quiz.questions,
+      description: quiz.description || "",
+      category: quiz.category || "",
+      difficulty: quiz.difficulty || "medium",
+      questions: quiz.questions || [],
       updatedAt: new Date(),
-    });
+    };
+
+    // Only add creator fields if they are defined
+    if (quiz.creatorId !== undefined) {
+      updateData.creatorId = quiz.creatorId;
+    }
+    if (quiz.creatorEmail !== undefined) {
+      updateData.creatorEmail = quiz.creatorEmail;
+    }
+    if (quiz.creatorDisplayName !== undefined) {
+      updateData.creatorDisplayName = quiz.creatorDisplayName;
+    }
+
+    await updateDoc(quizRef, updateData);
   }
 
   async createQuiz(quiz: Omit<Quiz, "id">): Promise<Quiz> {
-    const docRef = await addDoc(collection(db, "quizzes"), {
+    // Remove undefined fields to avoid Firestore errors
+    const quizData: Record<string, any> = {
       title: quiz.title,
       description: quiz.description || "",
       category: quiz.category || "",
@@ -188,10 +204,20 @@ export class FirebaseQuizDAO implements QuizDAOI {
       questions: quiz.questions || [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      creatorId: quiz.creatorId,
-      creatorEmail: quiz.creatorEmail,
-      creatorDisplayName: quiz.creatorDisplayName,
-    });
+    };
+
+    // Only add creator fields if they are defined
+    if (quiz.creatorId !== undefined) {
+      quizData.creatorId = quiz.creatorId;
+    }
+    if (quiz.creatorEmail !== undefined) {
+      quizData.creatorEmail = quiz.creatorEmail;
+    }
+    if (quiz.creatorDisplayName !== undefined) {
+      quizData.creatorDisplayName = quiz.creatorDisplayName;
+    }
+
+    const docRef = await addDoc(collection(db, "quizzes"), quizData);
 
     return {
       ...quiz,

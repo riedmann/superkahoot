@@ -2,8 +2,6 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import type { GameStatus } from "../../types/common";
 import type { Question } from "../../types/question";
 
-const WS_URL = "ws://localhost:8080";
-
 interface WebSocketMessage {
   type: string;
   gameId?: string;
@@ -86,7 +84,8 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
   }, []);
 
   useEffect(() => {
-    ws.current = new WebSocket(WS_URL);
+    const wsUrl = import.meta.env.VITE_WS_URL || "ws://localhost:8080";
+    ws.current = new WebSocket(wsUrl);
     ws.current.onmessage = handleMessage;
 
     return () => {

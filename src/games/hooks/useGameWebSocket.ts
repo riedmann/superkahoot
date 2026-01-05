@@ -2,8 +2,6 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import type { Game, GameStatus } from "../../types/game";
 import type { Quiz } from "../../types/quiz";
 
-const WS_URL = "ws://localhost:8080";
-
 interface WebSocketMessage {
   type: string;
   game?: Game;
@@ -126,7 +124,8 @@ export function useGameWebSocket(quiz: Quiz): UseGameWebSocketReturn {
 
   const connectWebSocket = useCallback(() => {
     try {
-      ws.current = new WebSocket(WS_URL);
+      const wsUrl = import.meta.env.VITE_WS_URL || "ws://localhost:8080";
+      ws.current = new WebSocket(wsUrl);
 
       ws.current.onopen = () => {
         console.log("WebSocket connected");

@@ -642,6 +642,8 @@ export function QuizList() {
         onClose={() => setShowAIModal(false)}
         onGenerate={generateQuizWithAI}
         isGenerating={generating}
+        error={generateError}
+        onClearError={() => setGenerateError(null)}
       />
     </div>
   );
