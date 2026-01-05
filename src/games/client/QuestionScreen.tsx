@@ -67,11 +67,11 @@ export function QuestionScreen({
                   <div
                     className={`w-12 h-12 bg-white ${
                       colors[idx]?.text || "text-gray-500"
-                    } rounded-xl font-bold flex items-center justify-start text-xl`}
+                    } rounded-xl font-bold flex items-center justify-center text-xl`}
                   >
                     {colors[idx]?.label || String.fromCharCode(65 + idx)}
                   </div>
-                  <span>{ans.text}</span>
+                  <span className="text-left">{ans.text}</span>
                 </div>
               </button>
             ))}

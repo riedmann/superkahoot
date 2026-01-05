@@ -45,7 +45,7 @@ export function QuestionWithoutImage({
               .map((option: any, idx: number) => (
                 <div
                   key={idx}
-                  className={`${colors[idx].bg} p-8 rounded-xl flex items-center justify-start min-h-32 text-white text-2xl font-bold`}
+                  className={`${colors[idx].bg} p-8 rounded-xl flex items-center justify-center min-h-32 text-white text-2xl font-bold`}
                 >
                   <span
                     className={`mr-4 bg-white bg-opacity-20 px-3 py-1 rounded ${colors[idx].textColor} font-bold`}
