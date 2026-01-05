@@ -245,6 +245,21 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
     }
   }, [game?.gamePin, sendMessage]);
 
+  // Auto-finish question when all participants have answered
+  useEffect(() => {
+    if (state !== "question" || !game) return;
+
+    const answeredCount =
+      game.answeredQuestions[game.currentQuestionIndex]?.answers.length || 0;
+    const totalParticipants = game.participants.length;
+
+    // If all participants have answered and there's at least one participant
+    if (totalParticipants > 0 && answeredCount === totalParticipants) {
+      console.log("All participants answered - auto-finishing question");
+      handleEndQuestion();
+    }
+  }, [state, game, handleEndQuestion]);
+
   if (wsError) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-red-100 text-red-800">
