@@ -13,7 +13,7 @@ export function FullscreenButton({
   return (
     <button
       onClick={onToggle}
-      className="fixed top-4 right-4 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
+      className="fixed top-4 right-4 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
       title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
     >
       {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}

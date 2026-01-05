@@ -254,6 +254,6 @@ export default function GameClient({}: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-700" />
+    <div className="min-h-screen bg-linear-to-br from-blue-600 to-purple-700" />
   );
 }
