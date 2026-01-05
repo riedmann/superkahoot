@@ -5,8 +5,7 @@ import { CountdownScreen } from "./client/CountdownScreen";
 import { QuestionScreen } from "./client/QuestionScreen";
 import { ResultsScreen } from "./client/ResultsScreen";
 import { WaitingRoom } from "./client/WaitingRoom";
-import { FullscreenExitIcon } from "../components/ui/details/FullscreenExitIcon";
-import { FullscreenExpandIcon } from "../components/ui/details/FullscreenExpandIcon";
+import { FullscreenButton } from "../components/ui/details/FullscreenButton";
 
 type Props = {};
 
@@ -173,13 +172,10 @@ export default function GameClient({}: Props) {
   if (state == "waiting") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 text-black">
-        <button
-          onClick={toggleFullscreen}
-          className="fixed top-4 right-4 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
-          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-        >
-          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}
-        </button>
+        <FullscreenButton
+          isFullscreen={isFullscreen}
+          onToggle={toggleFullscreen}
+        />
         <div className="bg-white bg-opacity-10 rounded-xl p-8 shadow-lg flex flex-col items-center">
           <h1 className="text-3xl font-bold mb-4">Waiting for Host</h1>
           <div className="mb-6 text-lg">
@@ -203,13 +199,10 @@ export default function GameClient({}: Props) {
   if (state === "countdown") {
     return (
       <>
-        <button
-          onClick={toggleFullscreen}
-          className="fixed top-4 right-4 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
-          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-        >
-          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}
-        </button>
+        <FullscreenButton
+          isFullscreen={isFullscreen}
+          onToggle={toggleFullscreen}
+        />
         <CountdownScreen countdown={countdown} />
       </>
     );
@@ -219,13 +212,10 @@ export default function GameClient({}: Props) {
     if (!question) return <div>Loading question...</div>;
     return (
       <>
-        <button
-          onClick={toggleFullscreen}
-          className="fixed top-4 right-4 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
-          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-        >
-          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}
-        </button>
+        <FullscreenButton
+          isFullscreen={isFullscreen}
+          onToggle={toggleFullscreen}
+        />
         <QuestionScreen
           question={question}
           questionIndex={questionIndex}
@@ -239,13 +229,10 @@ export default function GameClient({}: Props) {
   if (state === "results") {
     return (
       <>
-        <button
-          onClick={toggleFullscreen}
-          className="fixed top-4 right-4 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
-          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-        >
-          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}
-        </button>
+        <FullscreenButton
+          isFullscreen={isFullscreen}
+          onToggle={toggleFullscreen}
+        />
         <ResultsScreen />
       </>
     );
@@ -254,13 +241,10 @@ export default function GameClient({}: Props) {
   if (state === "finished") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 text-white">
-        <button
-          onClick={toggleFullscreen}
-          className="fixed top-4 right-4 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
-          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-        >
-          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}
-        </button>
+        <FullscreenButton
+          isFullscreen={isFullscreen}
+          onToggle={toggleFullscreen}
+        />
         <div className="p-8  flex flex-col items-center">
           <h2 className="text-3xl font-bold mb-4">Das Spiel ist beendet!</h2>
           <p className="text-lg">Danke fürs Mitspielen!</p>

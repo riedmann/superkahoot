@@ -6,8 +6,7 @@ import { QuestionFooter } from "./host/QuestionFooter";
 import { QuestionResult } from "./host/QuestionResult";
 import { QuestionWithoutImage } from "./host/QuestionWithoutImage";
 import { WinnersScreen } from "./host/WinnersScreen";
-import { FullscreenExitIcon } from "../components/ui/details/FullscreenExitIcon";
-import { FullscreenExpandIcon } from "../components/ui/details/FullscreenExpandIcon";
+import { FullscreenButton } from "../components/ui/details/FullscreenButton";
 
 interface GameHostProps {
   quiz: Quiz;
@@ -310,13 +309,10 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
   if (state === "waiting" && game?.gamePin) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 text-black">
-        <button
-          onClick={toggleFullscreen}
-          className="fixed top-4 right-4  bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
-          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-        >
-          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}
-        </button>
+        <FullscreenButton
+          isFullscreen={isFullscreen}
+          onToggle={toggleFullscreen}
+        />
         <div className="bg-white bg-opacity-10 rounded-xl p-8 shadow-lg flex flex-col items-center">
           <h1 className="text-3xl font-bold mb-4">Game PIN</h1>
           <div className="text-5xl font-mono font-extrabold tracking-widest bg-white bg-opacity-20 px-8 py-4 rounded-lg mb-6">
@@ -349,13 +345,10 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
   if (state === "countdown" && game) {
     return (
       <>
-        <button
-          onClick={toggleFullscreen}
-          className="fixed top-4 right-4 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
-          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-        >
-          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}
-        </button>
+        <FullscreenButton
+          isFullscreen={isFullscreen}
+          onToggle={toggleFullscreen}
+        />
         <Countdown
           game={game}
           onCountdownComplete={() => setState("question")}
@@ -370,13 +363,10 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
     if (!game) return <div>error no game</div>;
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700">
-        <button
-          onClick={toggleFullscreen}
-          className="fixed top-4 right-4 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
-          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-        >
-          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}
-        </button>
+        <FullscreenButton
+          isFullscreen={isFullscreen}
+          onToggle={toggleFullscreen}
+        />
         <div className="w-full text-white">
           <QuestionWithoutImage
             currentQuestion={quiz.questions[game.currentQuestionIndex]}
@@ -399,43 +389,10 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
     if (!currentQuestion) return <div>error no question</div>;
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700">
-        <button
-          onClick={toggleFullscreen}
-          className="fixed top-4 right-4 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
-          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-        >
-          {isFullscreen ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-              />
-            </svg>
-          )}
-        </button>
+        <FullscreenButton
+          isFullscreen={isFullscreen}
+          onToggle={toggleFullscreen}
+        />
         <div className="w-full text-white">
           <QuestionResult
             game={game}
