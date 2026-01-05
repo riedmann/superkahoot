@@ -5,6 +5,8 @@ import { CountdownScreen } from "./client/CountdownScreen";
 import { QuestionScreen } from "./client/QuestionScreen";
 import { ResultsScreen } from "./client/ResultsScreen";
 import { WaitingRoom } from "./client/WaitingRoom";
+import { FullscreenExitIcon } from "../components/ui/details/FullscreenExitIcon";
+import { FullscreenExpandIcon } from "../components/ui/details/FullscreenExpandIcon";
 
 type Props = {};
 
@@ -20,6 +22,7 @@ export default function GameClient({}: Props) {
   const [questionIndex, setQuestionIndex] = useState<number>(0);
   const [questionCountdown, setQuestionCountdown] = useState<number>(30);
   const [question, setQuestion] = useState<Question | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const ws = useRef<WebSocket | null>(null);
   const gamePinRef = useRef(gamePin);
@@ -90,6 +93,27 @@ export default function GameClient({}: Props) {
     return () => clearTimeout(timer);
   }, [state, questionCountdown]);
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
   const handleJoin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!ws.current) return;
@@ -149,6 +173,13 @@ export default function GameClient({}: Props) {
   if (state == "waiting") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 text-black">
+        <button
+          onClick={toggleFullscreen}
+          className="fixed top-4 right-4 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
+          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+        >
+          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}
+        </button>
         <div className="bg-white bg-opacity-10 rounded-xl p-8 shadow-lg flex flex-col items-center">
           <h1 className="text-3xl font-bold mb-4">Waiting for Host</h1>
           <div className="mb-6 text-lg">
@@ -170,28 +201,66 @@ export default function GameClient({}: Props) {
   }
 
   if (state === "countdown") {
-    return <CountdownScreen countdown={countdown} />;
+    return (
+      <>
+        <button
+          onClick={toggleFullscreen}
+          className="fixed top-4 right-4 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
+          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+        >
+          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}
+        </button>
+        <CountdownScreen countdown={countdown} />
+      </>
+    );
   }
 
   if (state === "question") {
     if (!question) return <div>Loading question...</div>;
     return (
-      <QuestionScreen
-        question={question}
-        questionIndex={questionIndex}
-        questionCountdown={questionCountdown}
-        onAnswer={handleAnswer}
-      />
+      <>
+        <button
+          onClick={toggleFullscreen}
+          className="fixed top-4 right-4 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
+          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+        >
+          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}
+        </button>
+        <QuestionScreen
+          question={question}
+          questionIndex={questionIndex}
+          questionCountdown={questionCountdown}
+          onAnswer={handleAnswer}
+        />
+      </>
     );
   }
 
   if (state === "results") {
-    return <ResultsScreen />;
+    return (
+      <>
+        <button
+          onClick={toggleFullscreen}
+          className="fixed top-4 right-4 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
+          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+        >
+          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}
+        </button>
+        <ResultsScreen />
+      </>
+    );
   }
 
   if (state === "finished") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 text-white">
+        <button
+          onClick={toggleFullscreen}
+          className="fixed top-4 right-4 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50"
+          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+        >
+          {isFullscreen ? <FullscreenExitIcon /> : <FullscreenExpandIcon />}
+        </button>
         <div className="p-8  flex flex-col items-center">
           <h2 className="text-3xl font-bold mb-4">Das Spiel ist beendet!</h2>
           <p className="text-lg">Danke fürs Mitspielen!</p>
