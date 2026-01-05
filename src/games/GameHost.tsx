@@ -31,7 +31,6 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
     isReconnecting,
     sendMessage,
     connectWebSocket,
-    setQuestionCountdown: setWSQuestionCountdown,
   } = useGameWebSocket(quiz);
 
   const { handleStartGame, handleNextQuestion, handleEndQuestion } =

@@ -31,7 +31,6 @@ export function useGameWebSocket(quiz: Quiz): UseGameWebSocketReturn {
   const [finalScore, setFinalScore] = useState<any>();
   const [wsError, setWsError] = useState<string | null>(null);
   const [isReconnecting, setIsReconnecting] = useState(false);
-  const [questionCountdown, setQuestionCountdown] = useState<number>(30);
 
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -102,7 +101,6 @@ export function useGameWebSocket(quiz: Quiz): UseGameWebSocketReturn {
 
         case "question":
           setState("question");
-          setQuestionCountdown(30);
           setGame((prev) =>
             prev
               ? {
@@ -196,6 +194,6 @@ export function useGameWebSocket(quiz: Quiz): UseGameWebSocketReturn {
     isReconnecting,
     sendMessage,
     connectWebSocket,
-    setQuestionCountdown,
+    setQuestionCountdown: () => {}, // Placeholder, implement if needed
   };
 }
