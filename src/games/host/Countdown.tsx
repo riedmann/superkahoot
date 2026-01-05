@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import type { Game } from "../../types";
+import type { Question } from "../../types/question";
 
 interface CountdownProps {
   game: Game;
   onCountdownComplete: () => void;
   questionNumber: number;
   totalQuestions: number;
+  question?: Question;
 }
 
 export function Countdown({
@@ -13,6 +15,7 @@ export function Countdown({
   onCountdownComplete,
   questionNumber,
   totalQuestions,
+  question,
 }: CountdownProps) {
   const [count, setCount] = useState(3);
 
@@ -31,7 +34,12 @@ export function Countdown({
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-blue-600 to-purple-700 z-50 flex items-center justify-center">
-      <div className="text-center text-white">
+      <div className="text-center text-white max-w-4xl px-8">
+        {question && (
+          <div className="mb-8">
+            <h2 className="text-4xl font-bold mb-4">{question.question}</h2>
+          </div>
+        )}
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-2">Get Ready!</h2>
           <p className="text-lg opacity-90">

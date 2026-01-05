@@ -71,6 +71,12 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
   }
 
   if (state === "countdown" && game) {
+    // For the first countdown, currentQuestionIndex is 0 but no questions answered yet
+    // For subsequent countdowns, currentQuestionIndex points to the last completed question
+    const isFirstQuestion = game.answeredQuestions?.length === 0;
+    const questionIndex = isFirstQuestion ? 0 : game.currentQuestionIndex + 1;
+    const question = quiz.questions[questionIndex];
+
     return (
       <>
         <FullscreenButton
@@ -80,8 +86,9 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
         <Countdown
           game={game}
           onCountdownComplete={() => {}}
-          questionNumber={game.currentQuestionIndex + 1}
+          questionNumber={questionIndex + 1}
           totalQuestions={quiz.questions.length}
+          question={question}
         />
       </>
     );
