@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import type { Game, GameStatus } from "../types/game";
 import type { Quiz } from "../types/quiz";
 import { Countdown } from "./host/Countdown";
@@ -12,150 +12,238 @@ interface GameHostProps {
   onBack: () => void;
 }
 
+// WebSocket URL aus Environment-Variable oder Fallback
+const WS_URL = "ws://localhost:8080";
+//  const WS_URL = process.env.REACT_APP_WS_URL || "ws://localhost:8080";
 export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
   const [game, setGame] = useState<Game>();
-
   const [state, setState] = useState<GameStatus>("waiting");
-  // const [countdown, setCountdown] = useState<number>(3);
-
   const [finalScore, setFinalScore] = useState<any>();
-
   const [questionCountdown, setQuestionCountdown] = useState<number>(30);
+  const [wsError, setWsError] = useState<string | null>(null);
+  const [isReconnecting, setIsReconnecting] = useState(false);
+
   const ws = useRef<WebSocket | null>(null);
+  const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
+  const questionTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Create game on mount
-  useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:8080");
-    ws.current.onopen = () => {
-      ws.current?.send(
-        JSON.stringify({
-          type: "create_game",
-          data: {
-            quizData: quiz,
-            settings: {
-              questionTimeLimit: 30,
-              showCorrectAnswers: true,
-              allowLateJoins: true,
+  // Cleanup function for timers
+  const cleanupTimers = useCallback(() => {
+    if (questionTimer.current) {
+      clearTimeout(questionTimer.current);
+      questionTimer.current = null;
+    }
+    if (reconnectTimeout.current) {
+      clearTimeout(reconnectTimeout.current);
+      reconnectTimeout.current = null;
+    }
+  }, []);
+
+  // WebSocket connection with error handling and reconnect
+  const connectWebSocket = useCallback(() => {
+    try {
+      ws.current = new WebSocket(WS_URL);
+
+      ws.current.onopen = () => {
+        console.log("WebSocket connected");
+        setWsError(null);
+        setIsReconnecting(false);
+
+        ws.current?.send(
+          JSON.stringify({
+            type: "create_game",
+            data: {
+              quizData: quiz,
+              settings: {
+                questionTimeLimit: 30,
+                showCorrectAnswers: true,
+                allowLateJoins: true,
+              },
             },
-          },
-        })
-      );
-    };
-
-    ws.current.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      console.log("incomming message", msg);
-
-      if (msg.type === "game_created") {
-        setGame(msg.game);
-      }
-      if (msg.type === "joined") {
-        setGame((prev) =>
-          prev
-            ? {
-                ...prev,
-                participants: [...prev.participants, msg.player],
-              }
-            : prev
+          })
         );
-      }
-      if (msg.type === "countdown") {
-        setState("countdown");
-      }
-      if (msg.type === "results") {
-        setState("results");
-      }
-      if (msg.type === "answer_update") {
-        // Update the game state with the new answeredQuestions from the server
-        setGame((prev) =>
-          prev
-            ? {
-                ...prev,
-                answeredQuestions: msg.answeredQuestions,
-              }
-            : prev
-        );
-      }
-      if (msg.type === "question") {
-        setState("question");
+      };
 
-        setQuestionCountdown(30); // reset question countdown
-        setGame((prev) =>
-          prev
-            ? {
-                ...prev,
-                currentQuestionIndex: msg.index,
-              }
-            : prev
-        );
-      }
+      ws.current.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          console.log("Incoming message:", msg);
 
-      if (msg.type === "game_finished") {
-        setFinalScore(msg.winners);
-        setState("finished");
-      }
-    };
+          switch (msg.type) {
+            case "game_created":
+              setGame(msg.game);
+              break;
+
+            case "joined":
+              setGame((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      participants: [...prev.participants, msg.player],
+                    }
+                  : prev
+              );
+              break;
+
+            case "countdown":
+              setState("countdown");
+              break;
+
+            case "results":
+              setState("results");
+              break;
+
+            case "answer_update":
+              setGame((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      answeredQuestions: msg.answeredQuestions,
+                    }
+                  : prev
+              );
+              break;
+
+            case "question":
+              setState("question");
+              setQuestionCountdown(30);
+              setGame((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      currentQuestionIndex: msg.index,
+                    }
+                  : prev
+              );
+              break;
+
+            case "game_finished":
+              setFinalScore(msg.winners);
+              setState("finished");
+              break;
+
+            default:
+              console.warn("Unknown message type:", msg.type);
+          }
+        } catch (error) {
+          console.error("Error parsing WebSocket message:", error);
+        }
+      };
+
+      ws.current.onerror = (error) => {
+        console.error("WebSocket error:", error);
+        setWsError("Connection error occurred");
+      };
+
+      ws.current.onclose = (event) => {
+        console.log("WebSocket closed:", event.code, event.reason);
+
+        // Don't reconnect if it was a normal closure
+        if (event.code !== 1000 && !isReconnecting) {
+          setIsReconnecting(true);
+          setWsError("Connection lost. Reconnecting...");
+
+          // Attempt to reconnect after 3 seconds
+          reconnectTimeout.current = setTimeout(() => {
+            console.log("Attempting to reconnect...");
+            connectWebSocket();
+          }, 3000);
+        }
+      };
+    } catch (error) {
+      console.error("Failed to create WebSocket:", error);
+      setWsError("Failed to connect to server");
+    }
+  }, [quiz, isReconnecting]);
+
+  // Initialize WebSocket on mount
+  useEffect(() => {
+    connectWebSocket();
 
     return () => {
-      ws.current?.close();
+      cleanupTimers();
+      if (ws.current) {
+        ws.current.close(1000, "Component unmounted");
+        ws.current = null;
+      }
     };
-  }, [quiz]);
+  }, [connectWebSocket, cleanupTimers]);
 
+  // Countdown effect for question with proper cleanup
   useEffect(() => {
-    console.log("game answered", game?.answeredQuestions);
-  }, [game]);
+    if (state !== "question") {
+      if (questionTimer.current) {
+        clearTimeout(questionTimer.current);
+        questionTimer.current = null;
+      }
+      return;
+    }
 
-  // Countdown effect for question
-  useEffect(() => {
-    if (state !== "question") return;
     if (questionCountdown === 0) return;
-    const timer = setTimeout(() => {
+
+    questionTimer.current = setTimeout(() => {
       setQuestionCountdown((c) => (c > 0 ? c - 1 : 0));
     }, 1000);
-    return () => clearTimeout(timer);
+
+    return () => {
+      if (questionTimer.current) {
+        clearTimeout(questionTimer.current);
+        questionTimer.current = null;
+      }
+    };
   }, [state, questionCountdown]);
 
-  const handleStartGame = () => {
-    if (game?.gamePin && ws.current) {
-      ws.current.send(
-        JSON.stringify({
-          type: "start_game",
-          gameId: game.gamePin,
-        })
-      );
+  // Send WebSocket message with error handling
+  const sendMessage = useCallback((message: any) => {
+    if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
+      console.error("WebSocket is not connected");
+      setWsError("Not connected to server");
+      return false;
     }
-  };
 
-  const handleNextQuestion = () => {
-    if (game?.gamePin && ws.current) {
-      if (game.currentQuestionIndex + 1 < quiz.questions.length) {
-        ws.current.send(
-          JSON.stringify({
-            type: "next_question",
-            gameId: game.gamePin,
-          })
-        );
-      } else {
-        ws.current.send(
-          JSON.stringify({
-            type: "finish_game",
-            gameId: game.gamePin,
-          })
-        );
-      }
+    try {
+      ws.current.send(JSON.stringify(message));
+      return true;
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      setWsError("Failed to send message");
+      return false;
     }
-  };
+  }, []);
 
-  const hanldeEndQuestion = () => {
-    if (game?.gamePin && ws.current) {
-      ws.current.send(
-        JSON.stringify({
-          type: "question_timeout",
-          gameId: game.gamePin,
-        })
-      );
+  const handleStartGame = useCallback(() => {
+    if (game?.gamePin) {
+      sendMessage({
+        type: "start_game",
+        gameId: game.gamePin,
+      });
     }
-  };
+  }, [game?.gamePin, sendMessage]);
+
+  const handleNextQuestion = useCallback(() => {
+    if (!game?.gamePin) return;
+
+    if (game.currentQuestionIndex + 1 < quiz.questions.length) {
+      sendMessage({
+        type: "next_question",
+        gameId: game.gamePin,
+      });
+    } else {
+      sendMessage({
+        type: "finish_game",
+        gameId: game.gamePin,
+      });
+    }
+  }, [game, quiz.questions.length, sendMessage]);
+
+  const handleEndQuestion = useCallback(() => {
+    if (game?.gamePin) {
+      sendMessage({
+        type: "question_timeout",
+        gameId: game.gamePin,
+      });
+    }
+  }, [game?.gamePin, sendMessage]);
 
   // Styled waiting room screen
   if (state === "waiting" && game?.gamePin) {
@@ -212,7 +300,7 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
           />
           <QuestionFooter
             game={game}
-            onEndQuestion={hanldeEndQuestion}
+            onEndQuestion={handleEndQuestion}
             onExit={onBack}
           />
         </div>
@@ -242,6 +330,7 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
   if (state === "finished") {
     return <WinnersScreen winners={finalScore || []} onBack={onBack} />;
   }
+
   return <div />; // Placeholder for other states
 };
 

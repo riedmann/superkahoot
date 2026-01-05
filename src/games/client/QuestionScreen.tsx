@@ -61,13 +61,13 @@ export function QuestionScreen({
                 onClick={() => onAnswer(idx)}
                 className={`${
                   colors[idx]?.bg || "bg-gray-500"
-                } p-6 rounded-xl flex items-center justify-center min-h-20 text-2xl font-bold shadow hover:scale-105 transition`}
+                } p-6 rounded-xl flex items-center justify-start min-h-20 text-2xl font-bold shadow hover:scale-105 transition`}
               >
                 <div className="flex items-center gap-4">
                   <div
                     className={`w-12 h-12 bg-white ${
                       colors[idx]?.text || "text-gray-500"
-                    } rounded-xl font-bold flex items-center justify-center text-xl`}
+                    } rounded-xl font-bold flex items-center justify-start text-xl`}
                   >
                     {colors[idx]?.label || String.fromCharCode(65 + idx)}
                   </div>

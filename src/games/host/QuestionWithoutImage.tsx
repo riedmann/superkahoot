@@ -8,10 +8,10 @@ export function QuestionWithoutImage({
   questionCountdown,
 }: QuestionWithoutImageProps) {
   const colors = [
-    { bg: "bg-red-500", label: "A" },
-    { bg: "bg-blue-500", label: "B" },
-    { bg: "bg-yellow-500", label: "C" },
-    { bg: "bg-green-500", label: "D" },
+    { bg: "bg-red-500", label: "A", textColor: "text-red-500" },
+    { bg: "bg-blue-500", label: "B", textColor: "text-blue-500" },
+    { bg: "bg-yellow-500", label: "C", textColor: "text-yellow-500" },
+    { bg: "bg-green-500", label: "D", textColor: "text-green-500" },
   ];
 
   return (
@@ -45,9 +45,11 @@ export function QuestionWithoutImage({
               .map((option: any, idx: number) => (
                 <div
                   key={idx}
-                  className={`${colors[idx].bg} p-8 rounded-xl flex items-center justify-center min-h-32 text-white text-2xl font-bold`}
+                  className={`${colors[idx].bg} p-8 rounded-xl flex items-center justify-start min-h-32 text-white text-2xl font-bold`}
                 >
-                  <span className="mr-4 bg-white bg-opacity-20 px-3 py-1 rounded">
+                  <span
+                    className={`mr-4 bg-white bg-opacity-20 px-3 py-1 rounded ${colors[idx].textColor} font-bold`}
+                  >
                     {colors[idx].label}
                   </span>
                   {option.text}
