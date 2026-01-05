@@ -17,8 +17,10 @@ interface UseClientWebSocketReturn {
   joined: boolean;
   state: GameStatus;
   countdown: number;
+  setCountdown: (value: number | ((prev: number) => number)) => void;
   questionIndex: number;
   questionCountdown: number;
+  setQuestionCountdown: (value: number | ((prev: number) => number)) => void;
   question: Question | null;
   sendJoinGame: (gameId: string, playerId: string, name: string) => void;
   sendAnswer: (
@@ -138,8 +140,10 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
     joined,
     state,
     countdown,
+    setCountdown,
     questionIndex,
     questionCountdown,
+    setQuestionCountdown,
     question,
     sendJoinGame,
     sendAnswer,

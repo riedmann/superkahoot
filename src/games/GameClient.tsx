@@ -21,15 +21,17 @@ export default function GameClient() {
     joined,
     state,
     countdown,
+    setCountdown,
     questionIndex,
     questionCountdown,
+    setQuestionCountdown,
     question,
     sendJoinGame,
     sendAnswer,
   } = useClientWebSocket(gamePin);
 
-  useCountdown(state === "countdown", countdown, () => {});
-  useCountdown(state === "question", questionCountdown, () => {});
+  useCountdown(state === "countdown", countdown, setCountdown);
+  useCountdown(state === "question", questionCountdown, setQuestionCountdown);
 
   const handleJoin = useCallback(
     (e: React.FormEvent) => {
