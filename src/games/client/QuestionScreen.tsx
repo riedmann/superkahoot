@@ -7,12 +7,7 @@ interface QuestionScreenProps {
   onAnswer: (answer: number) => void;
 }
 
-export function QuestionScreen({
-  question,
-  questionIndex,
-  questionCountdown,
-  onAnswer,
-}: QuestionScreenProps) {
+export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
   const colors = [
     { bg: "bg-red-500", label: "A", text: "text-red-500" },
     { bg: "bg-blue-500", label: "B", text: "text-blue-500" },
