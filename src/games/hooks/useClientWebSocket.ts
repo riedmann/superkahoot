@@ -96,21 +96,22 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
   const sendJoinGame = useCallback(
     (gameId: string, playerId: string, name: string) => {
       const sendJoin = () => {
-        ws.current?.send(
-          JSON.stringify({
-            type: "join_game",
-            gameId,
-            player: { id: playerId, name },
-          })
-        );
+        if (ws.current?.readyState === WebSocket.OPEN) {
+          ws.current.send(
+            JSON.stringify({
+              type: "join_game",
+              gameId,
+              player: { id: playerId, name },
+            })
+          );
+          setState("waiting");
+        } else {
+          // Wait for connection to open, then send
+          setTimeout(() => sendJoin(), 100);
+        }
       };
 
-      if (ws.current?.readyState === WebSocket.OPEN) {
-        sendJoin();
-        setState("waiting");
-      } else if (ws.current) {
-        ws.current.onopen = sendJoin;
-      }
+      sendJoin();
     },
     []
   );
