@@ -39,9 +39,6 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
   useCountdown(state === "question", questionCountdown, setQuestionCountdown);
   useAutoFinishQuestion(state, game, handleEndQuestion);
 
-  useCountdown(state === "question", questionCountdown, setQuestionCountdown);
-  useAutoFinishQuestion(state, game, handleEndQuestion);
-
   if (wsError) {
     return (
       <ErrorScreen
