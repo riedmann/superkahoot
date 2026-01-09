@@ -8,6 +8,9 @@ import { TestComponent } from "./components/TestComponent";
 import GameClient from "./games/GameClient";
 import { LeaderboardMock } from "./test/LeaderboardMock";
 import { WinnerScreenMock } from "./test/WinnerScreenMock";
+import { QuestionWithImageMock } from "./test/QuestionWithImageMock";
+import { QuestionWithoutImageMock } from "./test/QuestionWithoutImageMock";
+import { QuestionScreenMock } from "./test/QuestionScreenMock";
 
 function App() {
   return (
@@ -34,6 +37,18 @@ function App() {
           <Route path="/ws-test" element={<TestComponent />} />
           <Route path="/leaderboard-mock" element={<LeaderboardMock />} />
           <Route path="/winner-mock" element={<WinnerScreenMock />} />
+          <Route
+            path="/server-question-mock"
+            element={<QuestionWithImageMock />}
+          />
+          <Route
+            path="/server-question-no-image-mock"
+            element={<QuestionWithoutImageMock />}
+          />
+          <Route
+            path="/client-question-mock"
+            element={<QuestionScreenMock />}
+          />
         </Routes>
       </Router>
     </AuthProvider>

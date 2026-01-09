@@ -36,10 +36,10 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
 
   return (
     <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 text-white overflow-hidden">
-      <div className="w-full max-h-screen bg-opacity-10 rounded-xl p-8 flex flex-col md:flex-row items-center overflow-hidden">
+      <div className="w-full max-h-screen bg-opacity-10 rounded-xl p-4 flex flex-col md:flex-row items-center overflow-hidden">
         {/* Left: Question and Image */}
         <div className="flex-1 w-full text-center mb-8 md:mb-0 md:mr-8 overflow-y-auto max-h-[50vh] md:max-h-full">
-          <p className="mb-4 text-2xl">{question.question}</p>
+          <p className="mb-4 text-3xl font-bold">{question.question}</p>
           {question.image && (
             <img
               src={question.image}
@@ -61,7 +61,7 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
                 onClick={() => onAnswer(idx)}
                 className={`${
                   colors[idx]?.bg || "bg-gray-500"
-                } p-6 rounded-xl flex items-center justify-between min-h-20 text-2xl font-bold shadow hover:scale-105 transition`}
+                } p-6 rounded-xl flex items-center justify-between min-h-20 text-2xl font-bold shadow hover:scale-102 transition`}
               >
                 <div className="flex items-center gap-4">
                   <div

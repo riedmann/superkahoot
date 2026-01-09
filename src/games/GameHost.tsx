@@ -42,7 +42,7 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
     if (state === "question" && game) {
       const currentQuestion: Question =
         quiz.questions[game.currentQuestionIndex];
-      setQuestionCountdown(currentQuestion.timeLimit || 30);
+      setQuestionCountdown(currentQuestion.timeLimit || 60);
     }
   }, [state, game?.currentQuestionIndex]);
 
