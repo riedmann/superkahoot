@@ -1,5 +1,5 @@
 import { QuestionScreen } from "../games/client/QuestionScreen";
-import type { StandardQuestion, TrueFalseQuestion } from "../types/quiz";
+import type { StandardQuestion } from "../types/quiz";
 
 export function QuestionScreenMock() {
   // Standard question with images
@@ -35,13 +35,6 @@ export function QuestionScreenMock() {
   };
 
   // True/False question
-  const mockTrueFalseQuestion: TrueFalseQuestion = {
-    id: "q2",
-    type: "true-false",
-    question: "The Earth is flat.",
-    correctAnswer: false,
-    timeLimit: 20,
-  };
 
   return (
     <div className="h-screen">

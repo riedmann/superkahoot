@@ -16,7 +16,7 @@ export function QuestionWithImage({ currentQuestion }: QuestionWithImageProps) {
     <div className="flex items-center overflow-hidden h-screen p-4 text-white">
       {/* Left side: Question and Image */}
       <div className="flex-1 text-center w-full pr-4">
-        <h3 className="text-xl md:text-4xl font-bold mb-6 leading-tight text-center text-white">
+        <h3 className="text-4xl md:text-4xl font-bold mb-6 leading-tight text-center text-white">
           {currentQuestion.question}
         </h3>
         <img

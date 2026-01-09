@@ -11,6 +11,8 @@ import { WinnerScreenMock } from "./test/WinnerScreenMock";
 import { QuestionWithImageMock } from "./test/QuestionWithImageMock";
 import { QuestionWithoutImageMock } from "./test/QuestionWithoutImageMock";
 import { QuestionScreenMock } from "./test/QuestionScreenMock";
+import { QuestionResultMock } from "./test/QuestionResultMock";
+import { MockIndex } from "./test/MockIndex";
 
 function App() {
   return (
@@ -34,6 +36,7 @@ function App() {
             }
           />
           <Route path="/" element={<GameClient />} />
+          <Route path="/mocks" element={<MockIndex />} />
           <Route path="/ws-test" element={<TestComponent />} />
           <Route path="/leaderboard-mock" element={<LeaderboardMock />} />
           <Route path="/winner-mock" element={<WinnerScreenMock />} />
@@ -48,6 +51,10 @@ function App() {
           <Route
             path="/client-question-mock"
             element={<QuestionScreenMock />}
+          />
+          <Route
+            path="/question-result-mock"
+            element={<QuestionResultMock />}
           />
         </Routes>
       </Router>

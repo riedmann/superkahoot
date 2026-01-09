@@ -44,9 +44,6 @@ export function Leaderboard({
 
   return (
     <div className="mb-6">
-      <h4 className="text-2xl font-bold text-black mb-6 text-center bg-linear-to-r  bg-clip-text">
-        {title}
-      </h4>
       <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
         {sorted.map(([id, p], index) => {
           const isPodium = index < 3;

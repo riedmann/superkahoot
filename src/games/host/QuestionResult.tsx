@@ -20,7 +20,7 @@ export function QuestionResult({
     <div className="text-center text-white">
       {/* Show the question again */}
       <div className="mb-6">
-        <h3 className="text-xl font-bold  mb-4">{currentQuestion.question}</h3>
+        <h3 className="text-4xl font-bold  mb-4">{currentQuestion.question}</h3>
         {currentQuestion.image && (
           <img
             src={currentQuestion.image}
@@ -32,8 +32,6 @@ export function QuestionResult({
 
       {/* Show answer results with bars */}
       <div className="mb-6">
-        <h4 className="text-lg font-semibold mb-4">Results:</h4>
-
         {(() => {
           const colors = [
             { bg: "bg-red-500", text: "text-red-500", label: "A" },
@@ -223,6 +221,7 @@ export function QuestionResult({
           ? "Next Question"
           : "Finish Game"}
       </Button>
+      <div className="h-4"></div>
 
       <Leaderboard game={game} title="Current Leaderboard:" />
     </div>

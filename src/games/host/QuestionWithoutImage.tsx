@@ -16,10 +16,12 @@ export function QuestionWithoutImage({
 
   return (
     <div className="text-center mb-8 p-8">
-      <h2 className="text-2xl font-bold mb-4">{currentQuestion.question}</h2>
+      <h2 className="text-4xl font-bold mb-4 text-white">
+        {currentQuestion.question}
+      </h2>
       {typeof questionCountdown === "number" && (
         <div className="mb-6 text-lg font-semibold text-white">
-          Time left: <span className="font-mono">{questionCountdown}s</span>
+          <span className="font-mono text-2xl">{questionCountdown}s</span>
         </div>
       )}
       <div className="grid grid-cols-2 gap-6 mx-auto">
