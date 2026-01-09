@@ -19,6 +19,7 @@ export default function GameClient() {
 
   const {
     joined,
+    joining,
     state,
     countdown,
     setCountdown,
@@ -63,6 +64,7 @@ export default function GameClient() {
         setGamePin={setGamePin}
         setNickname={setNickname}
         handleJoin={handleJoin}
+        joining={joining}
       />
     );
   }

@@ -6,6 +6,7 @@ interface WaitingRoomProps {
   setGamePin: (pin: string) => void;
   setNickname: (name: string) => void;
   handleJoin: (e: React.FormEvent) => void;
+  joining: boolean;
 }
 
 export function WaitingRoom({
@@ -14,6 +15,7 @@ export function WaitingRoom({
   setGamePin,
   setNickname,
   handleJoin,
+  joining,
 }: WaitingRoomProps) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 text-black">
@@ -44,9 +46,10 @@ export function WaitingRoom({
         </label>
         <button
           type="submit"
-          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-8 rounded-lg shadow transition"
+          disabled={joining}
+          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-8 rounded-lg shadow transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Join Game
+          {joining ? "Joining..." : "Join Game"}
         </button>
       </form>
     </div>

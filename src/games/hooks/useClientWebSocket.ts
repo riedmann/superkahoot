@@ -13,6 +13,7 @@ interface WebSocketMessage {
 
 interface UseClientWebSocketReturn {
   joined: boolean;
+  joining: boolean;
   state: GameStatus;
   countdown: number;
   setCountdown: (value: number | ((prev: number) => number)) => void;
@@ -31,6 +32,7 @@ interface UseClientWebSocketReturn {
 
 export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
   const [joined, setJoined] = useState(false);
+  const [joining, setJoining] = useState(false);
   const [state, setState] = useState<GameStatus>("waiting");
   const [countdown, setCountdown] = useState(3);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -52,11 +54,13 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
       case "joined":
         if (msg.gameId === gamePinRef.current) {
           setJoined(true);
+          setJoining(false);
         }
         break;
 
       case "error":
         alert(msg.message);
+        setJoining(false);
         break;
 
       case "countdown":
@@ -95,6 +99,7 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
 
   const sendJoinGame = useCallback(
     (gameId: string, playerId: string, name: string) => {
+      setJoining(true);
       const sendJoin = () => {
         if (ws.current?.readyState === WebSocket.OPEN) {
           ws.current.send(
@@ -138,6 +143,7 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
 
   return {
     joined,
+    joining,
     state,
     countdown,
     setCountdown,
