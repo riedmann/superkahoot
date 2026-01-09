@@ -4,14 +4,27 @@ interface QuestionFooterProps {
   game: Game;
   onEndQuestion: () => void;
   onExit: () => void;
+  sendMessage?: (message: any) => void;
 }
 
 export function QuestionFooter({
   game,
   onEndQuestion,
   onExit,
+  sendMessage,
 }: QuestionFooterProps) {
-  // Debug logging
+  const handleDisconnectPlayer = (playerId: string, playerName: string) => {
+    if (sendMessage && game.id) {
+      if (confirm(`Disconnect ${playerName}?`)) {
+        sendMessage({
+          type: "disconnect_player",
+          gameId: game.id,
+          playerId: playerId,
+          reason: "Disconnected by host",
+        });
+      }
+    }
+  };
 
   return (
     <div className="bg-opacity-20 p-3 rounded-lg mx-4 mb-3">
@@ -49,7 +62,10 @@ export function QuestionFooter({
           return game.participants.map((participant) => (
             <div
               key={participant.id}
-              className={`px-1 py-0.5 rounded text-xs text-center ${
+              onClick={() =>
+                handleDisconnectPlayer(participant.id, participant.name)
+              }
+              className={`px-1 py-0.5 rounded text-xs text-center cursor-pointer hover:opacity-80 transition-opacity ${
                 answeredParticipantIds.has(participant.id)
                   ? "bg-green-500 text-white"
                   : "bg-gray-400 text-white"

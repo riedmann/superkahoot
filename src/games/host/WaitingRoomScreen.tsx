@@ -6,6 +6,7 @@ interface WaitingRoomScreenProps {
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
   onStartGame: () => void;
+  sendMessage?: (message: any) => void;
 }
 
 export function WaitingRoomScreen({
@@ -13,7 +14,21 @@ export function WaitingRoomScreen({
   isFullscreen,
   onToggleFullscreen,
   onStartGame,
+  sendMessage,
 }: WaitingRoomScreenProps) {
+  const handleDisconnectPlayer = (playerId: string, playerName: string) => {
+    if (sendMessage && game.id) {
+      if (confirm(`Disconnect ${playerName}?`)) {
+        sendMessage({
+          type: "disconnect_player",
+          gameId: game.id,
+          playerId: playerId,
+          reason: "Disconnected by host",
+        });
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-blue-600 to-purple-700 text-black">
       <FullscreenButton
@@ -33,7 +48,11 @@ export function WaitingRoomScreen({
             <li className="italic text-gray-200">Waiting for players...</li>
           )}
           {game.participants.map((p) => (
-            <div key={p.id} className="text-lg font-semibold">
+            <div
+              key={p.id}
+              onClick={() => handleDisconnectPlayer(p.id, p.name)}
+              className="text-lg font-semibold cursor-pointer hover:bg-white hover:bg-opacity-20 px-3 py-2 rounded-lg transition-all"
+            >
               {p.name}
             </div>
           ))}

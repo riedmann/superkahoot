@@ -5,6 +5,7 @@ import { ResultsScreen } from "./client/ResultsScreen";
 import { WaitingRoom } from "./client/WaitingRoom";
 import { WaitingForHostScreen } from "./client/WaitingForHostScreen";
 import { FinishedScreen } from "./client/FinishedScreen";
+import { DisconnectedScreen } from "./client/DisconnectedScreen";
 import { FullscreenButton } from "../components/ui/details/FullscreenButton";
 import { useFullscreen } from "./hooks/useFullscreen";
 import { useCountdown } from "./hooks/useCountdown";
@@ -27,6 +28,7 @@ export default function GameClient() {
     questionCountdown,
     setQuestionCountdown,
     question,
+    disconnectReason,
     sendJoinGame,
     sendAnswer,
   } = useClientWebSocket(gamePin);
@@ -57,16 +59,19 @@ export default function GameClient() {
   );
 
   if (!joined) {
-    return (
-      <WaitingRoom
-        gamePin={gamePin}
-        nickname={nickname}
-        setGamePin={setGamePin}
-        setNickname={setNickname}
-        handleJoin={handleJoin}
-        joining={joining}
-      />
-    );
+    if (disconnectReason) {
+      return <DisconnectedScreen reason={disconnectReason} />;
+    } else
+      return (
+        <WaitingRoom
+          gamePin={gamePin}
+          nickname={nickname}
+          setGamePin={setGamePin}
+          setNickname={setNickname}
+          handleJoin={handleJoin}
+          joining={joining}
+        />
+      );
   }
 
   if (state === "waiting") {

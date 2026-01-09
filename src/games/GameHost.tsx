@@ -71,6 +71,7 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
           isFullscreen={isFullscreen}
           onToggleFullscreen={toggleFullscreen}
           onStartGame={handleStartGame}
+          sendMessage={sendMessage}
         />
       </>
     );
@@ -126,6 +127,7 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
             game={game}
             onEndQuestion={handleEndQuestion}
             onExit={onBack}
+            sendMessage={sendMessage}
           />
         </div>
       </div>

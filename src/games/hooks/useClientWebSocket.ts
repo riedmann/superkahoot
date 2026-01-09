@@ -6,6 +6,7 @@ interface WebSocketMessage {
   type: string;
   gameId?: string;
   message?: string;
+  reason?: string;
   seconds?: number;
   question?: Question;
   index?: number;
@@ -21,6 +22,7 @@ interface UseClientWebSocketReturn {
   questionCountdown: number;
   setQuestionCountdown: (value: number | ((prev: number) => number)) => void;
   question: Question | null;
+  disconnectReason: string | null;
   sendJoinGame: (gameId: string, playerId: string, name: string) => void;
   sendAnswer: (
     gameId: string,
@@ -38,6 +40,7 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [questionCountdown, setQuestionCountdown] = useState(30);
   const [question, setQuestion] = useState<Question | null>(null);
+  const [disconnectReason, setDisconnectReason] = useState<string | null>(null);
 
   const ws = useRef<WebSocket | null>(null);
   const gamePinRef = useRef(gamePin);
@@ -83,6 +86,14 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
 
       case "finish_game":
         setState("finished");
+        break;
+
+      case "disconnected":
+        setDisconnectReason(
+          msg.reason || "You have been disconnected from the game"
+        );
+        setState("finished");
+        setJoined(false);
         break;
     }
   }, []);
@@ -151,6 +162,7 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
     questionCountdown,
     setQuestionCountdown,
     question,
+    disconnectReason,
     sendJoinGame,
     sendAnswer,
   };

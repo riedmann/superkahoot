@@ -114,6 +114,19 @@ export function useGameWebSocket(quiz: Quiz): UseGameWebSocketReturn {
           setState("finished");
           break;
 
+        case "player_disconnected":
+          setGame((prev) =>
+            prev && msg.player
+              ? {
+                  ...prev,
+                  participants: prev.participants.filter(
+                    (p) => p.id !== msg.player.id
+                  ),
+                }
+              : prev
+          );
+          break;
+
         default:
           console.warn("Unknown message type:", msg.type);
       }

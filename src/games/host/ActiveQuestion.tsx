@@ -11,6 +11,7 @@ interface ActiveQuestionProps {
   quiz: { questions: Question[] };
   onEndQuestion: () => void;
   onExit: () => void;
+  sendMessage?: (message: any) => void;
 }
 
 export function ActiveQuestion({
@@ -20,6 +21,7 @@ export function ActiveQuestion({
   quiz,
   onEndQuestion,
   onExit,
+  sendMessage,
 }: ActiveQuestionProps) {
   const hasQuestionImage = !!currentQuestion.image;
 
@@ -48,6 +50,7 @@ export function ActiveQuestion({
           game={game}
           onEndQuestion={onEndQuestion}
           onExit={onExit}
+          sendMessage={sendMessage}
         />
       </div>
     </div>
