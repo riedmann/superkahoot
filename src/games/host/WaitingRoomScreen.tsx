@@ -25,17 +25,19 @@ export function WaitingRoomScreen({
         <div className="text-5xl font-mono font-extrabold tracking-widest bg-white bg-opacity-20 px-8 py-4 rounded-lg mb-6">
           {game.gamePin}
         </div>
-        <h2 className="text-xl mb-2">Participants</h2>
-        <ul className="mb-6">
+        <h2 className="text-xl mb-2">
+          Participants {game.participants.length}
+        </h2>
+        <div className="mb-6 grid grid-cols-3 gap-2">
           {game.participants.length === 0 && (
             <li className="italic text-gray-200">Waiting for players...</li>
           )}
           {game.participants.map((p) => (
-            <li key={p.id} className="text-lg font-semibold">
+            <div key={p.id} className="text-lg font-semibold">
               {p.name}
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
         <button
           onClick={onStartGame}
           className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow transition"

@@ -13,9 +13,9 @@ export function QuestionWithImage({ currentQuestion }: QuestionWithImageProps) {
   ];
 
   return (
-    <div className="flex  items-center  ">
+    <div className="flex items-center overflow-hidden h-screen">
       {/* Left side: Question and Image */}
-      <div className="flex-1 text-cente  w-full">
+      <div className="flex-1 text-center w-full pr-4">
         <h3 className="text-xl md:text-2xl font-bold mb-6 leading-tight text-center">
           {currentQuestion.question}
         </h3>
@@ -27,7 +27,7 @@ export function QuestionWithImage({ currentQuestion }: QuestionWithImageProps) {
       </div>
 
       {/* Right side: Answer Options */}
-      <div className="flex-1">
+      <div className="flex-1 overflow-y-auto max-h-full pl-4">
         <div className="grid grid-cols-1 gap-4">
           {(() => {
             if (currentQuestion.type === "true-false") {
@@ -79,7 +79,7 @@ export function QuestionWithImage({ currentQuestion }: QuestionWithImageProps) {
                       <img
                         src={option.image}
                         alt="Option image"
-                        className="w-16 h-16 object-cover rounded-lg ml-3 flex-shrink-0"
+                        className=" rounded-lg ml-3 shrink-0"
                       />
                     )}
                   </div>

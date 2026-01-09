@@ -35,10 +35,10 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
   }
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 text-white">
-      <div className="w-full  bg-opacity-10 rounded-xl p-8 flex flex-col md:flex-row items-center">
+    <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 text-white overflow-hidden">
+      <div className="w-full max-h-screen bg-opacity-10 rounded-xl p-8 flex flex-col md:flex-row items-center overflow-hidden">
         {/* Left: Question and Image */}
-        <div className="flex-1 w-full text-center mb-8 md:mb-0 md:mr-8">
+        <div className="flex-1 w-full text-center mb-8 md:mb-0 md:mr-8 overflow-y-auto max-h-[50vh] md:max-h-full">
           <p className="mb-4 text-2xl">{question.question}</p>
           {question.image && (
             <img
@@ -49,9 +49,9 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
           )}
         </div>
         {/* Right: Answer Options */}
-        <div className="flex-1 w-full">
+        <div className="flex-1 w-full overflow-y-auto max-h-[50vh] md:max-h-[80vh]">
           <div
-            className={`grid gap-4 ${
+            className={`p-4 grid gap-4 ${
               answerOptions.length === 2 ? "grid-cols-1" : "grid-cols-1"
             }`}
           >
@@ -77,7 +77,7 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
                   <img
                     src={ans.image}
                     alt="Option"
-                    className="w-16 h-16 object-cover rounded-lg ml-3 flex-shrink-0"
+                    className="rounded-lg ml-3 shrink-0"
                   />
                 )}
               </button>
