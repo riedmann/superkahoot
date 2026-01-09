@@ -33,11 +33,18 @@ export function Countdown({
   }, [count, onCountdownComplete]);
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-blue-600 to-purple-700 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-linear-to-br from-blue-600 to-purple-700 z-50 flex items-center justify-center">
       <div className="text-center text-white max-w-4xl px-8">
         {question && (
           <div className="mb-8">
             <h2 className="text-4xl font-bold mb-4">{question.question}</h2>
+            {question.image && (
+              <img
+                src={question.image}
+                alt="Question"
+                className="w-full max-h-64 rounded-lg mx-auto object-cover mt-4"
+              />
+            )}
           </div>
         )}
         <div className="mb-6">

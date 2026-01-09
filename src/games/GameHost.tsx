@@ -4,6 +4,7 @@ import { Countdown } from "./host/Countdown";
 import { QuestionFooter } from "./host/QuestionFooter";
 import { QuestionResult } from "./host/QuestionResult";
 import { QuestionWithoutImage } from "./host/QuestionWithoutImage";
+import { QuestionWithImage } from "./host/QuestionWithImage";
 import { WinnersScreen } from "./host/WinnersScreen";
 import { FullscreenButton } from "../components/ui/details/FullscreenButton";
 import { useFullscreen } from "./hooks/useFullscreen";
@@ -91,6 +92,12 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
   }
 
   if (state === "question" && game) {
+    const currentQuestion = quiz.questions[game.currentQuestionIndex];
+    const hasImage =
+      currentQuestion.image ||
+      (currentQuestion.type === "standard" &&
+        currentQuestion.options.some((opt) => opt.image));
+
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700">
         <FullscreenButton
@@ -98,10 +105,14 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
           onToggle={toggleFullscreen}
         />
         <div className="w-full text-white">
-          <QuestionWithoutImage
-            currentQuestion={quiz.questions[game.currentQuestionIndex]}
-            questionCountdown={questionCountdown}
-          />
+          {hasImage ? (
+            <QuestionWithImage currentQuestion={currentQuestion} />
+          ) : (
+            <QuestionWithoutImage
+              currentQuestion={currentQuestion}
+              questionCountdown={questionCountdown}
+            />
+          )}
           <QuestionFooter
             game={game}
             onEndQuestion={handleEndQuestion}

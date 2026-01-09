@@ -16,7 +16,11 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
   ];
 
   // Determine answer options and labels
-  let answerOptions: { text: string; value: string | boolean | number }[];
+  let answerOptions: {
+    text: string;
+    value: string | boolean | number;
+    image?: string;
+  }[];
   if (question.type === "true-false") {
     answerOptions = [
       { text: "True", value: true },
@@ -26,6 +30,7 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
     answerOptions = question.options.slice(0, 4).map((option, idx) => ({
       text: option.text,
       value: idx,
+      image: option.image,
     }));
   }
 
@@ -56,7 +61,7 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
                 onClick={() => onAnswer(idx)}
                 className={`${
                   colors[idx]?.bg || "bg-gray-500"
-                } p-6 rounded-xl flex items-center justify-start min-h-20 text-2xl font-bold shadow hover:scale-105 transition`}
+                } p-6 rounded-xl flex items-center justify-between min-h-20 text-2xl font-bold shadow hover:scale-105 transition`}
               >
                 <div className="flex items-center gap-4">
                   <div
@@ -68,6 +73,13 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
                   </div>
                   <span className="text-left">{ans.text}</span>
                 </div>
+                {ans.image && (
+                  <img
+                    src={ans.image}
+                    alt="Option"
+                    className="w-16 h-16 object-cover rounded-lg ml-3 flex-shrink-0"
+                  />
+                )}
               </button>
             ))}
           </div>
