@@ -53,7 +53,7 @@ export function LeaderboardMock() {
 
   return (
     <div className="h-screen">
-      <Leaderboard game={mockGame} title="test" />
+      <Leaderboard game={mockGame} />
     </div>
   );
 }

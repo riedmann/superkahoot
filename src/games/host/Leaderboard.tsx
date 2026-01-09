@@ -2,13 +2,9 @@ import type { Game } from "../../types/game";
 
 interface LeaderboardProps {
   game: Game;
-  title?: string;
 }
 
-export function Leaderboard({
-  game,
-  title = "Current Leaderboard:",
-}: LeaderboardProps) {
+export function Leaderboard({ game }: LeaderboardProps) {
   // Aggregate scores from all answers
   const participantScores: {
     [id: string]: {

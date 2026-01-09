@@ -223,7 +223,7 @@ export function QuestionResult({
       </Button>
       <div className="h-4"></div>
 
-      <Leaderboard game={game} title="Current Leaderboard:" />
+      <Leaderboard game={game} />
     </div>
   );
 }
