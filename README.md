@@ -256,3 +256,9 @@ For issues, questions, or feature requests, please open an issue in the reposito
 ---
 
 Built with ❤️ using React, TypeScript, and modern web technologies
+
+## Docker
+Follow the logs in real time:
+
+docker logs -f <container_name_or_id>
+
