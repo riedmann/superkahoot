@@ -9,13 +9,14 @@ export function MockIndex() {
       path: "/server-question-no-image-mock",
       name: "Question Without Image (Host)",
     },
-    { path: "/client-question-mock", name: "Question Screen (Client)" },
+    { path: "/client-question-mock2", name: "Question Screen (Client) 1" },
+    { path: "/client-question-mock1", name: "Question Screen (Client) 2" },
     { path: "/question-result-mock", name: "Question Result" },
     { path: "/ws-test", name: "WebSocket Test" },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-700 flex items-center justify-center p-8">
+    <div className="min-h-screen bg-linear-to-br from-purple-600 to-blue-700 flex items-center justify-center p-8">
       <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 max-w-2xl w-full">
         <h1 className="text-4xl font-bold text-white mb-8 text-center">
           🎭 Component Mocks

@@ -10,9 +10,10 @@ import { LeaderboardMock } from "./test/LeaderboardMock";
 import { WinnerScreenMock } from "./test/WinnerScreenMock";
 import { QuestionWithImageMock } from "./test/QuestionWithImageMock";
 import { QuestionWithoutImageMock } from "./test/QuestionWithoutImageMock";
-import { QuestionScreenMock } from "./test/QuestionScreenMock";
+import { ClientQuestionScreenMock } from "./test/QuestionScreenMock";
 import { QuestionResultMock } from "./test/QuestionResultMock";
 import { MockIndex } from "./test/MockIndex";
+import { ClientQuestionScreenMock1 } from "./test/QuestionScreenMock1";
 
 function App() {
   return (
@@ -49,11 +50,15 @@ function App() {
             element={<QuestionWithoutImageMock />}
           />
           <Route
-            path="/client-question-mock"
-            element={<QuestionScreenMock />}
+            path="/client-question-mock1"
+            element={<ClientQuestionScreenMock />}
           />
           <Route
-            path="/question-result-mock"
+            path="/client-question-mock2"
+            element={<ClientQuestionScreenMock1 />}
+          />
+          <Route
+            path="/question-result-mock1"
             element={<QuestionResultMock />}
           />
         </Routes>

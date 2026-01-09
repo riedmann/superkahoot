@@ -115,7 +115,24 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
   useEffect(() => {
     const wsUrl = import.meta.env.VITE_WS_URL || "ws://localhost:8080";
     ws.current = new WebSocket(wsUrl);
+
+    ws.current.onopen = () => {
+      console.log("WebSocket connected");
+    };
+
     ws.current.onmessage = handleMessage;
+
+    ws.current.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      setJoining(false);
+    };
+
+    ws.current.onclose = (event) => {
+      console.log("WebSocket closed:", event.code, event.reason);
+      if (!event.wasClean) {
+        console.warn("WebSocket closed unexpectedly");
+      }
+    };
 
     return () => {
       ws.current?.close();
@@ -125,6 +142,9 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
   const sendJoinGame = useCallback(
     (gameId: string, playerId: string, name: string) => {
       setJoining(true);
+      let attempts = 0;
+      const maxAttempts = 50; // 5 seconds max wait (50 * 100ms)
+
       const sendJoin = () => {
         if (ws.current?.readyState === WebSocket.OPEN) {
           ws.current.send(
@@ -135,9 +155,16 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
             })
           );
           setState("waiting");
-        } else {
+        } else if (attempts < maxAttempts) {
           // Wait for connection to open, then send
+          attempts++;
           setTimeout(() => sendJoin(), 100);
+        } else {
+          // Connection timeout
+          setJoining(false);
+          alert(
+            "Failed to connect to game server. Please refresh the page and try again."
+          );
         }
       };
 

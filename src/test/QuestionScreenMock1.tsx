@@ -1,7 +1,7 @@
 import { QuestionScreen } from "../games/client/QuestionScreen";
 import type { StandardQuestion } from "../types/quiz";
 
-export function ClientQuestionScreenMock() {
+export function ClientQuestionScreenMock1() {
   // Standard question with images
   const mockStandardQuestion: StandardQuestion = {
     id: "q1",
@@ -10,23 +10,15 @@ export function ClientQuestionScreenMock() {
     options: [
       {
         text: "Paris",
-        image:
-          "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1000",
       },
       {
         text: "London",
-        image:
-          "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=100",
       },
       {
         text: "New York",
-        image:
-          "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=300",
       },
       {
         text: "Tokyo",
-        image:
-          "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=300",
       },
     ],
     correctAnswers: [0],
