@@ -8,6 +8,7 @@ export interface TrueFalseQuestion {
   type: "true-false";
   question: string;
   correctAnswer: boolean;
+  timeLimit?: number;
   image?: string; // Base64 encoded image or URL
 }
 
@@ -17,6 +18,7 @@ export interface StandardQuestion {
   question: string;
   options: QuestionOption[];
   correctAnswers: number[];
+  timeLimit?: number;
   image?: string; // Base64 encoded image or URL
 }
 

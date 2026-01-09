@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import type { Quiz } from "../types/quiz";
+import React, { useState, useEffect } from "react";
+import type { Question, Quiz } from "../types/quiz";
 import { Countdown } from "./host/Countdown";
 import { QuestionFooter } from "./host/QuestionFooter";
 import { QuestionResult } from "./host/QuestionResult";
@@ -36,6 +36,15 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
 
   const { handleStartGame, handleNextQuestion, handleEndQuestion } =
     useGameActions(game, sendMessage, quiz.questions.length);
+
+  // Reset countdown when entering question state
+  useEffect(() => {
+    if (state === "question" && game) {
+      const currentQuestion: Question =
+        quiz.questions[game.currentQuestionIndex];
+      setQuestionCountdown(currentQuestion.timeLimit || 30);
+    }
+  }, [state, game?.currentQuestionIndex]);
 
   useCountdown(state === "question", questionCountdown, setQuestionCountdown);
   useAutoFinishQuestion(state, game, handleEndQuestion);
