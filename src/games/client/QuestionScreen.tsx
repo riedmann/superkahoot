@@ -52,38 +52,40 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
         </div>
         {/* Right: Answer Options */}
         <div className="flex-1 overflow-y-auto min-h-0">
-          <div
-            className={`grid gap-4 ${
-              answerOptions.length === 2 ? "grid-cols-1" : "grid-cols-1"
-            }`}
-          >
-            {answerOptions.map((ans, idx) => (
-              <button
-                key={idx}
-                onClick={() => onAnswer(idx)}
-                className={`${
-                  colors[idx]?.bg || "bg-gray-500"
-                } p-6 rounded-xl min-h-20 text-2xl font-bold shadow hover:scale-102 transition`}
-              >
-                <div className="flex items-center gap-4 mb-2">
-                  <div
-                    className={`w-12 h-12 bg-white ${
-                      colors[idx]?.text || "text-gray-500"
-                    } rounded-xl font-bold flex items-center justify-center text-xl`}
-                  >
-                    {colors[idx]?.label || String.fromCharCode(65 + idx)}
+          <div className="min-h-full flex items-center py-4">
+            <div
+              className={`grid gap-4 w-full ${
+                answerOptions.length === 2 ? "grid-cols-1" : "grid-cols-1"
+              }`}
+            >
+              {answerOptions.map((ans, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => onAnswer(idx)}
+                  className={`${
+                    colors[idx]?.bg || "bg-gray-500"
+                  } p-6 rounded-xl min-h-20 text-2xl font-bold shadow hover:scale-102 transition`}
+                >
+                  <div className="flex items-center gap-4 mb-2">
+                    <div
+                      className={`w-12 h-12 bg-white ${
+                        colors[idx]?.text || "text-gray-500"
+                      } rounded-xl font-bold flex items-center justify-center text-xl`}
+                    >
+                      {colors[idx]?.label || String.fromCharCode(65 + idx)}
+                    </div>
+                    <span className="text-left">{ans.text}</span>
                   </div>
-                  <span className="text-left">{ans.text}</span>
-                </div>
-                {ans.image && (
-                  <img
-                    src={ans.image}
-                    alt="Option"
-                    className="rounded-lg  shrink-0"
-                  />
-                )}
-              </button>
-            ))}
+                  {ans.image && (
+                    <img
+                      src={ans.image}
+                      alt="Option"
+                      className="rounded-lg  shrink-0"
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
