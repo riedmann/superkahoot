@@ -36,22 +36,24 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
 
   return (
     <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700 text-white overflow-hidden">
-      <div className="w-full max-h-screen bg-opacity-10 rounded-xl p-4 flex flex-col md:flex-row items-center overflow-hidden">
+      <div className="w-full h-full bg-opacity-10 rounded-xl p-4 flex flex-col md:flex-row items-stretch overflow-hidden gap-4">
         {/* Left: Question and Image */}
-        <div className="flex-1 w-full text-center mb-8 md:mb-0 md:mr-8 overflow-y-auto max-h-[50vh] md:max-h-full">
-          <p className="mb-4 text-3xl font-bold">{question.question}</p>
+        <div className="flex-1 flex flex-col justify-center items-center overflow-hidden min-h-0">
+          <p className="mb-4 text-4xl font-bold text-center  ">
+            {question.question}
+          </p>
           {question.image && (
             <img
               src={question.image}
               alt="Question"
-              className="w-full max-h-64 rounded-lg mx-auto object-cover"
+              className="max-w-full max-h-full object-contain rounded-lg"
             />
           )}
         </div>
         {/* Right: Answer Options */}
-        <div className="flex-1 w-full overflow-y-auto max-h-[50vh] md:max-h-[80vh]">
+        <div className="flex-1 overflow-y-auto min-h-0">
           <div
-            className={`p-4 grid gap-4 ${
+            className={`grid gap-4 ${
               answerOptions.length === 2 ? "grid-cols-1" : "grid-cols-1"
             }`}
           >
@@ -61,9 +63,9 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
                 onClick={() => onAnswer(idx)}
                 className={`${
                   colors[idx]?.bg || "bg-gray-500"
-                } p-6 rounded-xl flex items-center justify-between min-h-20 text-2xl font-bold shadow hover:scale-102 transition`}
+                } p-6 rounded-xl min-h-20 text-2xl font-bold shadow hover:scale-102 transition`}
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 mb-2">
                   <div
                     className={`w-12 h-12 bg-white ${
                       colors[idx]?.text || "text-gray-500"
@@ -77,7 +79,7 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
                   <img
                     src={ans.image}
                     alt="Option"
-                    className="rounded-lg ml-3 shrink-0"
+                    className="rounded-lg  shrink-0"
                   />
                 )}
               </button>
