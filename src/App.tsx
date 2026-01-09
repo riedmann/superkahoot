@@ -6,6 +6,8 @@ import { AuthProvider } from "./contexts/AuthContext";
 
 import { TestComponent } from "./components/TestComponent";
 import GameClient from "./games/GameClient";
+import { LeaderboardMock } from "./test/LeaderboardMock";
+import { WinnerScreenMock } from "./test/WinnerScreenMock";
 
 function App() {
   return (
@@ -30,6 +32,8 @@ function App() {
           />
           <Route path="/" element={<GameClient />} />
           <Route path="/ws-test" element={<TestComponent />} />
+          <Route path="/leaderboard-mock" element={<LeaderboardMock />} />
+          <Route path="/winner-mock" element={<WinnerScreenMock />} />
         </Routes>
       </Router>
     </AuthProvider>
