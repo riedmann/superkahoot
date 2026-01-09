@@ -12,6 +12,7 @@ export function Leaderboard({ game }: LeaderboardProps) {
       score: number;
       correct: number;
       total: number;
+      lastQuestionCorrect: boolean | null;
     };
   } = {};
 
@@ -21,6 +22,7 @@ export function Leaderboard({ game }: LeaderboardProps) {
       score: 0,
       correct: 0,
       total: 0,
+      lastQuestionCorrect: null,
     };
   });
 
@@ -33,6 +35,18 @@ export function Leaderboard({ game }: LeaderboardProps) {
       }
     });
   });
+
+  // Get the last answered question to check if participants answered correctly
+  const lastAnsweredQuestion =
+    game.answeredQuestions[game.answeredQuestions.length - 1];
+  if (lastAnsweredQuestion) {
+    lastAnsweredQuestion.answers.forEach((ans) => {
+      if (participantScores[ans.participant.id]) {
+        participantScores[ans.participant.id].lastQuestionCorrect =
+          ans.isCorrect;
+      }
+    });
+  }
 
   const sorted = Object.entries(participantScores).sort(
     ([, a], [, b]) => b.score - a.score
@@ -85,6 +99,17 @@ export function Leaderboard({ game }: LeaderboardProps) {
               {/* Player Name */}
               <div className="font-bold text-black text-center truncate text-sm mb-2 mt-1">
                 {p.name}
+                {/* Last question indicator */}
+                {p.lastQuestionCorrect === true && (
+                  <span className="ml-1 text-green-600" title="Correct answer">
+                    ✓
+                  </span>
+                )}
+                {p.lastQuestionCorrect === false && (
+                  <span className="ml-1 text-red-600" title="Incorrect answer">
+                    ✗
+                  </span>
+                )}
               </div>
 
               {/* Stats */}
