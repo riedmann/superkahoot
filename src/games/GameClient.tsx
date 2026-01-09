@@ -29,6 +29,9 @@ export default function GameClient() {
     setQuestionCountdown,
     question,
     disconnectReason,
+    score,
+    lastAnswerCorrect,
+    lastAnswerPoints,
     sendJoinGame,
     sendAnswer,
   } = useClientWebSocket(gamePin);
@@ -121,7 +124,11 @@ export default function GameClient() {
           isFullscreen={isFullscreen}
           onToggle={toggleFullscreen}
         />
-        <ResultsScreen />
+        <ResultsScreen
+          score={score}
+          isCorrect={lastAnswerCorrect}
+          points={lastAnswerPoints}
+        />
       </>
     );
   }

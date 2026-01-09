@@ -10,6 +10,9 @@ interface WebSocketMessage {
   seconds?: number;
   question?: Question;
   index?: number;
+  score?: number;
+  isCorrect?: boolean;
+  points?: number;
 }
 
 interface UseClientWebSocketReturn {
@@ -23,6 +26,9 @@ interface UseClientWebSocketReturn {
   setQuestionCountdown: (value: number | ((prev: number) => number)) => void;
   question: Question | null;
   disconnectReason: string | null;
+  score: number;
+  lastAnswerCorrect: boolean | null;
+  lastAnswerPoints: number;
   sendJoinGame: (gameId: string, playerId: string, name: string) => void;
   sendAnswer: (
     gameId: string,
@@ -41,6 +47,11 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
   const [questionCountdown, setQuestionCountdown] = useState(30);
   const [question, setQuestion] = useState<Question | null>(null);
   const [disconnectReason, setDisconnectReason] = useState<string | null>(null);
+  const [score, setScore] = useState(0);
+  const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(
+    null
+  );
+  const [lastAnswerPoints, setLastAnswerPoints] = useState(0);
 
   const ws = useRef<WebSocket | null>(null);
   const gamePinRef = useRef(gamePin);
@@ -81,6 +92,9 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
 
       case "answer_received":
       case "results":
+        if (msg.score !== undefined) setScore(msg.score);
+        if (msg.isCorrect !== undefined) setLastAnswerCorrect(msg.isCorrect);
+        if (msg.points !== undefined) setLastAnswerPoints(msg.points);
         setState("results");
         break;
 
@@ -163,6 +177,9 @@ export function useClientWebSocket(gamePin: string): UseClientWebSocketReturn {
     setQuestionCountdown,
     question,
     disconnectReason,
+    score,
+    lastAnswerCorrect,
+    lastAnswerPoints,
     sendJoinGame,
     sendAnswer,
   };
