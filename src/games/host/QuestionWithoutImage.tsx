@@ -1,3 +1,5 @@
+import { MarkdownRenderer } from "../../components/MarkdownRenderer";
+
 interface QuestionWithoutImageProps {
   currentQuestion: any;
   questionCountdown?: number;
@@ -16,7 +18,9 @@ export function QuestionWithoutImage({
 
   return (
     <div className="text-center mb-8 p-8">
-      <h2 className="text-2xl font-bold mb-4">{currentQuestion.question}</h2>
+      <div className="text-4xl font-bold mb-4 text-white prose prose-invert prose-lg max-w-none mx-auto">
+        <MarkdownRenderer content={currentQuestion.question} />
+      </div>
       {typeof questionCountdown === "number" && (
         <div className="mb-6 text-lg font-semibold text-white">
           Time left: <span className="font-mono">{questionCountdown}s</span>

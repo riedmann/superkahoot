@@ -1,6 +1,7 @@
 import type { Question } from "../types";
 import { questionRegistry } from "../types/QuestionTypeRegistry";
 import { Badge } from "./Badge";
+import { MarkdownRenderer } from "./MarkdownRenderer";
 
 interface QuestionCardProps {
   question: Question;
@@ -25,9 +26,9 @@ export function QuestionCard({ question }: QuestionCardProps) {
         </Badge>
       </div>
 
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        {question.question}
-      </h3>
+      <div className="text-lg font-semibold text-gray-900 mb-4 prose prose-lg max-w-none">
+        <MarkdownRenderer content={question.question} />
+      </div>
 
       {handler.getDisplay(question)}
     </div>

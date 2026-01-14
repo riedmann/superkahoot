@@ -1,4 +1,5 @@
 import type { Question } from "../../types";
+import { MarkdownRenderer } from "../../components/MarkdownRenderer";
 
 interface QuestionWithImageProps {
   currentQuestion: Question;
@@ -16,9 +17,9 @@ export function QuestionWithImage({ currentQuestion }: QuestionWithImageProps) {
     <div className="flex  items-center  ">
       {/* Left side: Question and Image */}
       <div className="flex-1 text-cente  w-full">
-        <h3 className="text-xl md:text-2xl font-bold mb-6 leading-tight text-center">
-          {currentQuestion.question}
-        </h3>
+        <div className="text-xl md:text-2xl font-bold mb-6 leading-tight text-center prose prose-invert prose-lg max-w-none mx-auto">
+          <MarkdownRenderer content={currentQuestion.question} />
+        </div>
         <img
           src={currentQuestion.image}
           alt="Question image"

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Game } from "../../types";
 import type { Question } from "../../types/question";
+import { MarkdownRenderer } from "../../components/MarkdownRenderer";
 
 interface CountdownProps {
   game: Game;
@@ -37,7 +38,9 @@ export function Countdown({
       <div className="text-center text-white max-w-4xl px-8">
         {question && (
           <div className="mb-8">
-            <h2 className="text-4xl font-bold mb-4">{question.question}</h2>
+            <div className="text-4xl font-bold mb-4 prose prose-invert prose-lg max-w-none mx-auto">
+              <MarkdownRenderer content={question.question} />
+            </div>
           </div>
         )}
         <div className="mb-6">

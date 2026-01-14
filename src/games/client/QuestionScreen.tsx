@@ -1,4 +1,5 @@
 import type { Question } from "../../types";
+import { MarkdownRenderer } from "../../components/MarkdownRenderer";
 
 interface QuestionScreenProps {
   question: Question;
@@ -34,7 +35,9 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
       <div className="w-full  bg-opacity-10 rounded-xl p-8 flex flex-col md:flex-row items-center">
         {/* Left: Question and Image */}
         <div className="flex-1 w-full text-center mb-8 md:mb-0 md:mr-8">
-          <p className="mb-4 text-2xl">{question.question}</p>
+          <div className="mb-4 text-2xl prose prose-invert prose-lg max-w-none mx-auto">
+            <MarkdownRenderer content={question.question} />
+          </div>
           {question.image && (
             <img
               src={question.image}
