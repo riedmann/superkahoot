@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import type { Quiz } from "../types/quiz";
 import { FirebaseQuizDAO } from "../utils/DAO/FirebaseQuizDAO";
 import { isTrueFalseQuestion } from "../types/question";
+import { FullscreenButton } from "../components/ui/details/FullscreenButton";
+import { useFullscreen } from "../games/hooks/useFullscreen";
 
 const quizDAO = new FirebaseQuizDAO();
 
@@ -26,6 +28,8 @@ export function PracticeQuiz() {
   const [hasAnswered, setHasAnswered] = useState(false);
   const [answerResults, setAnswerResults] = useState<AnswerResult[]>([]);
   const [showResults, setShowResults] = useState(false);
+
+  const { isFullscreen, toggleFullscreen } = useFullscreen();
 
   useEffect(() => {
     async function loadQuiz() {
@@ -125,7 +129,7 @@ export function PracticeQuiz() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 flex items-center justify-center">
-        <div className="text-white text-2xl">Loading quiz...</div>
+        <div className="text-white text-2xl">Quiz wird geladen...</div>
       </div>
     );
   }
@@ -134,13 +138,13 @@ export function PracticeQuiz() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 flex items-center justify-center">
         <div className="bg-white rounded-lg p-8 shadow-xl max-w-md">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-700 mb-6">{error || "Quiz not found"}</p>
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Fehler</h2>
+          <p className="text-gray-700 mb-6">{error || "Quiz nicht gefunden"}</p>
           <button
             onClick={() => navigate("/")}
             className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
           >
-            Go Home
+            Zur Startseite
           </button>
         </div>
       </div>
@@ -156,7 +160,7 @@ export function PracticeQuiz() {
       <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg p-8 shadow-xl max-w-2xl w-full">
           <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
-            {quiz.title} - Results
+            {quiz.title} - Ergebnisse
           </h1>
 
           <div className="text-center mb-8">
@@ -164,7 +168,7 @@ export function PracticeQuiz() {
               {percentage}%
             </div>
             <p className="text-xl text-gray-600">
-              {correctCount} out of {totalQuestions} correct
+              {correctCount} von {totalQuestions} richtig
             </p>
           </div>
 
@@ -181,13 +185,13 @@ export function PracticeQuiz() {
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold">Question {idx + 1}</span>
+                    <span className="font-semibold">Frage {idx + 1}</span>
                     <span
                       className={`text-sm font-bold ${
                         result?.isCorrect ? "text-green-700" : "text-red-700"
                       }`}
                     >
-                      {result?.isCorrect ? "✓ Correct" : "✗ Incorrect"}
+                      {result?.isCorrect ? "✓ Richtig" : "✗ Falsch"}
                     </span>
                   </div>
                 </div>
@@ -200,13 +204,13 @@ export function PracticeQuiz() {
               onClick={handleRestart}
               className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 font-semibold"
             >
-              Try Again
+              Nochmal versuchen
             </button>
             <button
               onClick={() => navigate("/")}
               className="bg-gray-600 text-white px-8 py-3 rounded-lg hover:bg-gray-700 font-semibold"
             >
-              Exit
+              Beenden
             </button>
           </div>
         </div>
@@ -225,14 +229,19 @@ export function PracticeQuiz() {
       {/* Header */}
       <div className="bg-white shadow-md p-4">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            {quiz.title}
-          </h1>
+          <div className="flex items-start justify-between mb-2">
+            <h1 className="text-2xl font-bold text-gray-800">{quiz.title}</h1>
+            <FullscreenButton
+              isFullscreen={isFullscreen}
+              onToggle={toggleFullscreen}
+              className="bg-gray-800 hover:bg-gray-700 text-white p-2 rounded-lg transition"
+            />
+          </div>
           <div className="flex items-center justify-between text-sm text-gray-600">
             <span>
-              Question {currentQuestionIndex + 1} of {quiz.questions.length}
+              Frage {currentQuestionIndex + 1} von {quiz.questions.length}
             </span>
-            <span>{Math.round(progress)}% Complete</span>
+            <span>{Math.round(progress)}% Abgeschlossen</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
             <div
@@ -278,7 +287,7 @@ export function PracticeQuiz() {
                         : "bg-gray-100 hover:bg-gray-200"
                   } ${hasAnswered ? "cursor-not-allowed" : "cursor-pointer"}`}
                 >
-                  True
+                  Wahr
                 </button>
                 <button
                   onClick={() => handleAnswerSelect(1)}
@@ -295,7 +304,7 @@ export function PracticeQuiz() {
                         : "bg-gray-100 hover:bg-gray-200"
                   } ${hasAnswered ? "cursor-not-allowed" : "cursor-pointer"}`}
                 >
-                  False
+                  Falsch
                 </button>
               </>
             ) : (
@@ -346,8 +355,8 @@ export function PracticeQuiz() {
             >
               <p className="font-bold text-lg">
                 {answerResults[answerResults.length - 1]?.isCorrect
-                  ? "✓ Correct!"
-                  : "✗ Incorrect"}
+                  ? "✓ Richtig!"
+                  : "✗ Falsch"}
               </p>
             </div>
           )}
@@ -363,7 +372,7 @@ export function PracticeQuiz() {
                     : "bg-blue-600 text-white hover:bg-blue-700"
                 }`}
               >
-                Submit Answer
+                Antwort abschicken
               </button>
             ) : (
               <button
@@ -371,8 +380,8 @@ export function PracticeQuiz() {
                 className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 font-semibold"
               >
                 {currentQuestionIndex < quiz.questions.length - 1
-                  ? "Next Question"
-                  : "View Results"}
+                  ? "Nächste Frage"
+                  : "Ergebnisse anzeigen"}
               </button>
             )}
           </div>
