@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useState } from "react";
 import { ref, set, update, onValue, get } from "firebase/database";
 import { realtimeDb } from "../../utils/firebase";
-import type { Game, GameStatus } from "../../types/game";
+import type { Game, GameStatus, Participant } from "../../types/game";
 import type { Quiz } from "../../types/quiz";
 
 interface UseGameFirebaseReturn {
@@ -18,7 +18,7 @@ export function useGameFirebase(quiz: Quiz): UseGameFirebaseReturn {
   const [game, setGame] = useState<Game>();
   const [gamePin, setGamePin] = useState<string>();
   const [state, setState] = useState<GameStatus>("waiting");
-  const [finalScore] = useState<any>();
+  const [finalScore, setFinalScore] = useState<any>();
   const [wsError, setWsError] = useState<string | null>(null);
   const [isReconnecting] = useState(false);
 
@@ -120,6 +120,17 @@ export function useGameFirebase(quiz: Quiz): UseGameFirebaseReturn {
         console.log("Current question index:", gameData.currentQuestionIndex);
         setGame(gameData);
         setState(data.status);
+
+        // Compute final scores when game is finished
+        if (data.status === "finished" && participantsArray.length > 0) {
+          const winners = (participantsArray as Participant[]).map((p) => ({
+            id: p.id,
+            name: p.name,
+            points: p.score,
+          }));
+          console.log("Setting final scores:", winners);
+          setFinalScore(winners);
+        }
       }
     });
 

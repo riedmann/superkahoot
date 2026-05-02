@@ -36,21 +36,21 @@ export function WinnersScreen({ winners, onBack }: WinnersScreenProps) {
 
   // Map for place and emoji
   const placeMap = [
-    { place: "3rd", emoji: "🥉", color: "bg-yellow-700" },
-    { place: "2nd", emoji: "🥈", color: "bg-gray-400" },
     { place: "1st", emoji: "🥇", color: "bg-yellow-400" },
+    { place: "2nd", emoji: "🥈", color: "bg-gray-400" },
+    { place: "3rd", emoji: "🥉", color: "bg-yellow-700" },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-yellow-400 to-purple-700 text-white">
-      <div className="bg-white bg-opacity-10 rounded-xl p-8 shadow-lg flex flex-col items-center">
-        <h2 className="text-4xl font-extrabold mb-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-yellow-400 to-purple-700">
+      <div className="bg-white rounded-xl p-8 shadow-lg flex flex-col items-center">
+        <h2 className="text-4xl font-extrabold mb-6 text-gray-900">
           🏆 Winner{podium.length > 1 ? "s" : ""}!
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8 min-w-[300px]">
           {podium.map((winner, idx) => {
-            // Show 3rd, then 2nd, then 1st
-            const showIdx = 3 - idx;
+            // Show 1st, then 2nd, then 3rd
+            const showIdx = idx + 1;
             if (show < showIdx) {
               return (
                 <div
@@ -67,18 +67,22 @@ export function WinnersScreen({ winners, onBack }: WinnersScreenProps) {
                 style={{
                   animation: show === showIdx ? "bounce-in 0.7s" : undefined,
                   background:
-                    idx === 2
-                      ? "rgba(251, 191, 36, 0.3)"
+                    idx === 0
+                      ? "rgba(253, 224, 71, 0.3)" // Gold for 1st
                       : idx === 1
-                      ? "rgba(156, 163, 175, 0.3)"
-                      : "rgba(253, 224, 71, 0.3)",
+                        ? "rgba(156, 163, 175, 0.3)" // Silver for 2nd
+                        : "rgba(251, 191, 36, 0.3)", // Bronze for 3rd
                   minHeight: 180,
                 }}
               >
                 <div className="text-5xl mb-2">{placeMap[idx].emoji}</div>
-                <div className="text-2xl font-bold">{winner.name}</div>
-                <div className="text-lg mt-2">{winner.points} pts</div>
-                <div className="mt-1 text-sm text-yellow-200">
+                <div className="text-2xl font-bold text-gray-900">
+                  {winner.name}
+                </div>
+                <div className="text-lg mt-2 text-gray-800">
+                  {winner.points} pts
+                </div>
+                <div className="mt-1 text-sm text-gray-700">
                   {placeMap[idx].place}
                 </div>
               </div>
