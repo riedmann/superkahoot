@@ -12,6 +12,18 @@ export function QuestionFooter({
   onExit,
 }: QuestionFooterProps) {
   // Debug logging
+  console.log(
+    "QuestionFooter - game.currentQuestionIndex:",
+    game.currentQuestionIndex,
+  );
+  console.log(
+    "QuestionFooter - game.answeredQuestions:",
+    game.answeredQuestions,
+  );
+  console.log(
+    "QuestionFooter - current answers:",
+    game.answeredQuestions[game.currentQuestionIndex]?.answers,
+  );
 
   return (
     <div className="bg-opacity-20 p-3 rounded-lg mx-4 mb-3">
@@ -43,8 +55,8 @@ export function QuestionFooter({
         {(() => {
           const answeredParticipantIds = new Set(
             game.answeredQuestions[game.currentQuestionIndex]?.answers.map(
-              (a: GameAnswer) => a.participant.id
-            ) || []
+              (a: GameAnswer) => a.participant.id,
+            ) || [],
           );
           return game.participants.map((participant) => (
             <div

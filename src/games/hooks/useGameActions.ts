@@ -4,14 +4,18 @@ import type { Game } from "../../types/game";
 export function useGameActions(
   game: Game | undefined,
   sendMessage: (message: any) => boolean,
-  questionsLength: number
+  questionsLength: number,
 ) {
   const handleStartGame = useCallback(() => {
+    console.log("handleStartGame called, game:", game);
     if (game?.gamePin) {
+      console.log("Sending start_game message for PIN:", game.gamePin);
       sendMessage({
         type: "start_game",
         gameId: game.gamePin,
       });
+    } else {
+      console.error("Cannot start game - no game or gamePin");
     }
   }, [game?.gamePin, sendMessage]);
 

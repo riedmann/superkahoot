@@ -49,7 +49,7 @@ export function QuizList() {
 
   // Get unique categories from quizzes
   const categories = Array.from(
-    new Set(quizzes.map((quiz) => quiz.category).filter(Boolean))
+    new Set(quizzes.map((quiz) => quiz.category).filter(Boolean)),
   ).sort();
 
   // Filter quizzes based on search term and category
@@ -73,11 +73,18 @@ export function QuizList() {
       (errorMessage) => {
         setError(errorMessage);
         setLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();
   }, []);
+
+  // Debug effect for game state
+  useEffect(() => {
+    console.log("QuizList state changed:");
+    console.log("  isGameActive:", isGameActive);
+    console.log("  selectedQuiz:", selectedQuiz);
+  }, [isGameActive, selectedQuiz]);
 
   const createNewQuiz = () => {
     const newQuiz: Quiz = {
@@ -119,7 +126,7 @@ export function QuizList() {
 
         // Remove the temporary quiz and add the saved one
         setQuizzes(
-          quizzes.filter((q) => q.id !== updatedQuiz.id).concat(savedQuiz)
+          quizzes.filter((q) => q.id !== updatedQuiz.id).concat(savedQuiz),
         );
         setSelectedQuizId(savedQuiz.id);
       } else {
@@ -129,7 +136,7 @@ export function QuizList() {
         // Refresh the quiz from Firestore to ensure latest data
         const refreshedQuiz = await quizDAO.fetchQuizById(updatedQuiz.id);
         setQuizzes(
-          quizzes.map((q) => (q.id === updatedQuiz.id ? refreshedQuiz : q))
+          quizzes.map((q) => (q.id === updatedQuiz.id ? refreshedQuiz : q)),
         );
       }
 
@@ -138,13 +145,16 @@ export function QuizList() {
     } catch (err) {
       alert(
         "Error saving quiz: " +
-          (err instanceof Error ? err.message : "Unknown error")
+          (err instanceof Error ? err.message : "Unknown error"),
       );
     }
   };
 
   const handleStartGame = () => {
+    console.log("QuizList: handleStartGame called");
+    console.log("Selected quiz:", selectedQuiz);
     setIsGameActive(true);
+    console.log("isGameActive set to true");
   };
 
   const handleDeleteQuiz = async (quizId: string) => {
@@ -171,7 +181,7 @@ export function QuizList() {
     } catch (err) {
       alert(
         "Error deleting quiz: " +
-          (err instanceof Error ? err.message : "Unknown error")
+          (err instanceof Error ? err.message : "Unknown error"),
       );
     }
   };
@@ -229,7 +239,7 @@ export function QuizList() {
     } catch (error) {
       console.error("Error importing quiz: ", error);
       setImportError(
-        error instanceof Error ? error.message : "Failed to import quiz"
+        error instanceof Error ? error.message : "Failed to import quiz",
       );
     } finally {
       setImporting(false);
@@ -243,7 +253,7 @@ export function QuizList() {
   const generateQuizWithAI = async (
     topic: string,
     difficulty: string,
-    questionCount: number
+    questionCount: number,
   ) => {
     setGenerating(true);
     setGenerateError(null);
@@ -252,7 +262,7 @@ export function QuizList() {
       const generatedQuizData = await generateQuizWithGemini(
         topic,
         difficulty,
-        questionCount
+        questionCount,
       );
 
       // Create quiz with creator information
@@ -276,7 +286,7 @@ export function QuizList() {
     } catch (error) {
       console.error("Error generating quiz with AI:", error);
       setGenerateError(
-        error instanceof Error ? error.message : "Failed to generate quiz"
+        error instanceof Error ? error.message : "Failed to generate quiz",
       );
     } finally {
       setGenerating(false);
@@ -287,21 +297,16 @@ export function QuizList() {
     fileInputRef.current?.click();
   };
 
-  // Show game if active
-  if (isGameActive && selectedQuiz) {
-    return (
-      <GameHost
-        quiz={selectedQuiz}
-        onBack={() => {
-          setIsGameActive(false);
-          setSelectedQuizId(null);
-        }}
-      />
-    );
-  }
+  console.log(
+    "QuizList render - isGameActive:",
+    isGameActive,
+    "selectedQuiz:",
+    selectedQuiz?.title,
+  );
 
   // Show game if active
   if (isGameActive && selectedQuiz) {
+    console.log("Rendering GameHost");
     return (
       <GameHost
         quiz={selectedQuiz}

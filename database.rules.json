@@ -1,0 +1,27 @@
+{
+  "rules": {
+    "games": {
+      "$gamePin": {
+        ".read": true,
+        ".write": true,
+        ".indexOn": ["status", "createdAt"],
+        "participants": {
+          "$participantId": {
+            ".write": true,
+            ".validate": "newData.hasChildren(['id', 'name', 'score'])"
+          }
+        },
+        "answeredQuestions": {
+          "$questionIndex": {
+            "answers": {
+              "$participantId": {
+                ".write": "!data.exists()",
+                ".validate": "newData.hasChildren(['participant', 'questionId', 'answer', 'answeredAt', 'isCorrect', 'points'])"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

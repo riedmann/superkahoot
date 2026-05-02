@@ -1,21 +1,23 @@
 # 🎮 SuperKahoot
 
-A real-time multiplayer quiz application inspired by Kahoot, built with React, TypeScript, and WebSocket for live game interactions. Create, host, and play interactive quizzes with AI-powered question generation.
+A real-time multiplayer quiz application inspired by Kahoot, built with React, TypeScript, and Firebase Realtime Database for live game interactions. Create, host, and play interactive quizzes with AI-powered question generation.
 
 ![React](https://img.shields.io/badge/React-19.2-blue) 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
 ![Vite](https://img.shields.io/badge/Vite-7.2-purple)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1-teal)
+![Firebase](https://img.shields.io/badge/Firebase-12.6-orange)
 
 ## ✨ Features
 
 ### 🎯 Core Features
-- **Real-time Multiplayer** - Live quiz sessions with WebSocket communication
+- **Real-time Multiplayer** - Live quiz sessions with Firebase Realtime Database
 - **Host & Client Modes** - Separate interfaces for quiz hosts and participants
 - **Multiple Question Types** - True/False and Multiple Choice questions
 - **Image Support** - Add images to questions for visual learning
 - **Live Leaderboard** - Real-time scoring and rankings
 - **Countdown Timers** - Timed questions for competitive gameplay
+- **Serverless Architecture** - No backend server required!
 
 ### 🤖 AI-Powered Quiz Generation
 - **OpenAI Integration** - Generate quizzes using GPT models
@@ -39,8 +41,7 @@ A real-time multiplayer quiz application inspired by Kahoot, built with React, T
 
 - **Node.js** (v18 or higher)
 - **npm** or **yarn**
-- **Firebase Project** (for authentication and database)
-- **WebSocket Server** (backend server required for real-time features)
+- **Firebase Project** (for authentication and Realtime Database)
 
 ### Installation
 
@@ -59,9 +60,6 @@ A real-time multiplayer quiz application inspired by Kahoot, built with React, T
    
    Create a `.env` file in the project root:
    ```env
-   # WebSocket Server URL
-   VITE_WS_URL=ws://localhost:8080
-
    # AI API Keys (optional, for quiz generation)
    VITE_GEMINI_API_KEY=your_gemini_api_key_here
    VITE_OPENAI_API_KEY=your_openai_api_key_here

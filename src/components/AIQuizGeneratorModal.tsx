@@ -6,7 +6,7 @@ interface AIQuizGeneratorModalProps {
   onGenerate: (
     topic: string,
     difficulty: string,
-    questionCount: number
+    questionCount: number,
   ) => void;
   isGenerating: boolean;
   error?: string | null;
@@ -41,7 +41,16 @@ export function AIQuizGeneratorModal({
     }
   };
 
-  console.log("error", error);
+  // Helper function to extract error message
+  const getErrorMessage = (error: string | null): string => {
+    if (!error) return "Unknown error";
+    try {
+      const parsed = JSON.parse(error);
+      return parsed.error?.message || parsed.message || error;
+    } catch {
+      return error;
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -54,7 +63,7 @@ export function AIQuizGeneratorModal({
 
         {/* Error Display */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2 mb-4">
             <svg
               className="w-5 h-5 text-red-600 shrink-0 mt-0.5"
               fill="currentColor"
@@ -69,7 +78,7 @@ export function AIQuizGeneratorModal({
             <div className="flex-1">
               <p className="text-sm font-medium text-red-800">Error</p>
               <p className="text-sm text-red-700 mt-1">
-                {JSON.parse(error).error.message}
+                {getErrorMessage(error)}
               </p>
             </div>
             <button
@@ -142,7 +151,7 @@ export function AIQuizGeneratorModal({
               value={questionCount}
               onChange={(e) =>
                 setQuestionCount(
-                  Math.max(1, Math.min(15, parseInt(e.target.value) || 5))
+                  Math.max(1, Math.min(15, parseInt(e.target.value) || 5)),
                 )
               }
               min="1"

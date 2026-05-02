@@ -19,7 +19,7 @@ export function QuizDetail({
   onStartGame,
 }: QuizDetailProps) {
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(
-    new Set() // Start with all questions closed
+    new Set(), // Start with all questions closed
   );
   const { user, isAdmin } = useAuth();
 
@@ -71,7 +71,11 @@ export function QuizDetail({
               )}
               {onStartGame && (
                 <button
-                  onClick={onStartGame}
+                  onClick={() => {
+                    console.log("QuizDetail: Start Game button clicked");
+                    console.log("onStartGame function:", onStartGame);
+                    onStartGame();
+                  }}
                   className="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors text-sm"
                 >
                   Start Game

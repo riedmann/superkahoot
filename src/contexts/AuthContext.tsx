@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const checkUserRole = async (uid: string) => {
     try {
+      // Try to get user role from Firestore
       const userDoc = await getDoc(doc(db, "users", uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
@@ -54,8 +55,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         };
       }
       return { isAdmin: false, isTeacher: false };
-    } catch (error) {
-      console.error("Error checking user role:", error);
+    } catch (error: any) {
+      // Handle Firestore connection errors gracefully
+      if (error?.code === "unavailable" || error?.message?.includes("400")) {
+        console.warn(
+          "Firestore unavailable - user roles disabled. Enable Firestore in Firebase Console.",
+        );
+      } else {
+        console.error("Error checking user role:", error);
+      }
+      // Default to no special permissions if Firestore is unavailable
       return { isAdmin: false, isTeacher: false };
     }
   };

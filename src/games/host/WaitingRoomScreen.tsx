@@ -14,6 +14,9 @@ export function WaitingRoomScreen({
   onToggleFullscreen,
   onStartGame,
 }: WaitingRoomScreenProps) {
+  console.log("WaitingRoomScreen - game:", game);
+  console.log("WaitingRoomScreen - participants:", game.participants);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-blue-600 to-purple-700 text-black">
       <FullscreenButton
@@ -25,21 +28,27 @@ export function WaitingRoomScreen({
         <div className="text-5xl font-mono font-extrabold tracking-widest bg-white bg-opacity-20 px-8 py-4 rounded-lg mb-6">
           {game.gamePin}
         </div>
-        <h2 className="text-xl mb-2">Participants</h2>
+        <h2 className="text-xl mb-2">
+          Participants ({game.participants?.length || 0})
+        </h2>
         <ul className="mb-6">
-          {game.participants.length === 0 && (
+          {(!game.participants || game.participants.length === 0) && (
             <li className="italic text-gray-200">Waiting for players...</li>
           )}
-          {game.participants.map((p) => (
+          {game.participants?.map((p) => (
             <li key={p.id} className="text-lg font-semibold">
               {p.name}
             </li>
           ))}
         </ul>
         <button
-          onClick={onStartGame}
-          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow transition"
-          disabled={game.participants.length === 0}
+          onClick={() => {
+            console.log("Start Game button clicked");
+            console.log("Participants count:", game.participants?.length);
+            onStartGame();
+          }}
+          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+          disabled={!game.participants || game.participants.length === 0}
         >
           Start Game
         </button>

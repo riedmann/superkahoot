@@ -8,7 +8,7 @@ import { FinishedScreen } from "./client/FinishedScreen";
 import { FullscreenButton } from "../components/ui/details/FullscreenButton";
 import { useFullscreen } from "./hooks/useFullscreen";
 import { useCountdown } from "./hooks/useCountdown";
-import { useClientWebSocket } from "./hooks/useClientWebSocket";
+import { useClientFirebase } from "./hooks/useClientFirebase";
 import { usePlayerInfo } from "./hooks/usePlayerInfo";
 
 export default function GameClient() {
@@ -26,9 +26,10 @@ export default function GameClient() {
     questionCountdown,
     setQuestionCountdown,
     question,
+    hasAnswered,
     sendJoinGame,
     sendAnswer,
-  } = useClientWebSocket(gamePin);
+  } = useClientFirebase(gamePin);
 
   useCountdown(state === "countdown", countdown, setCountdown);
   useCountdown(state === "question", questionCountdown, setQuestionCountdown);
@@ -39,20 +40,32 @@ export default function GameClient() {
       const playerId = generatePlayerId();
       sendJoinGame(gamePin, playerId, nickname);
     },
-    [gamePin, nickname, generatePlayerId, sendJoinGame]
+    [gamePin, nickname, generatePlayerId, sendJoinGame],
   );
 
   const handleAnswer = useCallback(
     (answer: number) => {
+      console.log(
+        "handleAnswer called with answer:",
+        answer,
+        "question type:",
+        question?.type,
+      );
       let answerValue: boolean | number;
       if (question?.type === "true-false") {
         answerValue = answer === 0 ? true : false;
       } else {
         answerValue = answer;
       }
+      console.log(
+        "Sending answer:",
+        answerValue,
+        "for question index:",
+        questionIndex,
+      );
       sendAnswer(gamePin, id, answerValue, questionIndex);
     },
-    [question, gamePin, id, questionIndex, sendAnswer]
+    [question, gamePin, id, questionIndex, sendAnswer],
   );
 
   if (!joined) {
@@ -91,6 +104,19 @@ export default function GameClient() {
   }
 
   if (state === "question" && question) {
+    // If player has already answered, show the "thank you" screen
+    if (hasAnswered) {
+      return (
+        <>
+          <FullscreenButton
+            isFullscreen={isFullscreen}
+            onToggle={toggleFullscreen}
+          />
+          <ResultsScreen />
+        </>
+      );
+    }
+
     return (
       <>
         <FullscreenButton

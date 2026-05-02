@@ -43,7 +43,7 @@ export function WaitingForParticipants({
           disabled={game.participants.length === 0}
           className="px-8 py-3 bg-green-600 text-white font-bold text-lg rounded disabled:opacity-50"
         >
-          Start Game
+          Start Game y
         </button>
       </div>
     </div>

@@ -17,7 +17,7 @@ export function ShowQuestion({
       <div className="bg-white rounded-lg p-8 shadow-lg">
         <h2 className="text-2xl font-bold mb-4">Ready to start!</h2>
         <div className="text-gray-600 mb-6">
-          Question {game.currentQuestionIndex + 2} of {quiz.questions.length}
+          Question {game.currentQuestionIndex + 1} of {quiz.questions.length}
         </div>
         <button
           onClick={onShowQuestion}

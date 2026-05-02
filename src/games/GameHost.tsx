@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { Quiz } from "../types/quiz";
 import { Countdown } from "./host/Countdown";
 import { QuestionFooter } from "./host/QuestionFooter";
@@ -8,7 +8,7 @@ import { WinnersScreen } from "./host/WinnersScreen";
 import { FullscreenButton } from "../components/ui/details/FullscreenButton";
 import { useFullscreen } from "./hooks/useFullscreen";
 import { useCountdown } from "./hooks/useCountdown";
-import { useGameWebSocket } from "./hooks/useGameWebSocket";
+import { useGameFirebase } from "./hooks/useGameFirebase";
 import { useGameActions } from "./hooks/useGameActions";
 import { useAutoFinishQuestion } from "./hooks/useAutoFinishQuestion";
 import { ErrorScreen } from "./host/ErrorScreen";
@@ -22,6 +22,8 @@ interface GameHostProps {
 export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
   const [questionCountdown, setQuestionCountdown] = useState(30);
 
+  console.log("GameHost rendered with quiz:", quiz.title);
+
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const {
     game,
@@ -31,7 +33,9 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
     isReconnecting,
     sendMessage,
     connectWebSocket,
-  } = useGameWebSocket(quiz);
+  } = useGameFirebase(quiz);
+
+  console.log("GameHost state:", { game: game?.gamePin, state, wsError });
 
   const { handleStartGame, handleNextQuestion, handleEndQuestion } =
     useGameActions(game, sendMessage, quiz.questions.length);
@@ -41,6 +45,12 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
 
   useCountdown(state === "question", questionCountdown, setQuestionCountdown);
   useAutoFinishQuestion(state, game, handleEndQuestion);
+
+  // Initialize game on mount
+  useEffect(() => {
+    console.log("GameHost: Initializing game...");
+    connectWebSocket();
+  }, [connectWebSocket]);
 
   if (wsError) {
     return (
@@ -70,11 +80,8 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
   }
 
   if (state === "countdown" && game) {
-    // For the first countdown, currentQuestionIndex is 0 but no questions answered yet
-    // For subsequent countdowns, currentQuestionIndex points to the last completed question
-    const isFirstQuestion = game.answeredQuestions?.length === 0;
-    const questionIndex = isFirstQuestion ? 0 : game.currentQuestionIndex + 1;
-    const question = quiz.questions[questionIndex];
+    // currentQuestionIndex now points to the question that's about to be shown
+    const question = quiz.questions[game.currentQuestionIndex];
 
     return (
       <>
@@ -85,7 +92,7 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
         <Countdown
           game={game}
           onCountdownComplete={() => {}}
-          questionNumber={questionIndex + 1}
+          questionNumber={game.currentQuestionIndex + 1}
           totalQuestions={quiz.questions.length}
           question={question}
         />
