@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { collection, addDoc } from "firebase/firestore";
 
 import { type Quiz } from "../types";
 import { FirebaseQuizDAO } from "../utils/DAO/FirebaseQuizDAO";
@@ -7,7 +6,6 @@ import { QuizDetail } from "./QuizDetail";
 import { QuizEdit } from "./QuizEdit";
 import { QuizOverviewCard } from "./QuizOverviewCard";
 import { GameHost } from "../games/GameHost";
-import { db } from "../utils/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { generateQuizWithGemini } from "../utils/gemini";
 import { AIQuizGeneratorModal } from "./AIQuizGeneratorModal";
@@ -26,6 +24,8 @@ export function QuizList() {
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [showAIModal, setShowAIModal] = useState(false);
+  const [showPasteModal, setShowPasteModal] = useState(false);
+  const [pastedJson, setPastedJson] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -49,7 +49,11 @@ export function QuizList() {
 
   // Get unique categories from quizzes
   const categories = Array.from(
-    new Set(quizzes.map((quiz) => quiz.category).filter(Boolean)),
+    new Set(
+      quizzes
+        .map((quiz) => quiz.category)
+        .filter((cat): cat is string => Boolean(cat)),
+    ),
   ).sort();
 
   // Filter quizzes based on search term and category
@@ -150,6 +154,15 @@ export function QuizList() {
     }
   };
 
+  const handleCancelEdit = () => {
+    // If the selected quiz is temporary (not saved to Firebase yet), remove it from state
+    if (selectedQuiz && selectedQuiz.id.startsWith("quiz_")) {
+      setQuizzes(quizzes.filter((q) => q.id !== selectedQuiz.id));
+      setSelectedQuizId(null);
+    }
+    setIsEditing(false);
+  };
+
   const handleStartGame = () => {
     console.log("QuizList: handleStartGame called");
     console.log("Selected quiz:", selectedQuiz);
@@ -195,6 +208,61 @@ export function QuizList() {
     }
   };
 
+  const importJsonFromText = async (jsonText: string) => {
+    setImporting(true);
+    setImportError(null);
+
+    try {
+      const quizData = JSON.parse(jsonText);
+
+      // Validate required fields
+      if (
+        !quizData.title ||
+        !quizData.questions ||
+        !Array.isArray(quizData.questions)
+      ) {
+        throw new Error("Invalid quiz format: missing title or questions");
+      }
+
+      // Create temporary quiz (not saved to Firebase yet)
+      const quizToImport: Quiz = {
+        ...quizData,
+        createdAt: quizData.createdAt
+          ? new Date(quizData.createdAt)
+          : new Date(),
+        updatedAt: quizData.updatedAt
+          ? new Date(quizData.updatedAt)
+          : new Date(),
+        // Use temporary ID that will trigger save on first save
+        id: `quiz_import_${Date.now()}`,
+        // Clear category to allow user to set it manually
+        category: "",
+        // Add creator information
+        creatorId: user?.uid,
+        creatorEmail: user?.email || undefined,
+        creatorDisplayName: user?.displayName || user?.email || "Unknown User",
+      };
+
+      // Add to local state only (not saved to Firebase yet)
+      setQuizzes([...quizzes, quizToImport]);
+
+      // Close modal and reset
+      setShowPasteModal(false);
+      setPastedJson("");
+
+      // Open the quiz in edit mode
+      setSelectedQuizId(quizToImport.id);
+      setIsEditing(true);
+    } catch (error) {
+      console.error("Error importing quiz: ", error);
+      setImportError(
+        error instanceof Error ? error.message : "Failed to import quiz",
+      );
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const importJsonFile = async (file: File) => {
     setImporting(true);
     setImportError(null);
@@ -212,8 +280,8 @@ export function QuizList() {
         throw new Error("Invalid quiz format: missing title or questions");
       }
 
-      // Add timestamps if they don't exist
-      const quizToImport = {
+      // Create temporary quiz (not saved to Firebase yet)
+      const quizToImport: Quiz = {
         ...quizData,
         createdAt: quizData.createdAt
           ? new Date(quizData.createdAt)
@@ -221,21 +289,22 @@ export function QuizList() {
         updatedAt: quizData.updatedAt
           ? new Date(quizData.updatedAt)
           : new Date(),
-        // Generate ID if it doesn't exist
-        id: quizData.id || `quiz-${Date.now()}`,
+        // Use temporary ID that will trigger save on first save
+        id: `quiz_import_${Date.now()}`,
+        // Clear category to allow user to set it manually
+        category: "",
         // Add creator information
         creatorId: user?.uid,
         creatorEmail: user?.email || undefined,
         creatorDisplayName: user?.displayName || user?.email || "Unknown User",
       };
 
-      const docRef = await addDoc(collection(db, "quizzes"), quizToImport);
+      // Add to local state only (not saved to Firebase yet)
+      setQuizzes([...quizzes, quizToImport]);
 
-      console.log("Quiz imported successfully with ID: ", docRef.id);
-
-      // Refresh the quiz list (assuming you have a function to reload quizzes)
-      // You might need to call your existing function to reload the quiz list
-      window.location.reload(); // Simple refresh for now
+      // Open the quiz in edit mode
+      setSelectedQuizId(quizToImport.id);
+      setIsEditing(true);
     } catch (error) {
       console.error("Error importing quiz: ", error);
       setImportError(
@@ -333,8 +402,9 @@ export function QuizList() {
     return (
       <QuizEdit
         quiz={selectedQuiz}
-        onBack={() => setIsEditing(false)}
+        onBack={handleCancelEdit}
         onSave={handleSaveQuiz}
+        existingCategories={categories}
       />
     );
   }
@@ -409,35 +479,57 @@ export function QuizList() {
 
           {/* Import Button - Only for teachers and admins */}
           {isTeacher && (
-            <button
-              onClick={triggerFileSelect}
-              disabled={importing}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {importing ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Importing...
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                    />
-                  </svg>
-                  Import JSON
-                </>
-              )}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={triggerFileSelect}
+                disabled={importing}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {importing ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Importing...
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                      />
+                    </svg>
+                    Import File
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => setShowPasteModal(true)}
+                disabled={importing}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                Paste JSON
+              </button>
+            </div>
           )}
 
           {/* Create New Quiz Button - Only for teachers and admins */}
@@ -650,6 +742,106 @@ export function QuizList() {
         error={generateError}
         onClearError={() => setGenerateError(null)}
       />
+
+      {/* Paste JSON Modal */}
+      {showPasteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Paste Quiz JSON
+              </h2>
+              <button
+                onClick={() => {
+                  setShowPasteModal(false);
+                  setPastedJson("");
+                  setImportError(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 flex-1 overflow-y-auto">
+              {importError && (
+                <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="font-medium">Import Error:</span>
+                  </div>
+                  <p className="mt-1">{importError}</p>
+                </div>
+              )}
+
+              <label className="block mb-2 text-sm font-medium text-gray-700">
+                Paste your quiz JSON below:
+              </label>
+              <textarea
+                value={pastedJson}
+                onChange={(e) => setPastedJson(e.target.value)}
+                placeholder='{\n  "title": "My Quiz",\n  "description": "Quiz description",\n  "questions": [...]\n}'
+                className="w-full h-96 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                disabled={importing}
+              />
+              <p className="mt-2 text-sm text-gray-500">
+                Paste a valid quiz JSON object. The quiz must include "title"
+                and "questions" fields.
+              </p>
+            </div>
+
+            <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowPasteModal(false);
+                  setPastedJson("");
+                  setImportError(null);
+                }}
+                disabled={importing}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => importJsonFromText(pastedJson)}
+                disabled={importing || !pastedJson.trim()}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {importing ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Importing...
+                  </>
+                ) : (
+                  "Import Quiz"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

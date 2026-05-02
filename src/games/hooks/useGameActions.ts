@@ -3,7 +3,7 @@ import type { Game } from "../../types/game";
 
 export function useGameActions(
   game: Game | undefined,
-  sendMessage: (message: any) => boolean,
+  sendMessage: (message: any) => Promise<boolean>,
   questionsLength: number,
 ) {
   const handleStartGame = useCallback(() => {

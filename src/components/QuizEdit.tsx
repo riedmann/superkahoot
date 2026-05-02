@@ -7,23 +7,29 @@ interface QuizEditProps {
   quiz: Quiz;
   onBack: () => void;
   onSave?: (quiz: Quiz) => void;
+  existingCategories?: string[];
 }
 
-export function QuizEdit({ quiz, onBack, onSave }: QuizEditProps) {
+export function QuizEdit({
+  quiz,
+  onBack,
+  onSave,
+  existingCategories,
+}: QuizEditProps) {
   const [title, setTitle] = useState(quiz.title);
   const [description, setDescription] = useState(quiz.description || "");
   const [category, setCategory] = useState(quiz.category || "");
   const [difficulty, setDifficulty] = useState(quiz.difficulty || "medium");
   const [questions, setQuestions] = useState<Question[]>(
     quiz.questions.filter(
-      (q) => q && typeof q === "object" && "type" in q
-    ) as Question[]
+      (q) => q && typeof q === "object" && "type" in q,
+    ) as Question[],
   );
   const [newQuestionType] = useState<string>(
-    questionRegistry.getAvailableTypes()[0] || "true-false"
+    questionRegistry.getAvailableTypes()[0] || "true-false",
   );
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(
-    new Set() // Start with all questions closed
+    new Set(), // Start with all questions closed
   );
 
   const addQuestion = (questionType?: string) => {
@@ -52,8 +58,8 @@ export function QuizEdit({ quiz, onBack, onSave }: QuizEditProps) {
   const updateQuestion = (id: string, updatedQuestion: Partial<Question>) => {
     setQuestions(
       questions.map((q: Question) =>
-        q.id === id ? ({ ...q, ...updatedQuestion } as Question) : q
-      )
+        q.id === id ? ({ ...q, ...updatedQuestion } as Question) : q,
+      ),
     );
   };
 
@@ -120,10 +126,17 @@ export function QuizEdit({ quiz, onBack, onSave }: QuizEditProps) {
                 </label>
                 <input
                   type="text"
+                  list="category-options"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
+                  placeholder="Select or enter new category"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+                <datalist id="category-options">
+                  {existingCategories?.map((cat) => (
+                    <option key={cat} value={cat} />
+                  ))}
+                </datalist>
               </div>
 
               <div>
@@ -246,11 +259,11 @@ export function QuizEdit({ quiz, onBack, onSave }: QuizEditProps) {
                   <div className="p-6">
                     {(() => {
                       const handler = questionRegistry.getHandler(
-                        question.type
+                        question.type,
                       );
                       return handler ? (
                         handler.getEditor(question, (updates) =>
-                          updateQuestion(question.id, updates)
+                          updateQuestion(question.id, updates),
                         )
                       ) : (
                         <p className="text-red-600">
