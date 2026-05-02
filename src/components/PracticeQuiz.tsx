@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { Quiz } from "../types/quiz";
-import type { Question } from "../types/question";
 import { FirebaseQuizDAO } from "../utils/DAO/FirebaseQuizDAO";
 import { isTrueFalseQuestion } from "../types/question";
 
@@ -83,10 +82,11 @@ export function PracticeQuiz() {
       isCorrect = userAnswer === currentQuestion.correctAnswer;
     } else {
       const userAnswer = selectedAnswers.sort();
-      correctAnswer = [...currentQuestion.correctAnswers].sort();
+      const correctAnswersArray = [...currentQuestion.correctAnswers].sort();
+      correctAnswer = correctAnswersArray;
       isCorrect =
-        userAnswer.length === correctAnswer.length &&
-        userAnswer.every((val, idx) => val === correctAnswer[idx]);
+        userAnswer.length === correctAnswersArray.length &&
+        userAnswer.every((val, idx) => val === correctAnswersArray[idx]);
     }
 
     const result: AnswerResult = {
