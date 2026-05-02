@@ -43,8 +43,12 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
   useCountdown(state === "question", questionCountdown, setQuestionCountdown);
   useAutoFinishQuestion(state, game, handleEndQuestion);
 
-  useCountdown(state === "question", questionCountdown, setQuestionCountdown);
-  useAutoFinishQuestion(state, game, handleEndQuestion);
+  // Reset countdown when entering question state
+  useEffect(() => {
+    if (state === "question") {
+      setQuestionCountdown(30);
+    }
+  }, [state, game?.currentQuestionIndex]);
 
   // Initialize game on mount
   useEffect(() => {
