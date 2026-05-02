@@ -6,6 +6,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 
 import { TestComponent } from "./components/TestComponent";
 import GameClient from "./games/GameClient";
+import { PracticeQuiz } from "./components/PracticeQuiz";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/practice/:quizId" element={<PracticeQuiz />} />
           <Route path="/" element={<GameClient />} />
           <Route path="/ws-test" element={<TestComponent />} />
         </Routes>
