@@ -26,10 +26,46 @@ export function QuizList() {
   const [showAIModal, setShowAIModal] = useState(false);
   const [showPasteModal, setShowPasteModal] = useState(false);
   const [pastedJson, setPastedJson] = useState("");
+  const [showStructure, setShowStructure] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user, isAdmin, isTeacher } = useAuth();
+
+  const quizStructure = `interface Quiz {
+  id: string;
+  title: string;
+  description?: string;
+  questions: Question[];
+  difficulty?: "easy" | "medium" | "hard";
+  category?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+type Question = TrueFalseQuestion | StandardQuestion;
+
+interface TrueFalseQuestion {
+  id: string;
+  type: "true-false";
+  question: string;
+  correctAnswer: boolean;
+  image?: string;
+}
+
+interface StandardQuestion {
+  id: string;
+  type: "standard";
+  question: string;
+  options: QuestionOption[];
+  correctAnswers: number[];
+  image?: string;
+}
+
+interface QuestionOption {
+  text: string;
+  image?: string;
+}`;
 
   const selectedQuiz = quizzes.find((q) => q.id === selectedQuizId);
 
@@ -249,6 +285,7 @@ export function QuizList() {
       // Close modal and reset
       setShowPasteModal(false);
       setPastedJson("");
+      setShowStructure(false);
 
       // Open the quiz in edit mode
       setSelectedQuizId(quizToImport.id);
@@ -444,39 +481,6 @@ export function QuizList() {
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold text-gray-900">Available Quizzes</h2>
         <div className="flex gap-3">
-          {/* AI Generate Quiz Button - Only for teachers and admins */}
-          {isTeacher && (
-            <button
-              onClick={() => setShowAIModal(true)}
-              disabled={generating}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {generating ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                    />
-                  </svg>
-                  AI Generate
-                </>
-              )}
-            </button>
-          )}
-
           {/* Import Button - Only for teachers and admins */}
           {isTeacher && (
             <div className="flex gap-2">
@@ -756,6 +760,7 @@ export function QuizList() {
                   setShowPasteModal(false);
                   setPastedJson("");
                   setImportError(null);
+                  setShowStructure(false);
                 }}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
@@ -810,6 +815,51 @@ export function QuizList() {
                 Paste a valid quiz JSON object. The quiz must include "title"
                 and "questions" fields.
               </p>
+
+              <div className="mt-4 border-t pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowStructure(!showStructure)}
+                  className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+                >
+                  <svg
+                    className={`w-4 h-4 transition-transform ${
+                      showStructure ? "rotate-90" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                  {showStructure ? "Hide" : "Show"} Quiz Structure Reference
+                </button>
+                {showStructure && (
+                  <div className="mt-3 bg-gray-50 rounded-lg p-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <p className="text-xs font-medium text-gray-700">
+                        Copy this structure for reference:
+                      </p>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(quizStructure);
+                        }}
+                        className="text-xs text-blue-600 hover:text-blue-800"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                    <pre className="text-xs text-gray-800 overflow-x-auto max-h-60 overflow-y-auto">
+                      {quizStructure}
+                    </pre>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
@@ -818,6 +868,7 @@ export function QuizList() {
                   setShowPasteModal(false);
                   setPastedJson("");
                   setImportError(null);
+                  setShowStructure(false);
                 }}
                 disabled={importing}
                 className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"

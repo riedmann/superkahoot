@@ -24,6 +24,42 @@ export function AIQuizGeneratorModal({
   const [topic, setTopic] = useState("");
   const [difficulty, setDifficulty] = useState("medium");
   const [questionCount, setQuestionCount] = useState(5);
+  const [showStructure, setShowStructure] = useState(false);
+
+  const quizStructure = `interface Quiz {
+  id: string;
+  title: string;
+  description?: string;
+  questions: Question[];
+  difficulty?: "easy" | "medium" | "hard";
+  category?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+type Question = TrueFalseQuestion | StandardQuestion;
+
+interface TrueFalseQuestion {
+  id: string;
+  type: "true-false";
+  question: string;
+  correctAnswer: boolean;
+  image?: string;
+}
+
+interface StandardQuestion {
+  id: string;
+  type: "standard";
+  question: string;
+  options: QuestionOption[];
+  correctAnswers: number[];
+  image?: string;
+}
+
+interface QuestionOption {
+  text: string;
+  image?: string;
+}`;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,6 +222,51 @@ export function AIQuizGeneratorModal({
             </button>
           </div>
         </form>
+
+        <div className="mt-4 border-t pt-4">
+          <button
+            type="button"
+            onClick={() => setShowStructure(!showStructure)}
+            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+          >
+            <svg
+              className={`w-4 h-4 transition-transform ${
+                showStructure ? "rotate-90" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            {showStructure ? "Hide" : "Show"} Quiz Structure Reference
+          </button>
+          {showStructure && (
+            <div className="mt-3 bg-gray-50 rounded-lg p-3">
+              <div className="flex justify-between items-start mb-2">
+                <p className="text-xs font-medium text-gray-700">
+                  Copy this structure for AI quiz generation:
+                </p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(quizStructure);
+                  }}
+                  className="text-xs text-blue-600 hover:text-blue-800"
+                >
+                  Copy
+                </button>
+              </div>
+              <pre className="text-xs text-gray-800 overflow-x-auto max-h-60 overflow-y-auto">
+                {quizStructure}
+              </pre>
+            </div>
+          )}
+        </div>
 
         <p className="text-xs text-gray-500 mt-3">
           * Requires Google Gemini API key configured in environment variables
