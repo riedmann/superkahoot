@@ -4,13 +4,27 @@ interface QuestionFooterProps {
   game: Game;
   onEndQuestion: () => void;
   onExit: () => void;
+  onRemoveParticipant?: (playerId: string) => void;
 }
 
 export function QuestionFooter({
   game,
   onEndQuestion,
   onExit,
+  onRemoveParticipant,
 }: QuestionFooterProps) {
+  const handleRemoveParticipant = (
+    participantId: string,
+    participantName: string,
+  ) => {
+    if (
+      onRemoveParticipant &&
+      window.confirm(`Remove ${participantName} from the game?`)
+    ) {
+      onRemoveParticipant(participantId);
+    }
+  };
+
   // Debug logging
   console.log(
     "QuestionFooter - game.currentQuestionIndex:",
@@ -61,16 +75,25 @@ export function QuestionFooter({
           return game.participants.map((participant) => (
             <div
               key={participant.id}
-              className={`px-1 py-0.5 rounded text-xs text-center ${
+              onClick={() =>
+                onRemoveParticipant &&
+                handleRemoveParticipant(participant.id, participant.name)
+              }
+              className={`px-1 py-0.5 rounded text-xs text-center group relative ${
                 answeredParticipantIds.has(participant.id)
                   ? "bg-green-500 text-white"
                   : "bg-gray-400 text-white"
-              }`}
+              } ${onRemoveParticipant ? "cursor-pointer hover:ring-2 hover:ring-red-300" : ""}`}
             >
               {answeredParticipantIds.has(participant.id) ? "✓" : "⏳"}{" "}
               {participant.name.length > 8
                 ? participant.name.substring(0, 8) + "..."
                 : participant.name}
+              {onRemoveParticipant && (
+                <span className="absolute top-0 right-0 text-red-300 opacity-0 group-hover:opacity-100 transition-opacity text-xs">
+                  ✕
+                </span>
+              )}
             </div>
           ));
         })()}

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useRef } from "react";
 import { CountdownScreen } from "./client/CountdownScreen";
 import { QuestionScreen } from "./client/QuestionScreen";
 import { ResultsScreen } from "./client/ResultsScreen";
@@ -17,6 +17,9 @@ export default function GameClient() {
 
   const { isFullscreen, toggleFullscreen } = useFullscreen();
 
+  // Track if we're currently processing an answer at the GameClient level
+  const isProcessingAnswer = useRef(false);
+
   const {
     joined,
     state,
@@ -29,10 +32,25 @@ export default function GameClient() {
     hasAnswered,
     sendJoinGame,
     sendAnswer,
-  } = useClientFirebase(gamePin);
+  } = useClientFirebase(gamePin, id);
 
   useCountdown(state === "countdown", countdown, setCountdown);
   useCountdown(state === "question", questionCountdown, setQuestionCountdown);
+
+  // Reset processing flag when question changes
+  React.useEffect(() => {
+    console.log(
+      "GameClient: Question changed to index",
+      questionIndex,
+      "- resetting processing flag",
+    );
+    isProcessingAnswer.current = false;
+  }, [questionIndex]);
+
+  // Log when hasAnswered changes
+  React.useEffect(() => {
+    console.log("GameClient: hasAnswered changed to:", hasAnswered);
+  }, [hasAnswered]);
 
   const handleJoin = useCallback(
     (e: React.FormEvent) => {
@@ -45,18 +63,30 @@ export default function GameClient() {
 
   const handleAnswer = useCallback(
     (answer: number) => {
-      // Prevent multiple submissions
+      // FIRST: Check ref synchronously (most reliable)
+      if (isProcessingAnswer.current) {
+        console.log(
+          "GameClient: Already processing answer, ignoring duplicate call",
+        );
+        return;
+      }
+
+      // SECOND: Check hasAnswered state
       if (hasAnswered) {
-        console.log("Already answered, ignoring click");
+        console.log("GameClient: Already answered, ignoring click");
         return;
       }
 
       console.log(
-        "handleAnswer called with answer:",
+        "GameClient: handleAnswer called with answer:",
         answer,
         "question type:",
         question?.type,
       );
+
+      // Set ref immediately to block any subsequent calls
+      isProcessingAnswer.current = true;
+
       let answerValue: boolean | number;
       if (question?.type === "true-false") {
         answerValue = answer === 0 ? true : false;
@@ -64,7 +94,7 @@ export default function GameClient() {
         answerValue = answer;
       }
       console.log(
-        "Sending answer:",
+        "GameClient: Sending answer:",
         answerValue,
         "for question index:",
         questionIndex,
@@ -110,8 +140,12 @@ export default function GameClient() {
   }
 
   if (state === "question" && question) {
+    // Log the current state for debugging
+    console.log("GameClient render: state=question, hasAnswered=", hasAnswered);
+
     // If player has already answered, show the "thank you" screen
     if (hasAnswered) {
+      console.log("GameClient: Showing ResultsScreen (thank you)");
       return (
         <>
           <FullscreenButton
@@ -123,6 +157,7 @@ export default function GameClient() {
       );
     }
 
+    console.log("GameClient: Showing QuestionScreen");
     return (
       <>
         <FullscreenButton
@@ -134,6 +169,7 @@ export default function GameClient() {
           questionIndex={questionIndex}
           questionCountdown={questionCountdown}
           onAnswer={handleAnswer}
+          hasAnswered={hasAnswered}
         />
       </>
     );

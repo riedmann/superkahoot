@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from "react";
 import type { Question } from "../../types";
 import { MarkdownRenderer } from "../../components/MarkdownRenderer";
 
@@ -6,9 +7,52 @@ interface QuestionScreenProps {
   questionIndex: number;
   questionCountdown: number;
   onAnswer: (answer: number) => void;
+  hasAnswered?: boolean;
 }
 
-export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
+export function QuestionScreen({
+  question,
+  questionIndex,
+  onAnswer,
+  hasAnswered = false,
+}: QuestionScreenProps) {
+  // Local state to immediately disable buttons on click
+  const [isClicked, setIsClicked] = useState(false);
+  const clickedRef = useRef(false);
+
+  const handleClick = (answer: number) => {
+    console.log("QuestionScreen.handleClick:", {
+      answer,
+      clickedRef: clickedRef.current,
+      isClicked,
+      hasAnswered,
+    });
+
+    // Immediate synchronous check
+    if (clickedRef.current || isClicked || hasAnswered) {
+      console.log("Button already clicked, ignoring");
+      return;
+    }
+
+    console.log("Processing click - setting states and calling onAnswer");
+    // Set both ref and state immediately
+    clickedRef.current = true;
+    setIsClicked(true);
+
+    // Call the parent handler
+    onAnswer(answer);
+  };
+
+  // Reset click tracking when question changes
+  useEffect(() => {
+    console.log(
+      "QuestionScreen: Resetting click state for question index:",
+      questionIndex,
+    );
+    setIsClicked(false);
+    clickedRef.current = false;
+  }, [questionIndex]); // Only reset when question index changes, not on every re-render
+
   const colors = [
     { bg: "bg-red-500", label: "A", text: "text-red-500" },
     { bg: "bg-blue-500", label: "B", text: "text-blue-500" },
@@ -56,10 +100,11 @@ export function QuestionScreen({ question, onAnswer }: QuestionScreenProps) {
             {answerOptions.map((ans, idx) => (
               <button
                 key={idx}
-                onClick={() => onAnswer(idx)}
+                onClick={() => handleClick(idx)}
+                disabled={hasAnswered || isClicked}
                 className={`${
                   colors[idx]?.bg || "bg-gray-500"
-                } p-6 rounded-xl flex items-center justify-start min-h-20 text-2xl font-bold shadow hover:scale-105 transition`}
+                } p-6 rounded-xl flex items-center justify-start min-h-20 text-2xl font-bold shadow hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
               >
                 <div className="flex items-center gap-4">
                   <div

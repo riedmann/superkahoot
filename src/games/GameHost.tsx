@@ -78,6 +78,12 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
           isFullscreen={isFullscreen}
           onToggleFullscreen={toggleFullscreen}
           onStartGame={handleStartGame}
+          onRemoveParticipant={(playerId) => {
+            sendMessage({
+              type: "disconnect_player",
+              playerId,
+            });
+          }}
         />
       </>
     );
@@ -120,6 +126,12 @@ export const GameHost: React.FC<GameHostProps> = ({ quiz, onBack }) => {
             game={game}
             onEndQuestion={handleEndQuestion}
             onExit={onBack}
+            onRemoveParticipant={(playerId) => {
+              sendMessage({
+                type: "disconnect_player",
+                playerId,
+              });
+            }}
           />
         </div>
       </div>

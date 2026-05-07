@@ -6,6 +6,7 @@ interface WaitingRoomScreenProps {
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
   onStartGame: () => void;
+  onRemoveParticipant: (playerId: string) => void;
 }
 
 export function WaitingRoomScreen({
@@ -13,9 +14,19 @@ export function WaitingRoomScreen({
   isFullscreen,
   onToggleFullscreen,
   onStartGame,
+  onRemoveParticipant,
 }: WaitingRoomScreenProps) {
   console.log("WaitingRoomScreen - game:", game);
   console.log("WaitingRoomScreen - participants:", game.participants);
+
+  const handleRemoveParticipant = (
+    participantId: string,
+    participantName: string,
+  ) => {
+    if (window.confirm(`Remove ${participantName} from the game?`)) {
+      onRemoveParticipant(participantId);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-blue-600 to-purple-700 text-black">
@@ -31,13 +42,20 @@ export function WaitingRoomScreen({
         <h2 className="text-xl mb-2">
           Participants ({game.participants?.length || 0})
         </h2>
-        <ul className="mb-6">
+        <ul className="mb-6 space-y-2">
           {(!game.participants || game.participants.length === 0) && (
             <li className="italic text-gray-200">Waiting for players...</li>
           )}
           {game.participants?.map((p) => (
-            <li key={p.id} className="text-lg font-semibold">
-              {p.name}
+            <li
+              key={p.id}
+              onClick={() => handleRemoveParticipant(p.id, p.name)}
+              className="text-lg font-semibold cursor-pointer hover:bg-white hover:bg-opacity-20 px-4 py-2 rounded-lg transition-colors flex items-center justify-between group"
+            >
+              <span>{p.name}</span>
+              <span className="text-red-300 opacity-0 group-hover:opacity-100 transition-opacity text-sm">
+                ✕
+              </span>
             </li>
           ))}
         </ul>

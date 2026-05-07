@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import { ref, onValue, off, get, set, update } from "firebase/database";
 import { realtimeDb } from "../../utils/firebase";
 import type { GameStatus } from "../../types/common";
@@ -23,7 +23,10 @@ interface UseClientFirebaseReturn {
   ) => void;
 }
 
-export function useClientFirebase(gamePin: string): UseClientFirebaseReturn {
+export function useClientFirebase(
+  gamePin: string,
+  playerId?: string,
+): UseClientFirebaseReturn {
   const [joined, setJoined] = useState(false);
   const [state, setState] = useState<GameStatus>("waiting");
   const [countdown, setCountdown] = useState(3);
@@ -31,6 +34,11 @@ export function useClientFirebase(gamePin: string): UseClientFirebaseReturn {
   const [questionCountdown, setQuestionCountdown] = useState(30);
   const [question, setQuestion] = useState<Question | null>(null);
   const [hasAnswered, setHasAnswered] = useState(false);
+  const [previousQuestionIndex, setPreviousQuestionIndex] =
+    useState<number>(-1);
+
+  // Use ref to track answer submission synchronously (prevents race conditions)
+  const isSubmittingAnswer = useRef(false);
 
   // Listen to game updates
   useEffect(() => {
@@ -54,19 +62,60 @@ export function useClientFirebase(gamePin: string): UseClientFirebaseReturn {
         const currentQuestion =
           gameData.quizData.questions[gameData.currentQuestionIndex];
         setQuestion(currentQuestion);
-        setQuestionIndex(gameData.currentQuestionIndex);
-        // Reset hasAnswered when question changes
-        setHasAnswered(false);
-        console.log(
-          "Client: Showing question at index:",
-          gameData.currentQuestionIndex,
-          currentQuestion,
-        );
+
+        // Check if this player has already answered the current question
+        const currentAnsweredQuestion =
+          gameData.answeredQuestions?.[gameData.currentQuestionIndex];
+        const playerHasAnswered =
+          playerId && currentAnsweredQuestion?.answers?.[playerId];
+
+        // Only reset hasAnswered when question index actually changes
+        if (previousQuestionIndex !== gameData.currentQuestionIndex) {
+          console.log(
+            "Client: Question index changed from",
+            previousQuestionIndex,
+            "to",
+            gameData.currentQuestionIndex,
+          );
+          setQuestionIndex(gameData.currentQuestionIndex);
+          setPreviousQuestionIndex(gameData.currentQuestionIndex);
+
+          // Check if player already answered this question (in case of reconnection)
+          if (playerHasAnswered) {
+            console.log(
+              "Client: Player has answered this question, setting hasAnswered=true",
+            );
+            setHasAnswered(true);
+            isSubmittingAnswer.current = true;
+          } else {
+            console.log(
+              "Client: New question, player hasn't answered, setting hasAnswered=false",
+            );
+            setHasAnswered(false);
+            isSubmittingAnswer.current = false;
+          }
+
+          console.log(
+            "Client: Showing NEW question at index:",
+            gameData.currentQuestionIndex,
+            currentQuestion,
+          );
+        } else if (playerHasAnswered && !isSubmittingAnswer.current) {
+          // If we're on the same question but Firebase shows we've answered and we're not currently submitting
+          // This handles the case where the answer was saved but state wasn't updated
+          console.log(
+            "Client: Same question, but player has now answered in Firebase - updating state to hasAnswered=true",
+          );
+          setHasAnswered(true);
+          isSubmittingAnswer.current = true;
+        }
       }
 
       // Reset hasAnswered when not in question state
       if (gameData.status !== "question") {
         setHasAnswered(false);
+        isSubmittingAnswer.current = false; // Reset ref
+        setPreviousQuestionIndex(-1);
       }
 
       // Handle countdown based on status
@@ -145,6 +194,12 @@ export function useClientFirebase(gamePin: string): UseClientFirebaseReturn {
       answer: boolean | number,
       questionIdx: number,
     ) => {
+      // Check ref synchronously to prevent race conditions
+      if (isSubmittingAnswer.current) {
+        console.log("Already submitting answer, ignoring duplicate call");
+        return;
+      }
+
       console.log("sendAnswer called:", {
         gameId,
         playerId,
@@ -152,8 +207,13 @@ export function useClientFirebase(gamePin: string): UseClientFirebaseReturn {
         questionIdx,
       });
 
-      // Optimistically mark as answered to prevent duplicate submissions
+      // Mark as submitting immediately (synchronous, no race condition)
+      isSubmittingAnswer.current = true;
+      // Also set state for UI feedback - this should trigger immediate transition to thank you screen
       setHasAnswered(true);
+      console.log(
+        "hasAnswered set to true - UI should now show thank you screen",
+      );
 
       try {
         const gameRef = ref(realtimeDb, `games/${gameId}`);
@@ -162,6 +222,7 @@ export function useClientFirebase(gamePin: string): UseClientFirebaseReturn {
         if (!snapshot.exists()) {
           console.error("Game not found");
           setHasAnswered(false);
+          isSubmittingAnswer.current = false; // Reset ref on error
           return;
         }
 
@@ -175,6 +236,7 @@ export function useClientFirebase(gamePin: string): UseClientFirebaseReturn {
         // Check if already answered
         if (answeredQuestion?.answers?.[playerId]) {
           console.error("Already answered this question");
+          // Don't reset ref here - keep it true to prevent further attempts
           return;
         }
 
@@ -261,13 +323,21 @@ export function useClientFirebase(gamePin: string): UseClientFirebaseReturn {
           score: (participant.score || 0) + points,
         });
         console.log("Score updated successfully!");
+
+        // Ensure hasAnswered is set after successful score update
+        console.log("Confirming hasAnswered state after score update...");
+        setHasAnswered(true); // Set again to ensure state is updated
+        console.log(
+          "hasAnswered confirmed as true - UI should show thank you screen now",
+        );
       } catch (error) {
         console.error("Failed to send answer:", error);
-        // Reset hasAnswered on error so user can try again
+        // Reset on error so user can try again
         setHasAnswered(false);
+        isSubmittingAnswer.current = false;
       }
     },
-    [setHasAnswered],
+    [],
   );
 
   return {
