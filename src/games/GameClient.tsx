@@ -12,8 +12,18 @@ import { useClientFirebase } from "./hooks/useClientFirebase";
 import { usePlayerInfo } from "./hooks/usePlayerInfo";
 
 export default function GameClient() {
-  const { gamePin, setGamePin, id, nickname, setNickname, generatePlayerId } =
-    usePlayerInfo();
+  const {
+    gamePin,
+    setGamePin,
+    id,
+    nickname,
+    setNickname,
+    generatePlayerId,
+    savePlayerData,
+    loadStoredSession,
+    clearSession,
+    hasStoredSession,
+  } = usePlayerInfo();
 
   const { isFullscreen, toggleFullscreen } = useFullscreen();
 
@@ -53,12 +63,36 @@ export default function GameClient() {
   }, [hasAnswered]);
 
   const handleJoin = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
       const playerId = generatePlayerId();
-      sendJoinGame(gamePin, playerId, nickname);
+      const success = await sendJoinGame(gamePin, playerId, nickname, false);
+      if (success) {
+        // Save player data to localStorage for reconnection
+        savePlayerData(playerId, nickname, gamePin);
+      }
     },
-    [gamePin, nickname, generatePlayerId, sendJoinGame],
+    [gamePin, nickname, generatePlayerId, sendJoinGame, savePlayerData],
+  );
+
+  const handleReconnect = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      const storedData = loadStoredSession();
+      if (storedData) {
+        const success = await sendJoinGame(
+          storedData.gamePin,
+          storedData.id,
+          storedData.nickname,
+          true,
+        );
+        if (!success) {
+          // Reconnection failed, clear the session
+          clearSession();
+        }
+      }
+    },
+    [loadStoredSession, sendJoinGame, clearSession],
   );
 
   const handleAnswer = useCallback(
@@ -112,6 +146,9 @@ export default function GameClient() {
         setGamePin={setGamePin}
         setNickname={setNickname}
         handleJoin={handleJoin}
+        handleReconnect={handleReconnect}
+        hasStoredSession={hasStoredSession}
+        clearSession={clearSession}
       />
     );
   }

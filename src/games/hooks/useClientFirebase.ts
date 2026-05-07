@@ -14,7 +14,12 @@ interface UseClientFirebaseReturn {
   setQuestionCountdown: (value: number | ((prev: number) => number)) => void;
   question: Question | null;
   hasAnswered: boolean;
-  sendJoinGame: (gameId: string, playerId: string, name: string) => void;
+  sendJoinGame: (
+    gameId: string,
+    playerId: string,
+    name: string,
+    isReconnect?: boolean,
+  ) => Promise<boolean>;
   sendAnswer: (
     gameId: string,
     playerId: string,
@@ -132,7 +137,12 @@ export function useClientFirebase(
   }, [gamePin]);
 
   const sendJoinGame = useCallback(
-    async (gameId: string, playerId: string, name: string) => {
+    async (
+      gameId: string,
+      playerId: string,
+      name: string,
+      isReconnect = false,
+    ) => {
       console.log(
         "Attempting to join game:",
         gameId,
@@ -140,6 +150,9 @@ export function useClientFirebase(
         name,
         "with ID:",
         playerId,
+        "(reconnect:",
+        isReconnect,
+        ")",
       );
       try {
         const gameRef = ref(realtimeDb, `games/${gameId}`);
@@ -148,24 +161,41 @@ export function useClientFirebase(
         if (!snapshot.exists()) {
           console.error("Game not found:", gameId);
           alert("Game not found");
-          return;
+          return false;
         }
 
         const gameData = snapshot.val();
         console.log("Game found, current participants:", gameData.participants);
         const participants = gameData.participants || {};
 
-        // Check for duplicate name
+        // Check if this player already exists (reconnection)
+        const existingPlayer = participants[playerId];
+
+        if (existingPlayer) {
+          // Reconnecting - verify the name matches
+          if (existingPlayer.name === name) {
+            console.log("Reconnecting existing player:", name);
+            setJoined(true);
+            return true;
+          } else {
+            alert(
+              "Player ID exists but name doesn't match. Please use a new session.",
+            );
+            return false;
+          }
+        }
+
+        // Check for duplicate name (only for new joins)
         const duplicateName = Object.values(participants).find(
           (p: any) => p.name === name && p.id !== playerId,
         );
 
         if (duplicateName) {
           alert("A player with this name already exists in the game");
-          return;
+          return false;
         }
 
-        // Add participant
+        // Add new participant
         const participantRef = ref(
           realtimeDb,
           `games/${gameId}/participants/${playerId}`,
@@ -179,9 +209,11 @@ export function useClientFirebase(
 
         console.log("Participant added successfully!");
         setJoined(true);
+        return true;
       } catch (error) {
         console.error("Failed to join game:", error);
         alert("Failed to join game");
+        return false;
       }
     },
     [],
