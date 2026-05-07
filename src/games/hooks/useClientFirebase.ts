@@ -151,12 +151,17 @@ export function useClientFirebase(gamePin: string): UseClientFirebaseReturn {
         answer,
         questionIdx,
       });
+
+      // Optimistically mark as answered to prevent duplicate submissions
+      setHasAnswered(true);
+
       try {
         const gameRef = ref(realtimeDb, `games/${gameId}`);
         const snapshot = await get(gameRef);
 
         if (!snapshot.exists()) {
           console.error("Game not found");
+          setHasAnswered(false);
           return;
         }
 
@@ -256,14 +261,13 @@ export function useClientFirebase(gamePin: string): UseClientFirebaseReturn {
           score: (participant.score || 0) + points,
         });
         console.log("Score updated successfully!");
-
-        // Mark as answered
-        setHasAnswered(true);
       } catch (error) {
         console.error("Failed to send answer:", error);
+        // Reset hasAnswered on error so user can try again
+        setHasAnswered(false);
       }
     },
-    [],
+    [setHasAnswered],
   );
 
   return {

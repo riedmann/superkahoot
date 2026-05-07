@@ -45,6 +45,12 @@ export default function GameClient() {
 
   const handleAnswer = useCallback(
     (answer: number) => {
+      // Prevent multiple submissions
+      if (hasAnswered) {
+        console.log("Already answered, ignoring click");
+        return;
+      }
+
       console.log(
         "handleAnswer called with answer:",
         answer,
@@ -65,7 +71,7 @@ export default function GameClient() {
       );
       sendAnswer(gamePin, id, answerValue, questionIndex);
     },
-    [question, gamePin, id, questionIndex, sendAnswer],
+    [question, gamePin, id, questionIndex, sendAnswer, hasAnswered],
   );
 
   if (!joined) {
