@@ -5,6 +5,7 @@ import { FirebaseQuizDAO } from "../utils/DAO/FirebaseQuizDAO";
 import { isTrueFalseQuestion } from "../types/question";
 import { FullscreenButton } from "../components/ui/details/FullscreenButton";
 import { useFullscreen } from "../games/hooks/useFullscreen";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
 
 const quizDAO = new FirebaseQuizDAO();
 
@@ -265,9 +266,9 @@ export function PracticeQuiz() {
             </div>
           )}
 
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            {currentQuestion.question}
-          </h2>
+          <div className="text-2xl font-bold text-gray-800 mb-6 prose prose-lg max-w-none">
+            <MarkdownRenderer content={currentQuestion.question} />
+          </div>
 
           <div className="space-y-3 mb-6">
             {isTrueFalseQuestion(currentQuestion) ? (
@@ -337,7 +338,9 @@ export function PracticeQuiz() {
                           className="w-16 h-16 object-cover rounded"
                         />
                       )}
-                      <span>{option.text}</span>
+                      <div className="prose prose-sm max-w-none">
+                        <MarkdownRenderer content={option.text} />
+                      </div>
                     </div>
                   </button>
                 );
