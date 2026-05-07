@@ -99,7 +99,7 @@ export function QuestionScreen({
           >
             {answerOptions.map((ans, idx) => (
               <button
-                key={idx}
+                key={`${questionIndex}-${idx}`}
                 onClick={() => handleClick(idx)}
                 disabled={hasAnswered || isClicked}
                 className={`${
