@@ -12,8 +12,9 @@ export function FullscreenButton({
   onToggle,
   className,
 }: FullscreenButtonProps) {
-  const defaultClasses = "fixed top-4 right-4 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50";
-  
+  const defaultClasses =
+    "fixed top-4 right-4 bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-lg transition z-50";
+
   return (
     <button
       onClick={onToggle}
