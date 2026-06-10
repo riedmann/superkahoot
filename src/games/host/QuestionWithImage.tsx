@@ -72,9 +72,10 @@ export function QuestionWithImage({ currentQuestion }: QuestionWithImageProps) {
                       >
                         {colors[index].label}
                       </div>
-                      <span className="text-xl font-bold leading-tight">
-                        {option.text}
-                      </span>
+                      <MarkdownRenderer
+                        content={option.text}
+                        className="prose prose-invert prose-sm max-w-none"
+                      />
                     </div>
                     {option.image && (
                       <img

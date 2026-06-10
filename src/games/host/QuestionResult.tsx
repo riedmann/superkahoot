@@ -2,6 +2,7 @@ import type { Question, Quiz } from "../../types";
 import type { Game } from "../../types";
 import { Leaderboard } from "./Leaderboard";
 import { Button } from "../../components/ui/details/Button";
+import { MarkdownRenderer } from "../../components/MarkdownRenderer";
 
 interface QuestionResultProps {
   game: Game;
@@ -188,9 +189,10 @@ export function QuestionResult({
                               </div>
                             )}
                           </div>
-                          <span className="text-sm font-bold text-white truncate">
-                            {option.text}
-                          </span>
+                          <MarkdownRenderer
+                            content={option.text}
+                            className="prose prose-invert prose-xs max-w-none"
+                          />
                         </div>
                         <div className="text-lg font-bold text-white ml-2 shrink-0">
                           {count}

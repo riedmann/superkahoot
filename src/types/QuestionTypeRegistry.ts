@@ -1,6 +1,7 @@
 import type { Question, TrueFalseQuestion, StandardQuestion } from "./question";
 import React from "react";
 import { ImagePasteField } from "../components/ImagePasteField";
+import { MarkdownRenderer } from "../components/MarkdownRenderer";
 
 export interface IQuestionHandler {
   type: string;
@@ -8,7 +9,7 @@ export interface IQuestionHandler {
   createNew(): Question;
   getEditor(
     question: Question,
-    onUpdate: (updates: Partial<Question>) => void
+    onUpdate: (updates: Partial<Question>) => void,
   ): React.ReactNode;
   getDisplay(question: Question): React.ReactNode;
 }
@@ -49,7 +50,7 @@ export class TrueFalseQuestionHandler implements IQuestionHandler {
 
   getEditor(
     question: Question,
-    onUpdate: (updates: Partial<Question>) => void
+    onUpdate: (updates: Partial<Question>) => void,
   ): React.ReactNode {
     const q = question as TrueFalseQuestion;
     return React.createElement(
@@ -66,7 +67,7 @@ export class TrueFalseQuestionHandler implements IQuestionHandler {
       React.createElement(
         "label",
         { className: "block text-sm font-medium text-gray-700 mb-2" },
-        "Correct Answer"
+        "Correct Answer",
       ),
       React.createElement(
         "div",
@@ -79,7 +80,7 @@ export class TrueFalseQuestionHandler implements IQuestionHandler {
             checked: q.correctAnswer === true,
             onChange: () => onUpdate({ correctAnswer: true }),
           }),
-          React.createElement("span", {}, "True")
+          React.createElement("span", {}, "True"),
         ),
         React.createElement(
           "label",
@@ -89,9 +90,9 @@ export class TrueFalseQuestionHandler implements IQuestionHandler {
             checked: q.correctAnswer === false,
             onChange: () => onUpdate({ correctAnswer: false }),
           }),
-          React.createElement("span", {}, "False")
-        )
-      )
+          React.createElement("span", {}, "False"),
+        ),
+      ),
     );
   }
 
@@ -116,7 +117,7 @@ export class TrueFalseQuestionHandler implements IQuestionHandler {
             className:
               "p-3 bg-gray-50 rounded border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors",
           },
-          "True"
+          "True",
         ),
         React.createElement(
           "div",
@@ -124,9 +125,9 @@ export class TrueFalseQuestionHandler implements IQuestionHandler {
             className:
               "p-3 bg-gray-50 rounded border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors",
           },
-          "False"
-        )
-      )
+          "False",
+        ),
+      ),
     );
   }
 }
@@ -147,7 +148,7 @@ export class StandardQuestionHandler implements IQuestionHandler {
 
   getEditor(
     question: Question,
-    onUpdate: (updates: Partial<Question>) => void
+    onUpdate: (updates: Partial<Question>) => void,
   ): React.ReactNode {
     const q = question as StandardQuestion;
     return React.createElement(
@@ -164,7 +165,7 @@ export class StandardQuestionHandler implements IQuestionHandler {
       React.createElement(
         "label",
         { className: "block text-sm font-medium text-gray-700 mb-2" },
-        "Options"
+        "Options",
       ),
       React.createElement(
         "div",
@@ -188,7 +189,7 @@ export class StandardQuestionHandler implements IQuestionHandler {
                   } else {
                     onUpdate({
                       correctAnswers: correctAnswers.filter(
-                        (i) => i !== optIdx
+                        (i) => i !== optIdx,
                       ),
                     });
                   }
@@ -197,8 +198,8 @@ export class StandardQuestionHandler implements IQuestionHandler {
               React.createElement(
                 "span",
                 { className: "text-sm font-medium" },
-                `Option ${optIdx + 1}`
-              )
+                `Option ${optIdx + 1}`,
+              ),
             ),
             React.createElement(ImagePasteField, {
               value: option.text,
@@ -217,15 +218,15 @@ export class StandardQuestionHandler implements IQuestionHandler {
                 };
                 onUpdate({ options: newOptions });
               },
-            })
-          )
-        )
+            }),
+          ),
+        ),
       ),
       React.createElement(
         "p",
         { className: "text-xs text-gray-600" },
-        "Check the boxes for correct answers"
-      )
+        "Check the boxes for correct answers",
+      ),
     );
   }
 
@@ -258,24 +259,27 @@ export class StandardQuestionHandler implements IQuestionHandler {
               React.createElement(
                 "span",
                 { className: "font-medium text-gray-700 mt-1" },
-                String.fromCharCode(65 + index) + "."
+                String.fromCharCode(65 + index) + ".",
               ),
               React.createElement(
                 "div",
                 { className: "flex-1" },
-                option.text,
+                React.createElement(MarkdownRenderer, {
+                  content: option.text,
+                  className: "prose prose-sm max-w-none",
+                }),
                 option.image &&
                   React.createElement("img", {
                     src: option.image,
                     alt: `Option ${index + 1} image`,
                     className:
                       "mt-2 max-w-full max-h-32 rounded border border-gray-200",
-                  })
-              )
-            )
-          )
-        )
-      )
+                  }),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

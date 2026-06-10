@@ -56,7 +56,10 @@ export function QuestionWithoutImage({
                   >
                     {colors[idx].label}
                   </span>
-                  {option.text}
+                  <MarkdownRenderer
+                    content={option.text}
+                    className="prose prose-invert prose-sm max-w-none"
+                  />
                 </div>
               ));
           }

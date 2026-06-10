@@ -114,7 +114,10 @@ export function QuestionScreen({
                   >
                     {colors[idx]?.label || String.fromCharCode(65 + idx)}
                   </div>
-                  <span className="text-left">{ans.text}</span>
+                  <MarkdownRenderer
+                    content={ans.text}
+                    className="text-left prose prose-invert prose-sm max-w-none"
+                  />
                 </div>
               </button>
             ))}
